@@ -19,6 +19,16 @@ export const accountSchema = new Schema(
   { timestamps: true }
 );
 
+accountSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: (_doc, ret) => {
+    // Use rest properties to "omit" specific fields
+    const { _id, password, __v, ...rest } = ret;
+    return rest; // rest contains everything EXCEPT _id, password, and __v
+  },
+});
+
 /**
  * Pre-save middleware to hash password
  * Note: Removed the 'next' parameter to avoid the "not callable" error.
