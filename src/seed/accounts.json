@@ -1,0 +1,34 @@
+[
+  {
+    "username": "screening_vol_1",
+    "email": "screening.volunteer1@example.com",
+    "password": "Test@123",
+    "phoneNumber": "0700000001",
+    "isActive": true,
+    "roles": ["SCREENING_VOLUNTEER", "USER"]
+  },
+  {
+    "username": "screening_vol_2",
+    "email": "screening.volunteer2@example.com",
+    "password": "Test@123",
+    "phoneNumber": "0700000002",
+    "isActive": true,
+    "roles": ["SCREENING_VOLUNTEER", "USER"]
+  },
+  {
+    "username": "social_health_1",
+    "email": "social.health.worker1@example.com",
+    "password": "Test@123",
+    "phoneNumber": "0700000003",
+    "isActive": true,
+    "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
+  },
+  {
+    "username": "social_health_2",
+    "email": "social.health.worker2@example.com",
+    "password": "Test@123",
+    "phoneNumber": "0700000004",
+    "isActive": true,
+    "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
+  }
+]
