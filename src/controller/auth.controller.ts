@@ -13,7 +13,10 @@ export default class AuthController {
     // Validate
     AuthenticateSchema.parse(req.body);
 
+    // Authenticate
+    const result = await this.authService.authenticate(req.body);
+
     // Placeholder response
-    res.status(200).json({ message: 'Authentication successful' });
+    res.status(200).json({ message: 'Authentication successful', data: result });
   }
 }

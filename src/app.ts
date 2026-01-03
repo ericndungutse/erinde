@@ -12,6 +12,6 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', message: 'API is running' });
 });
 
-app.use('/auth', authRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 export default app;
