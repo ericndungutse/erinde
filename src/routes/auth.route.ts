@@ -3,5 +3,5 @@ import { container } from '../container.js';
 
 const router = Router();
 
-router.post('/authenticate', (req, res) => container.authController.authenticate(req, res));
+router.post('/login', (req, res) => container.authController.authenticate(req, res));
 export default router;

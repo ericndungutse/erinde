@@ -1,6 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import type { IUser } from '../types/user.types.js';
-import { AccountRole } from '../types/account.types.js';
+import { AccountRole, type IUser } from '../types/user.types.js';
 // Define the User schema
 export const userSchema = new Schema(
   {
@@ -22,7 +21,6 @@ export const userSchema = new Schema(
       _id: false,
     },
     nationalIdentificationNumber: { type: String, required: true, unique: true, trim: true },
-    accountId: { type: Schema.Types.ObjectId, ref: 'Account', required: true },
     roles: {
       type: [String],
       enum: Object.values(AccountRole),

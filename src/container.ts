@@ -1,12 +1,12 @@
 import AuthController from './controller/auth.controller.js';
-import AuthServiceImpl from './service/auth.impl.service.js';
+import AuthService from './service/auth.service.js';
+import type { IAuthService } from './service/interface/iauth.service.js';
 
 class Container {
-  private _authService: AuthServiceImpl;
+  private _authService: IAuthService;
   private _authController: AuthController;
-
   constructor() {
-    this._authService = new AuthServiceImpl();
+    this._authService = new AuthService();
     this._authController = new AuthController(this._authService);
   }
 

@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
-import { AuthenticateSchema } from '../types/account.types.js';
-import type { AuthService } from '../service/interface/auth.service.js';
-import type { IAuthenticateResponseData } from '../types/auth.types.js';
+import { LoginSchema, type ILoginResponse } from '../types/auth.types.js';
+import type AuthService from '../service/auth.service.js';
 
 export default class AuthController {
   private authService: AuthService;
@@ -12,10 +11,10 @@ export default class AuthController {
 
   async authenticate(req: Request, res: Response): Promise<void> {
     // Validate
-    AuthenticateSchema.parse(req.body);
+    LoginSchema.parse(req.body);
 
     // Authenticate
-    const result: IAuthenticateResponseData = await this.authService.authenticate(req.body);
+    const result: ILoginResponse = await this.authService.login(req.body);
 
     // Placeholder response
     res.status(200).json({ message: 'Authentication successful', data: result });

@@ -1,19 +1,20 @@
-import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { AccountRole, type IAccount } from '../types/account.types.js';
+import mongoose, { Schema } from 'mongoose';
+import { type IAccount } from '../types/account.types.js';
+import User from './user.model.js';
+import type { IUser, UserProjection } from '../types/user.types.js';
 
 // Move the schema definition here
-export const accountSchema = new Schema(
+export const accountSchema = new Schema<IAccount>(
   {
-    username: { type: String, required: true, trim: true, unique: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 6 },
     phoneNumber: { type: String, required: true, trim: true, unique: true },
     isActive: { type: Boolean, default: true },
-    roles: {
-      type: [String],
-      enum: Object.values(AccountRole),
-      default: [AccountRole.USER],
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
   },
   { timestamps: true }
@@ -48,6 +49,34 @@ accountSchema.pre('save', async function () {
     throw new Error(`Password hashing failed: ${error.message}`);
   }
 });
+
+accountSchema.methods.getUser = async function <T extends keyof IUser>(
+  fields?: T[]
+): Promise<(UserProjection<T> & { id: string }) | null> {
+  const userId = this.userId;
+
+  if (!userId) return null;
+
+  // Build Mongoose projection
+  let projection: any = {};
+  if (fields && fields.length > 0) {
+    fields.forEach((field) => {
+      projection[field] = 1;
+    });
+  }
+
+  // Always include _id so we can map it to `id`
+  projection._id = 1;
+
+  const userDoc = await User.findById(userId, projection).exec();
+
+  if (!userDoc) return null;
+
+  // Map _id to id
+  const { _id, ...rest } = userDoc;
+  return { ...rest, id: _id.toString() } as UserProjection<T> & { id: string };
+};
+
 // Create the model using the Schema and the Type
 const Account = mongoose.model<IAccount>('Account', accountSchema);
 

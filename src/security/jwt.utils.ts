@@ -4,7 +4,7 @@ export const verifyToken = (token: string) => {
   return jwt.verify(token, process.env.JWT_SECRET as string);
 };
 
-export const generateToken = (payload: any): string => {
+export const generateToken = (payload: any, sub: string): string => {
   const secret = process.env.JWT_SECRET;
 
   const expiresIn = process.env.JWT_EXPIRES_IN;

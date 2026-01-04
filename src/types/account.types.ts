@@ -1,26 +1,22 @@
-import type { InferSchemaType } from 'mongoose';
-import { z } from 'zod';
+import { Document, Model, Types } from 'mongoose';
+import type { IUser, UserProjection } from './user.types.js';
 
-import type { accountSchema } from '../models/account.model.js';
-
-export type IAccount = InferSchemaType<typeof accountSchema>;
-
-// 1. Define the Enum (The source of truth)
-export enum AccountRole {
-  SCREENING_VOLUNTEER = 'SCREENING_VOLUNTEER',
-  SOCIAL_HEALTH_WORKER = 'SOCIAL_HEALTH_WORKER',
-  USER = 'USER',
+// 1. Define the Methods
+export interface IAccountMethods {
+  getUser<T extends keyof IUser>(fields?: T[]): Promise<(UserProjection<T> & { id: string }) | null>;
 }
 
-// 2. Authenticate
-
-// Interface: Extendable if new things come up
-export interface IAuthenticatePayload {
-  identifier: string; // username, email, or phone number
+// 2. Define the Document (Data + Methods)
+// We extend Document to get Mongoose's built-in properties
+export interface IAccountData {
+  email: string;
   password: string;
+  phoneNumber: string;
+  isActive: boolean;
+  userId: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export const AuthenticateSchema = z.object({
-  identifier: z.string().min(1, 'Identifier is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters long'),
-}) satisfies z.ZodType<IAuthenticatePayload>;
+// 3. Define the Model type
+export type IAccount = IAccountData & Document & IAccountMethods;

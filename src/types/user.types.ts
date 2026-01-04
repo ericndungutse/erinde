@@ -25,3 +25,9 @@ export enum AccountRole {
   SOCIAL_HEALTH_WORKER = 'SOCIAL_HEALTH_WORKER',
   USER = 'USER',
 }
+
+export type UserRoles = Pick<IUser, 'roles'> & {
+  id: string;
+};
+
+export type UserProjection<T extends keyof IUser> = Pick<IUser, T>;
