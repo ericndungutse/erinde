@@ -1,4 +1,4 @@
-import type { AccountRole, IAccount } from './account.types.js';
+import type { IAccount } from './account.types.js';
 
 // Construct a type by picking specific keys from IAccount
 export type IAuthenticatedAccount = Pick<IAccount, 'username' | 'email' | 'phoneNumber' | 'roles'> & {
