@@ -17,6 +17,6 @@ export default class AuthController {
     const result: ILoginResponse = await this.authService.login(req.body);
 
     // Placeholder response
-    res.status(200).json({ message: 'Authentication successful', data: result });
+    res.status(200).json({ status: 'success', message: 'Authentication successful', data: result });
   }
 }

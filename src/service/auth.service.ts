@@ -26,20 +26,18 @@ export default class AuthService implements IAuthService {
     // Get User and Roles - assuming account has a reference to user
     const user: (UserProjection<'roles'> & { id: string }) | null = await account.getUser(['roles']);
 
-    console.log('User Roles:', user?.roles);
     if (!user) {
       throw new Error('User roles not found');
     }
 
     // Generate JWT token
-    const payload: { accountId: string; email: string; userId: string; roles: string[] } = {
+    const payload: { accountId: string; email: string; roles: string[] } = {
       accountId: account._id.toString(),
       email: account.email,
-      userId: user.id,
       roles: user.roles,
     };
 
-    const token: string = generateToken(payload, account._id.toString());
+    const token: string = generateToken(payload, user.id);
 
     // TODO: IF USER HAS MULTIPLE ROLES, REQUEST U  SER TO SELECT ACTIVE ROLE
     // TODO: IF USER IS JUST ONLY USER, SET ACTIVE ROLE TO USER: OPTION let Client Decide

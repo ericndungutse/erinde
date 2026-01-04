@@ -19,7 +19,7 @@ export const generateToken = (payload: any, sub: string): string => {
 
   const options: SignOptions = {
     expiresIn: expiresIn as any,
-    subject: payload['id']?.toString(),
+    subject: sub,
   };
 
   return jwt.sign({ ...payload, id: undefined }, secret, options);

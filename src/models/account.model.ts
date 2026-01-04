@@ -73,7 +73,8 @@ accountSchema.methods.getUser = async function <T extends keyof IUser>(
   if (!userDoc) return null;
 
   // Map _id to id
-  const { _id, ...rest } = userDoc;
+  const { _id, ...rest } = userDoc.toObject();
+
   return { ...rest, id: _id.toString() } as UserProjection<T> & { id: string };
 };
 

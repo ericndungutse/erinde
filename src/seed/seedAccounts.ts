@@ -2,14 +2,35 @@ import bcrypt from 'bcrypt';
 import fs from 'fs';
 import mongoose from 'mongoose';
 import Account from '../models/account.model.js';
+import User from '../models/user.model.js';
 
-type SeedAccount = {
-  username: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
-  isActive?: boolean;
+type SeedUserData = {
+  firstname: string;
+  lastname: string;
+  birthdate: string;
+  address: {
+    province: string;
+    city: string;
+    district: string;
+    sector: string;
+    cell: string;
+    village: string;
+  };
+  contact: {
+    phone: string;
+    email: string;
+  };
+  nationalIdentificationNumber: string;
   roles: string[];
+};
+
+type SeedAccountData = {
+  password: string;
+};
+
+type SeedEntry = {
+  user: SeedUserData;
+  account: SeedAccountData;
 };
 
 async function main() {
@@ -20,28 +41,50 @@ async function main() {
   await mongoose.connect(MONGO_URI);
 
   const raw = fs.readFileSync('./src/seed/accounts.json', 'utf8');
-  const accounts: SeedAccount[] = JSON.parse(raw);
+  const seedData: SeedEntry[] = JSON.parse(raw);
 
-  for (const acc of accounts) {
-    const { username, email, password, phoneNumber, isActive = true, roles } = acc;
-    const hashed = await bcrypt.hash(password, 10);
+  for (const entry of seedData) {
+    const { user: userData, account: accountData } = entry;
 
-    await Account.findOneAndUpdate(
-      { $or: [{ email }, { username }, { phoneNumber }] },
-      {
-        $set: {
-          username,
-          email,
-          password: hashed,
-          phoneNumber,
-          isActive,
-          roles,
+    try {
+      // 1. Upsert the User
+      const user = await User.findOneAndUpdate(
+        { $or: [{ 'contact.email': userData.contact.email }, { 'contact.phone': userData.contact.phone }] },
+        {
+          $set: {
+            firstname: userData.firstname,
+            lastname: userData.lastname,
+            birthdate: new Date(userData.birthdate),
+            address: userData.address,
+            contact: userData.contact,
+            nationalIdentificationNumber: userData.nationalIdentificationNumber,
+            roles: userData.roles,
+          },
         },
-      },
-      { upsert: true, new: true }
-    );
+        { upsert: true, new: true }
+      );
 
-    console.log(`Seeded: ${username} <${email}>`);
+      // 2. Upsert the Account with userId reference
+      const hashed = await bcrypt.hash(accountData.password, 10);
+
+      await Account.findOneAndUpdate(
+        { $or: [{ email: userData.contact.email }, { phoneNumber: userData.contact.phone }] },
+        {
+          $set: {
+            email: userData.contact.email,
+            password: hashed,
+            phoneNumber: userData.contact.phone,
+            userId: user._id,
+            isActive: true,
+          },
+        },
+        { upsert: true, new: true }
+      );
+
+      console.log(`Seeded: ${userData.firstname} ${userData.lastname} <${userData.contact.email}>`);
+    } catch (error: any) {
+      console.error(`Failed to seed ${userData.firstname} ${userData.lastname}:`, error.message);
+    }
   }
 
   await mongoose.disconnect();

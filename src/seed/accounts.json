@@ -1,34 +1,98 @@
 [
   {
-    "username": "screening_vol_1",
-    "email": "screening.volunteer1@example.com",
-    "password": "Test@123",
-    "phoneNumber": "0700000001",
-    "isActive": true,
-    "roles": ["SCREENING_VOLUNTEER", "USER"]
+    "user": {
+      "firstname": "John",
+      "lastname": "Doe",
+      "birthdate": "1990-05-15",
+      "address": {
+        "province": "Kigali",
+        "city": "Kigali",
+        "district": "Gasabo",
+        "sector": "Gisozi",
+        "cell": "Kamatamu",
+        "village": "Kamatamu"
+      },
+      "contact": {
+        "phone": "0700000001",
+        "email": "screening.volunteer1@example.com"
+      },
+      "nationalIdentificationNumber": "1199900015001",
+      "roles": ["SCREENING_VOLUNTEER", "USER"]
+    },
+    "account": {
+      "password": "Test@123"
+    }
   },
   {
-    "username": "screening_vol_2",
-    "email": "screening.volunteer2@example.com",
-    "password": "Test@123",
-    "phoneNumber": "0700000002",
-    "isActive": true,
-    "roles": ["SCREENING_VOLUNTEER", "USER"]
+    "user": {
+      "firstname": "Jane",
+      "lastname": "Smith",
+      "birthdate": "1988-08-22",
+      "address": {
+        "province": "Kigali",
+        "city": "Kigali",
+        "district": "Gasabo",
+        "sector": "Gisozi",
+        "cell": "Kamatamu",
+        "village": "Kamatamu"
+      },
+      "contact": {
+        "phone": "0700000002",
+        "email": "screening.volunteer2@example.com"
+      },
+      "nationalIdentificationNumber": "1198800822002",
+      "roles": ["SCREENING_VOLUNTEER", "USER"]
+    },
+    "account": {
+      "password": "Test@123"
+    }
   },
   {
-    "username": "social_health_1",
-    "email": "social.health.worker1@example.com",
-    "password": "Test@123",
-    "phoneNumber": "0700000003",
-    "isActive": true,
-    "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
+    "user": {
+      "firstname": "Robert",
+      "lastname": "Johnson",
+      "birthdate": "1992-03-10",
+      "address": {
+        "province": "Kigali",
+        "city": "Kigali",
+        "district": "Kicukiro",
+        "sector": "Niboye",
+        "cell": "Niboye",
+        "village": "Niboye"
+      },
+      "contact": {
+        "phone": "0700000003",
+        "email": "social.health.worker1@example.com"
+      },
+      "nationalIdentificationNumber": "1199200310003",
+      "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
+    },
+    "account": {
+      "password": "Test@123"
+    }
   },
   {
-    "username": "social_health_2",
-    "email": "social.health.worker2@example.com",
-    "password": "Test@123",
-    "phoneNumber": "0700000004",
-    "isActive": true,
-    "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
+    "user": {
+      "firstname": "Sarah",
+      "lastname": "Williams",
+      "birthdate": "1991-11-18",
+      "address": {
+        "province": "Kigali",
+        "city": "Kigali",
+        "district": "Kicukiro",
+        "sector": "Niboye",
+        "cell": "Niboye",
+        "village": "Niboye"
+      },
+      "contact": {
+        "phone": "0700000004",
+        "email": "social.health.worker2@example.com"
+      },
+      "nationalIdentificationNumber": "1199100418004",
+      "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
+    },
+    "account": {
+      "password": "Test@123"
+    }
   }
 ]
