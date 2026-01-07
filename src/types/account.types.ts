@@ -1,4 +1,4 @@
-import { Document, Model, Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import type { IUser, UserProjection } from './user.types.js';
 
 // 1. Define the Methods

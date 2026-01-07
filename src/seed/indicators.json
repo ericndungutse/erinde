@@ -1,0 +1,136 @@
+[
+  {
+    "name": "Hypertension (Umuvuduko w'amaraso)",
+    "readings": [
+      { "type": "systolic_blood_pressure", "unit": "mmHg" },
+      { "type": "diastolic_blood_pressure", "unit": "mmHg" }
+    ],
+    "classifications": [
+      {
+        "label": "Hypertensive Crisis (Ikibazo gikomeye cyane)",
+        "min_systolic": 180,
+        "min_diastolic": 120,
+        "logic": "OR",
+        "recommendations": [
+          "Gana ivuriro ryihuse bitarenze uyu munsi",
+          "Gabanya umunyu kandi urye indyo yuzuye",
+          "Gana ikigo cy'ubuzima kikwegereye kugira ngo bongere bagusuzume nyuma y'ibyumweru bine"
+        ]
+      },
+      {
+        "label": "Likely Hypertension Stage 2",
+        "min_systolic": 160,
+        "min_diastolic": 100,
+        "logic": "OR",
+        "recommendations": [
+          "Rya neza kandi ukore imyitozo ngororamubiri buri munsi",
+          "Irinde itabi n'inzoga nyinshi",
+          "Gana ikigo cy'ubuzima kikwegereye kugira ngo bongere bagusuzume nyuma y'ibyumweru bine"
+        ]
+      },
+      {
+        "label": "Likely Hypertension Stage 1",
+        "min_systolic": 140,
+        "min_diastolic": 90,
+        "logic": "OR",
+        "recommendations": [
+          "Wongere imyitozo ngororamubiri",
+          "Gabanya ibiryo birimo umunyu mwinshi n'ibinure",
+          "Gana ikigo cy'ubuzima kikwegereye kugira ngo bongere bagusuzume nyuma y'ibyumweru bine"
+        ]
+      },
+      {
+        "label": "Elevated (Umuvuduko uri hejuru gato)",
+        "min_systolic": 120,
+        "min_diastolic": 80,
+        "logic": "OR",
+        "recommendations": [
+          "Gabanya umunyu kandi urye imbuto n'imboga nyinshi",
+          "Kora imyitozo ngororamubiri kandi wirinde imihangayiko",
+          "Gana ikigo cy'ubuzima kikwegereye kugira ngo bongere bagusuzume nyuma y'ibyumweru bine"
+        ]
+      },
+      {
+        "label": "Normal (Umuvuduko ukwiye)",
+        "max_systolic": 119,
+        "max_diastolic": 79,
+        "logic": "AND",
+        "recommendations": ["Komeza ubuzima bwiza urimo", "Komeza kwisuzumisha uko ubishishikarijwe n'abaganga"]
+      }
+    ]
+  },
+  {
+    "name": "Diabetes (Igisukari)",
+    "readings": [{ "type": "random_blood_glucose", "unit": "mg/dL" }],
+    "classifications": [
+      {
+        "label": "Possible Diabetes (Hashobora kuba harimo diyabete)",
+        "min_value": 200,
+        "recommendations": [
+          "Irinde ibinyobwa birimo isukari nyinshi",
+          "Gana ikigo cy'ubuzima kikwegereye kugira ngo bongere bagusuzume nyuma y'ibyumweru bine"
+        ]
+      },
+      {
+        "label": "At Risk (Pre-diabetes)",
+        "min_value": 140,
+        "max_value": 199.9,
+        "recommendations": [
+          "Gabanya ibiryo n'ibinyobwa birimo isukari",
+          "Gana ikigo cy'ubuzima kikwegereye kugira ngo bongere bagusuzume nyuma y'ibyumweru bine"
+        ]
+      },
+      {
+        "label": "Normal (Isukari iri ku rugero rwiza)",
+        "max_value": 139.9,
+        "recommendations": ["Komeza kurya indyo yuzuye", "Komeza gukora imyitozo ngororamubiri buri gihe"]
+      }
+    ]
+  },
+  {
+    "name": "BMI (Ibiro n'Uburebure)",
+    "readings": [
+      { "type": "height", "unit": "cm" },
+      { "type": "weight", "unit": "kg" }
+    ],
+    "classifications": [
+      {
+        "label": "Obesity Class III",
+        "min_value": 40.0,
+        "recommendations": ["Shaka inama z'abaganga kugira ngo ugabanye ibiro mu buryo burambye"]
+      },
+      {
+        "label": "Obesity Class II",
+        "min_value": 35.0,
+        "max_value": 39.9,
+        "recommendations": ["Gabanya igihe umara nicaye, wongere imyitozo ngororamubiri"]
+      },
+      {
+        "label": "Obesity Class I",
+        "min_value": 30.0,
+        "max_value": 34.9,
+        "recommendations": ["Gira akamenyero ko kurya neza no gukora siporo buri munsi"]
+      },
+      {
+        "label": "Overweight",
+        "min_value": 25.0,
+        "max_value": 29.9,
+        "recommendations": ["Genzura ingano y'ibiryo urya kandi uhitemo ibiryo bitanga ubuzima"]
+      },
+      {
+        "label": "Normal (Ibiro bijyanye n'uburebure)",
+        "min_value": 18.5,
+        "max_value": 24.9,
+        "recommendations": ["Komeza akamenyero keza ufite k'ubuzima"]
+      },
+      {
+        "label": "Underweight (Ibiro bike cyane)",
+        "max_value": 18.4,
+        "recommendations": [
+          "Rya indyo yuzuye irimo poroteyine nyinshi",
+          "Gana ivuriro bakugire inama nyuma y'ibyumweru bine"
+        ]
+      }
+    ]
+  }
+]
