@@ -1,13 +1,14 @@
 [
   {
-    "name": "Hypertension (Umuvuduko w'amaraso)",
+    "name": "hypertension",
     "readings": [
       { "type": "systolic_blood_pressure", "unit": "mmHg" },
       { "type": "diastolic_blood_pressure", "unit": "mmHg" }
     ],
     "classifications": [
       {
-        "label": "Hypertensive Crisis (Ikibazo gikomeye cyane)",
+        "label": "Hypertensive Crisis",
+        "status_code": "critical",
         "min_systolic": 180,
         "min_diastolic": 120,
         "logic": "OR",
@@ -19,6 +20,7 @@
       },
       {
         "label": "Likely Hypertension Stage 2",
+        "status_code": "danger",
         "min_systolic": 160,
         "min_diastolic": 100,
         "logic": "OR",
@@ -30,6 +32,7 @@
       },
       {
         "label": "Likely Hypertension Stage 1",
+        "status_code": "danger",
         "min_systolic": 140,
         "min_diastolic": 90,
         "logic": "OR",
@@ -40,7 +43,8 @@
         ]
       },
       {
-        "label": "Elevated (Umuvuduko uri hejuru gato)",
+        "label": "Elevated",
+        "status_code": "warning",
         "min_systolic": 120,
         "min_diastolic": 80,
         "logic": "OR",
@@ -51,7 +55,8 @@
         ]
       },
       {
-        "label": "Normal (Umuvuduko ukwiye)",
+        "label": "Normal",
+        "status_code": "healthy",
         "max_systolic": 119,
         "max_diastolic": 79,
         "logic": "AND",
@@ -60,11 +65,12 @@
     ]
   },
   {
-    "name": "Diabetes (Igisukari)",
+    "name": "diabetes",
     "readings": [{ "type": "random_blood_glucose", "unit": "mg/dL" }],
     "classifications": [
       {
-        "label": "Possible Diabetes (Hashobora kuba harimo diyabete)",
+        "label": "Possible Diabetes",
+        "status_code": "critical",
         "min_value": 200,
         "recommendations": [
           "Irinde ibinyobwa birimo isukari nyinshi",
@@ -72,7 +78,8 @@
         ]
       },
       {
-        "label": "At Risk (Pre-diabetes)",
+        "label": "Pre-diabetes: At Risk",
+        "status_code": "warning",
         "min_value": 140,
         "max_value": 199.9,
         "recommendations": [
@@ -81,14 +88,15 @@
         ]
       },
       {
-        "label": "Normal (Isukari iri ku rugero rwiza)",
+        "label": "Normal",
+        "status_code": "healthy",
         "max_value": 139.9,
         "recommendations": ["Komeza kurya indyo yuzuye", "Komeza gukora imyitozo ngororamubiri buri gihe"]
       }
     ]
   },
   {
-    "name": "BMI (Ibiro n'Uburebure)",
+    "name": "bmi",
     "readings": [
       { "type": "height", "unit": "cm" },
       { "type": "weight", "unit": "kg" }
@@ -96,35 +104,41 @@
     "classifications": [
       {
         "label": "Obesity Class III",
+        "status_code": "danger",
         "min_value": 40.0,
         "recommendations": ["Shaka inama z'abaganga kugira ngo ugabanye ibiro mu buryo burambye"]
       },
       {
         "label": "Obesity Class II",
+        "status_code": "danger",
         "min_value": 35.0,
         "max_value": 39.9,
         "recommendations": ["Gabanya igihe umara nicaye, wongere imyitozo ngororamubiri"]
       },
       {
         "label": "Obesity Class I",
+        "status_code": "danger",
         "min_value": 30.0,
         "max_value": 34.9,
         "recommendations": ["Gira akamenyero ko kurya neza no gukora siporo buri munsi"]
       },
       {
         "label": "Overweight",
+        "status_code": "warning",
         "min_value": 25.0,
         "max_value": 29.9,
         "recommendations": ["Genzura ingano y'ibiryo urya kandi uhitemo ibiryo bitanga ubuzima"]
       },
       {
-        "label": "Normal (Ibiro bijyanye n'uburebure)",
+        "label": "Normal",
+        "status_code": "healthy",
         "min_value": 18.5,
         "max_value": 24.9,
         "recommendations": ["Komeza akamenyero keza ufite k'ubuzima"]
       },
       {
-        "label": "Underweight (Ibiro bike cyane)",
+        "label": "Underweight",
+        "status_code": "warning",
         "max_value": 18.4,
         "recommendations": [
           "Rya indyo yuzuye irimo poroteyine nyinshi",

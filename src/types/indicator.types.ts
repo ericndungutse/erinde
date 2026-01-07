@@ -1,5 +1,7 @@
 import { Document } from 'mongoose';
 
+export type StatusCode = 'healthy' | 'warning' | 'danger' | 'critical';
+
 // 1. Define the Data Interface
 export interface IIndicatorData {
   name: string;
@@ -8,6 +10,7 @@ export interface IIndicatorData {
     unit: string;
   }[];
   classifications: {
+    status_code: StatusCode;
     label: string;
     min_systolic?: number;
     max_systolic?: number;
