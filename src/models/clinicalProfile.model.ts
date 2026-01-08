@@ -11,7 +11,7 @@ const clinicalProfileSchema = new Schema<IClinicalProfile>(
     },
 
     patientNumber: {
-      type: String,
+      type: Number,
       required: true,
       unique: true,
       uppercase: true,

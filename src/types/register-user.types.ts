@@ -51,5 +51,5 @@ export const RegisterUserSchema = z.object({
 });
 
 export type RegisterUserResponse = {
-  patientNumber: string;
+  patientNumber: number;
 };

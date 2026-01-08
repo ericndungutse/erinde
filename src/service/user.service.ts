@@ -1,3 +1,4 @@
+import ClinicalProfile from '../models/clinicalProfile.model.js';
 import User from '../models/user.model.js';
 import type { RegisterUserDTO, RegisterUserResponse } from '../types/register-user.types.js';
 import { AccountRole, type UserRoles } from '../types/user.types.js';
@@ -24,8 +25,7 @@ export class UserService implements IUserService {
     // Counter _id: 'patientNumber'
     const Counter = (await import('../models/counter.model.js')).default;
     const counter = await Counter.findByIdAndUpdate('patientNumber', { $inc: { seq: 1 } }, { new: true, upsert: true });
-    const seq = counter.seq;
-    const patientNumber = `${seq.toString().padStart(6, '0')}`;
+    const patientNumber = counter.seq;
 
     // 4. Create clinical profile linked to user
     const ClinicalProfile = (await import('../models/clinicalProfile.model.js')).default;
@@ -49,5 +49,20 @@ export class UserService implements IUserService {
       id: userRoles._id.toString(),
       roles: userRoles.roles,
     };
+  }
+
+  async findUserByPatientNumber(patientNumber: number): Promise<any | null> {
+    const clinicalProfile = await ClinicalProfile.findOne({ patientNumber })
+      .populate({
+        path: 'userId',
+        select: 'firstname lastname nationalIdentificationNumber address',
+      })
+      .lean();
+
+    if (!clinicalProfile) {
+      return null;
+    }
+
+    return clinicalProfile;
   }
 }

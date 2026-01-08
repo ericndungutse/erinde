@@ -9,4 +9,7 @@ export interface IUserService {
    * @returns The created user
    */
   registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponse>;
+
+  // Search User by Patient Number
+  findUserByPatientNumber(patientNumber: number): Promise<any | null>;
 }

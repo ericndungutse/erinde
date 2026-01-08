@@ -19,4 +19,20 @@ export default class UserController {
       return res.status(400).json({ status: 'fail', message: error.message || 'Registration failed' });
     }
   }
+
+  async findUserByPatientNumberController(req: Request, res: Response) {
+    try {
+      const { patientNumber } = req.params;
+      if (!patientNumber) {
+        return res.status(400).json({ status: 'fail', message: 'Patient number is required' });
+      }
+      const user = await this._userService.findUserByPatientNumber(Number(patientNumber));
+      if (!user) {
+        return res.status(404).json({ status: 'fail', message: 'User not found' });
+      }
+      return res.status(200).json(user);
+    } catch (error: any) {
+      return res.status(500).json({ status: 'error', message: error.message || 'Internal server error' });
+    }
+  }
 }

@@ -2,7 +2,7 @@ import type mongoose from 'mongoose';
 
 export interface IClinicalProfileData {
   userId: mongoose.Types.ObjectId;
-  patientNumber: string;
+  patientNumber: number;
   status: 'ACTIVE' | 'INACTIVE';
 }
 

@@ -6,4 +6,6 @@ const router = Router();
 
 router.post('/', validateRegisterUser, (req, res) => container.userController.registerUserController(req, res));
 
+router.get('/:patientNumber', (req, res) => container.userController.findUserByPatientNumberController(req, res));
+
 export default router;
