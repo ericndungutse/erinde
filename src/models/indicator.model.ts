@@ -13,7 +13,7 @@ export const indicatorSchema = new Schema<IIndicator>(
     ],
     classifications: [
       {
-        sstatus_code: {
+        status_code: {
           type: String,
           required: true,
           enum: ['healthy', 'warning', 'danger', 'critical'],

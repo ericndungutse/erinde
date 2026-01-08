@@ -1,3 +1,4 @@
+import e from 'express';
 import { Document } from 'mongoose';
 
 export type StatusCode = 'healthy' | 'warning' | 'danger' | 'critical';
@@ -25,5 +26,19 @@ export interface IIndicatorData {
   updatedAt: Date;
 }
 
+// SUmmery type
+export interface IIndicatorSummary {
+  id: string;
+  name: string;
+  labels: string[];
+}
+
+// Indicator Details type with all fields added by mongoose
+
 // 2. Define the Model type
 export type IIndicator = IIndicatorData & Document;
+
+// 3. The API/UI type (used for frontend consumption)
+export interface IIndicatorDetails extends Omit<IIndicatorData, 'createdAt' | 'updatedAt'> {
+  id: string;
+}
