@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import type { IClinicalProfile } from '../types/clinicalProfile.types.js';
+import type { IClinicalProfile } from '../types/clinical-profile.types.js';
 
 const clinicalProfileSchema = new Schema<IClinicalProfile>(
   {
