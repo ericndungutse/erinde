@@ -20,6 +20,10 @@ export interface IContact {
   email: string;
 }
 
+export type ILoggedInUser = Pick<IUser, 'roles'> & {
+  id: string;
+};
+
 export enum AccountRole {
   SCREENING_VOLUNTEER = 'SCREENING_VOLUNTEER',
   SOCIAL_HEALTH_WORKER = 'SOCIAL_HEALTH_WORKER',
