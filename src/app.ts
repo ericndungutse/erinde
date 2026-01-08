@@ -3,6 +3,7 @@ import express from 'express';
 const app = express();
 import indicatorRoutes from './routes/indicator.route.js';
 import authRoutes from './routes/auth.route.js';
+import userRoutes from './routes/user.route.js';
 
 app.use(cors());
 app.use(express.json());
@@ -14,5 +15,5 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/indicators', indicatorRoutes);
-
+app.use('/api/v1/users', userRoutes);
 export default app;
