@@ -1,8 +1,11 @@
+import AssessmentController from './controller/assessment.controller.js';
 import AuthController from './controller/auth.controller.js';
 import IndicatorController from './controller/indicator.controller.js';
 import UserController from './controller/user.controller.js';
+import AssessmentService from './service/assessment.service.js';
 import AuthService from './service/auth.service.js';
 import { IndicatorService } from './service/indicator.service.js';
+import type { IAssessmentService } from './service/interface/iassessment.service.js';
 import type { IAuthService } from './service/interface/iauth.service.js';
 import type { IIndicatorService } from './service/interface/iindicators.service.js';
 import type { IUserService } from './service/interface/iuser.service.js';
@@ -16,6 +19,10 @@ class Container {
   private _userService: IUserService;
   private _userController: UserController;
 
+  // Assessement
+  private _assessmentService: IAssessmentService;
+  private _assessmentController: AssessmentController;
+
   constructor() {
     this._authService = new AuthService();
     this._authController = new AuthController(this._authService);
@@ -25,6 +32,10 @@ class Container {
     // User Injections
     this._userService = new UserService();
     this._userController = new UserController(this._userService);
+
+    // Assessment Injections
+    this._assessmentService = new AssessmentService();
+    this._assessmentController = new AssessmentController(this._assessmentService);
   }
 
   // 4. Getters to access the wired-up instances
@@ -42,6 +53,10 @@ class Container {
 
   get userController() {
     return this._userController;
+  }
+
+  get assessmentController() {
+    return this._assessmentController;
   }
 }
 // Export a single instance of the container

@@ -30,8 +30,6 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     // Verify the token
     const decoded = verifyToken(token);
 
-    console.log('Decoded Token:', decoded);
-
     // Check if user still exists in database
     const user = await User.findById(decoded.sub);
 
