@@ -18,6 +18,11 @@ const clinicalProfileSchema = new Schema<IClinicalProfile>(
       trim: true,
       index: true,
     },
+    healthWorkerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: false,
+    },
     status: {
       type: String,
       enum: ['ACTIVE', 'INACTIVE'],

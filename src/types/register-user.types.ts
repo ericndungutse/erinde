@@ -29,6 +29,7 @@ export const RegisterUserSchema = z.object({
       message: 'Birthdate is required',
     })
   ),
+  healthWorkerId: z.string().optional(),
   address: z.object({
     province: z.string().min(1, { message: 'Province is required' }),
     city: z.string().min(1, { message: 'City/Kigali is required' }),

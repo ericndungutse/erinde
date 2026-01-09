@@ -1,9 +1,10 @@
-import type mongoose from 'mongoose';
+import type { Document, Types } from 'mongoose';
 
 export interface IClinicalProfileData {
-  userId: mongoose.Types.ObjectId;
+  userId: Types.ObjectId;
   patientNumber: number;
   status: 'ACTIVE' | 'INACTIVE';
+  healthWorkerId?: Types.ObjectId;
 }
 
-export type IClinicalProfile = IClinicalProfileData & mongoose.Document;
+export type IClinicalProfile = IClinicalProfileData & Document;
