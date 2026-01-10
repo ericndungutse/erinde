@@ -2,11 +2,17 @@ import ClinicalProfile from '../models/clinicalProfile.model.js';
 import Indicator from '../models/indicator.model.js';
 
 import Assessment from '../models/assessment.model.js';
-import type { CreateAssessmentDTO, IAssessmentResult } from '../types/assessment.types.js';
+import AssessmentClassifier from './assessment-classifier.service.js';
+import type {
+  CreateAssessmentDTO,
+  AssessmentCreatedResponseDTO,
+  IAssessmentClassification,
+} from '../types/assessment.types.js';
 import type { IAssessmentService } from './interface/iassessment.service.js';
+import type { IIndicatorData } from '../types/indicator.types.js';
 
 export default class AssessmentService implements IAssessmentService {
-  async createAssessment(dto: CreateAssessmentDTO, evaluatedBy?: string): Promise<IAssessmentResult> {
+  async createAssessment(dto: CreateAssessmentDTO, evaluatedBy?: string): Promise<AssessmentCreatedResponseDTO> {
     // Resolve patient (user) by patientNumber
     const clinical = await ClinicalProfile.findOne({ patientNumber: dto.patientNumber }).lean();
     if (!clinical) {
@@ -34,17 +40,41 @@ export default class AssessmentService implements IAssessmentService {
       throw new Error(`Reading unit mismatch: ${invalids.join('; ')}`);
     }
 
+    // Classify assessment (for now, only hypertension is supported)
+    let classification: IAssessmentClassification | undefined;
+    let recommendations: string[] = [];
+
+    if (indicatorDoc.name === 'hypertension') {
+      const classifier = new AssessmentClassifier();
+      const result = classifier.classifyHypertension(dto.readings, indicatorDoc as IIndicatorData);
+      classification = result.classification;
+      recommendations = result.recommendations;
+    }
+
     // Prepare assessment payload
     const assessmentPayload: any = {
       patient: patientId,
       indicator: dto.indicator,
       evaluatedBy: evaluatedBy,
       readings: dto.readings,
+      classification,
+      recommendations,
       evaluatedAt: new Date(),
     };
 
     const created = await Assessment.create(assessmentPayload as any);
 
-    return (created.toObject ? created.toObject() : created) as IAssessmentResult;
+    const response: AssessmentCreatedResponseDTO = {
+      id: created.id,
+      readings: created.readings,
+      classification: created.classification,
+      recommendations: created.recommendations,
+    };
+
+    // TODO: Create refur if results are not normal.
+
+    // TODO: Log audit trail for assessment creation SEND SMS to patient of results and recomendations
+
+    return response;
   }
 }

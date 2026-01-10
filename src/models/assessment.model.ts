@@ -91,8 +91,15 @@ const AssessmentResultSchema = new Schema<IAssessment>(
       default: Date.now,
     },
   },
+
   {
     timestamps: true,
+    toJSON: {
+      flattenMaps: true,
+    },
+    toObject: {
+      flattenMaps: true,
+    },
   }
 );
 

@@ -1,6 +1,7 @@
 import { Document, Types } from 'mongoose';
 import { z } from 'zod';
 import type { StatusCode } from './indicator.types.js';
+import { omit } from 'zod/mini';
 
 // Zod schemas for runtime validation when creating an assessment
 export const AssessmentReadingSchemaZ = z.object({
@@ -55,7 +56,7 @@ export interface IAssessmentClassification {
 /**
  * Main assessment result
  */
-export interface IAssessmentResult {
+export interface IAssessmentData {
   patient: Types.ObjectId | string;
   indicator: Types.ObjectId | string;
   evaluatedBy: Types.ObjectId | string;
@@ -65,4 +66,11 @@ export interface IAssessmentResult {
   evaluatedAt: Date | string;
 }
 
-export type IAssessment = IAssessmentResult & Document;
+export type AssessmentCreatedResponseDTO = Omit<
+  IAssessmentData,
+  'patient' | 'indicator' | 'evaluatedBy' | 'evaluatedAt'
+> & {
+  id: string;
+};
+
+export type IAssessment = IAssessmentData & Document;

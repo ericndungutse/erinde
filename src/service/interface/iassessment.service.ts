@@ -1,4 +1,4 @@
-import type { IAssessmentResult, CreateAssessmentDTO } from '../../types/assessment.types.js';
+import type { CreateAssessmentDTO, AssessmentCreatedResponseDTO } from '../../types/assessment.types.js';
 
 export interface IAssessmentService {
   /**
@@ -6,5 +6,5 @@ export interface IAssessmentService {
    * @param dto CreateAssessmentDTO payload
    * @param evaluatedBy optional evaluator  id
    */
-  createAssessment(dto: CreateAssessmentDTO, evaluatedBy?: string): Promise<IAssessmentResult>;
+  createAssessment(dto: CreateAssessmentDTO, evaluatedBy?: string): Promise<AssessmentCreatedResponseDTO>;
 }
