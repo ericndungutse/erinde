@@ -1,0 +1,67 @@
+{
+  "successCases": [
+    {
+      "name": "Normal blood pressure (115/75)",
+      "systolic": 115,
+      "diastolic": 75,
+      "expectedLabel": "Normal",
+      "expectedStatus": "healthy"
+    },
+    {
+      "name": "Stage 2 prioritized over Stage 1 when both match (165/95)",
+      "systolic": 165,
+      "diastolic": 95,
+      "expectedLabel": "Likely Hypertension Stage 2",
+      "expectedStatus": "danger"
+    },
+    {
+      "name": "Elevated: only systolic high (125/70)",
+      "systolic": 125,
+      "diastolic": 70,
+      "expectedLabel": "Elevated",
+      "expectedStatus": "warning"
+    },
+    {
+      "name": "Elevated: only diastolic high (110/85)",
+      "systolic": 110,
+      "diastolic": 85,
+      "expectedLabel": "Elevated",
+      "expectedStatus": "warning"
+    },
+    {
+      "name": "Elevated: both systolic and diastolic high (125/85)",
+      "systolic": 125,
+      "diastolic": 85,
+      "expectedLabel": "Elevated",
+      "expectedStatus": "warning"
+    },
+    {
+      "name": "Hypertensive Crisis exact threshold (180/120)",
+      "systolic": 180,
+      "diastolic": 120,
+      "expectedLabel": "Hypertensive Crisis",
+      "expectedStatus": "critical"
+    },
+    {
+      "name": "Normal upper boundary (119/79)",
+      "systolic": 119,
+      "diastolic": 79,
+      "expectedLabel": "Normal",
+      "expectedStatus": "healthy"
+    },
+    {
+      "name": "Elevated when systolic is 1 unit over Normal (120/79)",
+      "systolic": 120,
+      "diastolic": 79,
+      "expectedLabel": "Elevated",
+      "expectedStatus": "warning"
+    },
+    {
+      "name": "Hypertensive Crisis even when diastolic is normal (190/70)",
+      "systolic": 190,
+      "diastolic": 70,
+      "expectedLabel": "Hypertensive Crisis",
+      "expectedStatus": "critical"
+    }
+  ]
+}
