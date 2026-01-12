@@ -40,13 +40,18 @@ export default class AssessmentService implements IAssessmentService {
       throw new Error(`Reading unit mismatch: ${invalids.join('; ')}`);
     }
 
-    // Classify assessment (for now, only hypertension is supported)
+    // Classify assessment
     let classification: IAssessmentClassification | undefined;
     let recommendations: string[] = [];
 
+    const classifier = new AssessmentClassifier();
+
     if (indicatorDoc.name === 'hypertension') {
-      const classifier = new AssessmentClassifier();
       const result = classifier.classifyHypertension(dto.readings, indicatorDoc as IIndicatorData);
+      classification = result.classification;
+      recommendations = result.recommendations;
+    } else if (indicatorDoc.name === 'bmi') {
+      const result = classifier.classifyBmi(dto.readings, indicatorDoc as IIndicatorData);
       classification = result.classification;
       recommendations = result.recommendations;
     }

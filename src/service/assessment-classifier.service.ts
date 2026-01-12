@@ -54,4 +54,52 @@ export default class AssessmentClassifier {
       recommendations: match.recommendations ?? [],
     };
   }
+
+  /**
+   * Classify BMI based on height (cm) and weight (kg).
+   *
+   * BMI is calculated as: weight(kg) / (height(m) ^ 2)
+   * and then mapped to the indicator's min_value / max_value ranges.
+   */
+  classifyBmi(
+    readings: IAssessmentReadings,
+    indicator: IIndicatorData
+  ): { classification: IAssessmentClassification; recommendations: string[] } {
+    const heightCm = readings['height']?.value;
+    const weightKg = readings['weight']?.value;
+
+    if (typeof heightCm !== 'number' || typeof weightKg !== 'number') {
+      throw new Error('BMI classification requires height and weight readings');
+    }
+
+    if (heightCm <= 0 || weightKg <= 0) {
+      throw new Error('BMI classification requires positive height and weight values');
+    }
+
+    const heightM = heightCm / 100;
+    const rawBmi = weightKg / (heightM * heightM);
+
+    // Round BMI to 1 decimal place to align with configured thresholds
+    const bmi = Math.round(rawBmi * 10) / 10;
+
+    const match = indicator.classifications.find((c) => {
+      const minMatches = c.min_value === undefined || bmi >= c.min_value;
+      const maxMatches = c.max_value === undefined || bmi <= c.max_value;
+      return minMatches && maxMatches;
+    });
+
+    if (!match) {
+      throw new Error('Unable to classify BMI with provided readings');
+    }
+
+    const classification: IAssessmentClassification = {
+      label: match.label,
+      status_code: match.status_code,
+    };
+
+    return {
+      classification,
+      recommendations: match.recommendations ?? [],
+    };
+  }
 }

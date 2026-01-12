@@ -1,0 +1,100 @@
+{
+  "successCases": [
+    {
+      "name": "Underweight typical (BMI ≈ 17.0, 170cm, 49kg)",
+      "heightCm": 170,
+      "weightKg": 49,
+      "expectedLabel": "Underweight"
+    },
+    {
+      "name": "Underweight tall example (BMI ≈ 18.4, 195cm, 70kg)",
+      "heightCm": 195,
+      "weightKg": 70,
+      "expectedLabel": "Underweight"
+    },
+    {
+      "name": "Underweight upper boundary (BMI = 18.4)",
+      "heightCm": 170,
+      "weightKg": 53.18,
+      "expectedLabel": "Underweight"
+    },
+    {
+      "name": "Normal lower boundary (BMI = 18.5)",
+      "heightCm": 170,
+      "weightKg": 53.47,
+      "expectedLabel": "Normal"
+    },
+    {
+      "name": "Normal typical (BMI ≈ 22.1, 170cm, 64kg)",
+      "heightCm": 170,
+      "weightKg": 64,
+      "expectedLabel": "Normal"
+    },
+    {
+      "name": "Normal just below Overweight (BMI = 24.9)",
+      "heightCm": 170,
+      "weightKg": 71.96,
+      "expectedLabel": "Normal"
+    },
+    {
+      "name": "Overweight lower boundary (BMI = 25.0)",
+      "heightCm": 170,
+      "weightKg": 72.25,
+      "expectedLabel": "Overweight"
+    },
+    {
+      "name": "Overweight typical (BMI ≈ 27.0, 170cm, 78kg)",
+      "heightCm": 170,
+      "weightKg": 78,
+      "expectedLabel": "Overweight"
+    },
+    {
+      "name": "Obesity Class I lower boundary (BMI = 30.0)",
+      "heightCm": 170,
+      "weightKg": 86.7,
+      "expectedLabel": "Obesity Class I"
+    },
+    {
+      "name": "Obesity Class I typical (BMI ≈ 31.8, 170cm, 92kg)",
+      "heightCm": 170,
+      "weightKg": 92,
+      "expectedLabel": "Obesity Class I"
+    },
+    {
+      "name": "Obesity Class I upper boundary (BMI = 34.9)",
+      "heightCm": 170,
+      "weightKg": 100.86,
+      "expectedLabel": "Obesity Class I"
+    },
+    {
+      "name": "Obesity Class II lower boundary (BMI = 35.0)",
+      "heightCm": 170,
+      "weightKg": 101.15,
+      "expectedLabel": "Obesity Class II"
+    },
+    {
+      "name": "Obesity Class II typical (BMI ≈ 37.0, 170cm, 107kg)",
+      "heightCm": 170,
+      "weightKg": 107,
+      "expectedLabel": "Obesity Class II"
+    },
+    {
+      "name": "Obesity Class II upper boundary (BMI = 39.9)",
+      "heightCm": 170,
+      "weightKg": 115.31,
+      "expectedLabel": "Obesity Class II"
+    },
+    {
+      "name": "Obesity Class III lower boundary (BMI = 40.0)",
+      "heightCm": 170,
+      "weightKg": 115.6,
+      "expectedLabel": "Obesity Class III"
+    },
+    {
+      "name": "Obesity Class III typical (BMI ≈ 41.9, 170cm, 121kg)",
+      "heightCm": 170,
+      "weightKg": 121,
+      "expectedLabel": "Obesity Class III"
+    }
+  ]
+}
