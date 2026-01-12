@@ -54,6 +54,10 @@ export default class AssessmentService implements IAssessmentService {
       const result = classifier.classifyBmi(dto.readings, indicatorDoc as IIndicatorData);
       classification = result.classification;
       recommendations = result.recommendations;
+    } else if (indicatorDoc.name === 'diabetes') {
+      const result = classifier.classifyDiabetes(dto.readings, indicatorDoc as IIndicatorData);
+      classification = result.classification;
+      recommendations = result.recommendations;
     }
 
     // Prepare assessment payload

@@ -102,4 +102,45 @@ export default class AssessmentClassifier {
       recommendations: match.recommendations ?? [],
     };
   }
+
+  /**
+   * Classify diabetes based on random blood glucose reading.
+   *
+   * Uses indicator min_value / max_value thresholds directly on the
+   * provided reading value.
+   */
+  classifyDiabetes(
+    readings: IAssessmentReadings,
+    indicator: IIndicatorData
+  ): { classification: IAssessmentClassification; recommendations: string[] } {
+    const glucose = readings['random_blood_glucose']?.value;
+
+    if (typeof glucose !== 'number') {
+      throw new Error('Diabetes classification requires random_blood_glucose reading');
+    }
+
+    if (glucose <= 0) {
+      throw new Error('Diabetes classification requires a positive glucose value');
+    }
+
+    const match = indicator.classifications.find((c) => {
+      const minMatches = c.min_value === undefined || glucose >= c.min_value;
+      const maxMatches = c.max_value === undefined || glucose <= c.max_value;
+      return minMatches && maxMatches;
+    });
+
+    if (!match) {
+      throw new Error('Unable to classify diabetes with provided readings');
+    }
+
+    const classification: IAssessmentClassification = {
+      label: match.label,
+      status_code: match.status_code,
+    };
+
+    return {
+      classification,
+      recommendations: match.recommendations ?? [],
+    };
+  }
 }

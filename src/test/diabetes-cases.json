@@ -1,0 +1,39 @@
+{
+  "successCases": [
+    {
+      "name": "Normal glucose (100 mg/dL)",
+      "value": 100,
+      "expectedLabel": "Normal"
+    },
+    {
+      "name": "Normal upper boundary (139.9 mg/dL)",
+      "value": 139.9,
+      "expectedLabel": "Normal"
+    },
+    {
+      "name": "Pre-diabetes lower boundary (140 mg/dL)",
+      "value": 140,
+      "expectedLabel": "Pre-diabetes: At Risk"
+    },
+    {
+      "name": "Pre-diabetes typical (170 mg/dL)",
+      "value": 170,
+      "expectedLabel": "Pre-diabetes: At Risk"
+    },
+    {
+      "name": "Pre-diabetes upper boundary (199.9 mg/dL)",
+      "value": 199.9,
+      "expectedLabel": "Pre-diabetes: At Risk"
+    },
+    {
+      "name": "Possible Diabetes lower boundary (200 mg/dL)",
+      "value": 200,
+      "expectedLabel": "Possible Diabetes"
+    },
+    {
+      "name": "Possible Diabetes typical (250 mg/dL)",
+      "value": 250,
+      "expectedLabel": "Possible Diabetes"
+    }
+  ]
+}
