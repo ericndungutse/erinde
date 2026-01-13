@@ -55,14 +55,21 @@ export class UserService implements IUserService {
     const clinicalProfile = await ClinicalProfile.findOne({ patientNumber })
       .populate({
         path: 'userId',
-        select: 'firstname lastname nationalIdentificationNumber address',
+        select: 'firstname lastname nationalIdentificationNumber contact.phone',
       })
       .lean();
 
-    if (!clinicalProfile) {
+    if (!clinicalProfile || !clinicalProfile.userId) {
       return null;
     }
 
-    return clinicalProfile;
+    const user: any = clinicalProfile.userId;
+
+    return {
+      nationalIdentificationNumber: user.nationalIdentificationNumber,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      phone: user.contact?.phone,
+    };
   }
 }

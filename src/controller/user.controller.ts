@@ -13,8 +13,13 @@ export default class UserController {
   async registerUserController(req: Request, res: Response) {
     try {
       const userData: RegisterUserDTO = req.body;
-      const result = await this._userService.registerUser(userData);
-      return res.status(201).json(result);
+      const patientNumber = await this._userService.registerUser(userData);
+      return res.status(201).json({
+        status: 'success',
+        data: {
+          patientNumber,
+        },
+      });
     } catch (error: any) {
       return res.status(400).json({ status: 'fail', message: error.message || 'Registration failed' });
     }
@@ -30,7 +35,7 @@ export default class UserController {
       if (!user) {
         return res.status(404).json({ status: 'fail', message: 'User not found' });
       }
-      return res.status(200).json(user);
+      return res.status(200).json({ status: 'success', data: user });
     } catch (error: any) {
       return res.status(500).json({ status: 'error', message: error.message || 'Internal server error' });
     }
