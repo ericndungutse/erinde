@@ -3,7 +3,7 @@ import Assessment from '../models/assessment.model.js';
 import Referral from '../models/referral.model.js';
 import mongoose from 'mongoose';
 import type { IReferralService } from './interface/ireferral.service.js';
-import type { IReferralSummary, ReferralStatus } from '../types/referral.types.js';
+import type { IReferralSummary, ReferralStatus, IReferralDetails } from '../types/referral.types.js';
 
 export class ReferralService implements IReferralService {
   /**
@@ -105,6 +105,45 @@ export class ReferralService implements IReferralService {
     }));
 
     return summaries;
+  }
+
+  /**
+   * Return single referral details by id (no population).
+   */
+  async getReferralById(referralId: string): Promise<IReferralDetails | null> {
+    const doc = await Referral.findById(referralId)
+      .select({
+        patient: 1,
+        patientNumber: 1,
+        clinicalProfile: 1,
+        referralDate: 1,
+        scheduledVisitDate: 1,
+        status: 1,
+        assessments: 1,
+        referredBy: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      })
+      .lean()
+      .exec();
+
+    if (!doc) return null;
+
+    const details: IReferralDetails = {
+      id: doc._id.toString(),
+      patient: doc.patient.toString(),
+      patientNumber: doc.patientNumber,
+      clinicalProfile: doc.clinicalProfile.toString(),
+      referralDate: doc.referralDate as any,
+      scheduledVisitDate: doc.scheduledVisitDate as any,
+      status: doc.status,
+      assessments: (doc.assessments as any[]).map((a) => a.toString()),
+      referredBy: doc.referredBy.toString(),
+      createdAt: doc.createdAt as Date,
+      updatedAt: doc.updatedAt as Date,
+    };
+
+    return details;
   }
 }
 

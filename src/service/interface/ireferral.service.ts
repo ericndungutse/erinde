@@ -1,4 +1,4 @@
-import type { IReferralSummary, ReferralStatus } from '../../types/referral.types.js';
+import type { IReferralSummary, ReferralStatus, IReferralDetails } from '../../types/referral.types.js';
 
 export interface IReferralService {
   /**
@@ -19,4 +19,9 @@ export interface IReferralService {
    * @returns Array of referrals for patients assigned to the given health worker
    */
   listReferralsByHealthWorker(healthWorkerId: string, status: ReferralStatus): Promise<IReferralSummary[]>;
+
+  /**
+   * Get a single referral by id. No population, raw referral data only.
+   */
+  getReferralById(referralId: string): Promise<IReferralDetails | null>;
 }

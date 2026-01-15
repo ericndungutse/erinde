@@ -10,4 +10,9 @@ router.get('/me', protect, authorize(AccountRole.SOCIAL_HEALTH_WORKER), (req, re
   container.referralController.listMyReferrals(req, res)
 );
 
+// GET /referrals/:id - Get single referral details
+router.get('/:id', protect, authorize(AccountRole.SOCIAL_HEALTH_WORKER), (req, res) =>
+  container.referralController.getReferralById(req, res)
+);
+
 export default router;

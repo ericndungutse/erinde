@@ -25,4 +25,25 @@ export default class ReferralController {
       return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list referrals' });
     }
   }
+
+  /**
+   * Get single referral details by id (no population).
+   */
+  async getReferralById(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ status: 'fail', message: 'Referral id is required' });
+      }
+
+      const referral = await this._referralService.getReferralById(id);
+      if (!referral) {
+        return res.status(404).json({ status: 'fail', message: 'Referral not found' });
+      }
+
+      return res.status(200).json({ status: 'success', data: { referral } });
+    } catch (error: any) {
+      return res.status(500).json({ status: 'error', message: error?.message || 'Failed to fetch referral' });
+    }
+  }
 }
