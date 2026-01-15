@@ -30,3 +30,13 @@ export interface IReferralData {
 }
 
 export type IReferral = IReferralData & Document;
+
+// Summary projection for listing referrals
+export interface IReferralSummary {
+  id: string;
+  patientNumber: number;
+  referralDate: Date | string;
+  scheduledVisitDate: Date | string;
+  status: ReferralStatus;
+  assessmentCount: number;
+}

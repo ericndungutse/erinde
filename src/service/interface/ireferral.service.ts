@@ -1,4 +1,4 @@
-import type { IReferral, ReferralStatus } from '../../types/referral.types.js';
+import type { IReferralSummary, ReferralStatus } from '../../types/referral.types.js';
 
 export interface IReferralService {
   /**
@@ -18,5 +18,5 @@ export interface IReferralService {
    * @param healthWorkerId - Logged-in social health worker's user id
    * @returns Array of referrals for patients assigned to the given health worker
    */
-  listReferralsByHealthWorker(healthWorkerId: string, status: ReferralStatus): Promise<IReferral[]>;
+  listReferralsByHealthWorker(healthWorkerId: string, status: ReferralStatus): Promise<IReferralSummary[]>;
 }

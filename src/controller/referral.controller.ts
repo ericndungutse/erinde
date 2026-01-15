@@ -19,7 +19,7 @@ export default class ReferralController {
         return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
       }
 
-      const referrals = await this._referralService.listReferralsByHealthWorker(loggedInUserId);
+      const referrals = await this._referralService.listReferralsByHealthWorker(loggedInUserId, 'PENDING');
       return res.status(200).json({ status: 'success', data: { referrals } });
     } catch (error: any) {
       return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list referrals' });

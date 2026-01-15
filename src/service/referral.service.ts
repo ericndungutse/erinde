@@ -3,7 +3,7 @@ import Assessment from '../models/assessment.model.js';
 import Referral from '../models/referral.model.js';
 import mongoose from 'mongoose';
 import type { IReferralService } from './interface/ireferral.service.js';
-import type { IReferral, ReferralStatus } from '../types/referral.types.js';
+import type { IReferralSummary, ReferralStatus } from '../types/referral.types.js';
 
 export class ReferralService implements IReferralService {
   /**
@@ -64,7 +64,10 @@ export class ReferralService implements IReferralService {
    * Uses ClinicalProfile.healthWorkerId to determine patient assignment.
    * Returns most recent first.
    */
-  async listReferralsByHealthWorker(healthWorkerId: string, status: ReferralStatus = 'PENDING'): Promise<IReferral[]> {
+  async listReferralsByHealthWorker(
+    healthWorkerId: string,
+    status: ReferralStatus = 'PENDING'
+  ): Promise<IReferralSummary[]> {
     const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
 
     const results = await Referral.aggregate([
@@ -82,21 +85,26 @@ export class ReferralService implements IReferralService {
       {
         $project: {
           _id: 1,
-          patient: 1,
           patientNumber: 1,
-          clinicalProfile: 1,
           referralDate: 1,
           scheduledVisitDate: 1,
           status: 1,
-          assessments: 1,
-          referredBy: 1,
-          createdAt: 1,
-          updatedAt: 1,
+          assessmentCount: { $size: '$assessments' },
         },
       },
     ]).exec();
 
-    return results as unknown as IReferral[];
+    // Map _id to id for DTO shape
+    const summaries: IReferralSummary[] = results.map((r: any) => ({
+      id: r._id.toString(),
+      patientNumber: r.patientNumber,
+      referralDate: r.referralDate,
+      scheduledVisitDate: r.scheduledVisitDate,
+      status: r.status,
+      assessmentCount: r.assessmentCount,
+    }));
+
+    return summaries;
   }
 }
 
