@@ -28,10 +28,16 @@ export class UserService implements IUserService {
     const patientNumber = counter.seq;
 
     // 4. Create clinical profile linked to user
-    const ClinicalProfile = (await import('../models/clinicalProfile.model.js')).default;
+
+    // Find Health worker in the same village
+    const socialHealthWorker = await this.findSocialHealthWorkerByVillage(userData.address.village);
+
+    console.log('Assigned Health Worker:', socialHealthWorker);
+
     await ClinicalProfile.create({
       userId: user._id,
       patientNumber,
+      healthWorkerId: socialHealthWorker?._id,
     });
 
     // 5. Return patientNumber
@@ -71,5 +77,18 @@ export class UserService implements IUserService {
       lastname: user.lastname,
       phone: user.contact?.phone,
     };
+  }
+
+  async findSocialHealthWorkerByVillage(village: string): Promise<any | null> {
+    const socialHealthWorker = await User.findOne({
+      roles: AccountRole.SOCIAL_HEALTH_WORKER,
+      'address.village': village,
+    }).lean();
+
+    if (!socialHealthWorker) {
+      return null;
+    }
+
+    return socialHealthWorker;
   }
 }

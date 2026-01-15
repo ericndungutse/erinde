@@ -12,4 +12,11 @@ export interface IUserService {
 
   // Search User by Patient Number
   findUserByPatientNumber(patientNumber: number): Promise<any | null>;
+
+  /**
+   * Find a social health worker in a given village.
+   * @param village - The village name to search in
+   * @returns The social health worker user object, or null if not found
+   */
+  findSocialHealthWorkerByVillage(village: string): Promise<any | null>;
 }

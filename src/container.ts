@@ -8,7 +8,9 @@ import { IndicatorService } from './service/indicator.service.js';
 import type { IAssessmentService } from './service/interface/iassessment.service.js';
 import type { IAuthService } from './service/interface/iauth.service.js';
 import type { IIndicatorService } from './service/interface/iindicators.service.js';
+import type { IReferralService } from './service/interface/ireferral.service.js';
 import type { IUserService } from './service/interface/iuser.service.js';
+import ReferralService from './service/referral.service.js';
 import { UserService } from './service/user.service.js';
 
 class Container {
@@ -19,6 +21,9 @@ class Container {
   private _userService: IUserService;
   private _userController: UserController;
 
+  // Referral
+  private _referralService: IReferralService;
+
   // Assessement
   private _assessmentService: IAssessmentService;
   private _assessmentController: AssessmentController;
@@ -28,13 +33,14 @@ class Container {
     this._authController = new AuthController(this._authService);
     this._indicatorService = new IndicatorService();
     this._indicatorController = new IndicatorController(this._indicatorService);
+    this._referralService = new ReferralService();
 
     // User Injections
     this._userService = new UserService();
     this._userController = new UserController(this._userService);
 
     // Assessment Injections
-    this._assessmentService = new AssessmentService();
+    this._assessmentService = new AssessmentService(this._referralService);
     this._assessmentController = new AssessmentController(this._assessmentService);
   }
 

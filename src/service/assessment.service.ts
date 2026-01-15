@@ -10,8 +10,14 @@ import type {
 } from '../types/assessment.types.js';
 import type { IAssessmentService } from './interface/iassessment.service.js';
 import type { IIndicatorData } from '../types/indicator.types.js';
+import type { IReferralService } from './interface/ireferral.service.js';
 
 export default class AssessmentService implements IAssessmentService {
+  private referralService: IReferralService;
+
+  constructor(referralService: IReferralService) {
+    this.referralService = referralService;
+  }
   async createAssessment(dto: CreateAssessmentDTO, evaluatedBy?: string): Promise<AssessmentCreatedResponseDTO> {
     // Resolve patient (user) by patientNumber
     const clinical = await ClinicalProfile.findOne({ patientNumber: dto.patientNumber }).lean();
@@ -80,7 +86,13 @@ export default class AssessmentService implements IAssessmentService {
       recommendations: created.recommendations,
     };
 
-    // TODO: Create refur if results are not normal.
+    // Create referral if results are abnormal (not 'healthy')
+    if (classification && classification.status_code !== 'healthy') {
+      if (!evaluatedBy) {
+        throw new Error('evaluatedBy is required to create a referral for abnormal results');
+      }
+      await this.referralService.createReferral(created.id, patientId.toString(), evaluatedBy);
+    }
 
     // TODO: Log audit trail for assessment creation SEND SMS to patient of results and recomendations
 

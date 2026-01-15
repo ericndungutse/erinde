@@ -6,7 +6,6 @@
       "birthdate": "1990-05-15",
       "address": {
         "province": "Kigali",
-        "city": "Kigali",
         "district": "Gasabo",
         "sector": "Gisozi",
         "cell": "Kamatamu",
@@ -30,7 +29,6 @@
       "birthdate": "1988-08-22",
       "address": {
         "province": "Kigali",
-        "city": "Kigali",
         "district": "Gasabo",
         "sector": "Gisozi",
         "cell": "Kamatamu",
@@ -53,12 +51,11 @@
       "lastname": "Johnson",
       "birthdate": "1992-03-10",
       "address": {
-        "province": "Kigali",
-        "city": "Kigali",
-        "district": "Kicukiro",
-        "sector": "Niboye",
-        "cell": "Niboye",
-        "village": "Niboye"
+        "province": "south",
+        "district": "muhanga",
+        "sector": "nyamabuye",
+        "cell": "gahogo",
+        "village": "rutenga"
       },
       "contact": {
         "phone": "0700000003",
@@ -77,12 +74,11 @@
       "lastname": "Williams",
       "birthdate": "1991-11-18",
       "address": {
-        "province": "Kigali",
-        "city": "Kigali",
-        "district": "Kicukiro",
-        "sector": "Niboye",
-        "cell": "Niboye",
-        "village": "Niboye"
+        "province": "south",
+        "district": "muhanga",
+        "sector": "nyamabuye",
+        "cell": "gahogo",
+        "village": "ruvumera"
       },
       "contact": {
         "phone": "0700000004",

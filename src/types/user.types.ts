@@ -7,7 +7,6 @@ export type IUser = InferSchemaType<typeof userSchema>;
 // Address type
 export interface IAddress {
   province: string;
-  city: string;
   district: string;
   sector: string;
   cell: string;
