@@ -2,6 +2,7 @@ import AssessmentController from './controller/assessment.controller.js';
 import AuthController from './controller/auth.controller.js';
 import IndicatorController from './controller/indicator.controller.js';
 import UserController from './controller/user.controller.js';
+import ReferralController from './controller/referral.controller.js';
 import AssessmentService from './service/assessment.service.js';
 import AuthService from './service/auth.service.js';
 import { IndicatorService } from './service/indicator.service.js';
@@ -23,6 +24,7 @@ class Container {
 
   // Referral
   private _referralService: IReferralService;
+  private _referralController: ReferralController;
 
   // Assessement
   private _assessmentService: IAssessmentService;
@@ -34,6 +36,7 @@ class Container {
     this._indicatorService = new IndicatorService();
     this._indicatorController = new IndicatorController(this._indicatorService);
     this._referralService = new ReferralService();
+    this._referralController = new ReferralController(this._referralService);
 
     // User Injections
     this._userService = new UserService();
@@ -63,6 +66,10 @@ class Container {
 
   get assessmentController() {
     return this._assessmentController;
+  }
+
+  get referralController() {
+    return this._referralController;
   }
 }
 // Export a single instance of the container

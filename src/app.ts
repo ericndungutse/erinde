@@ -5,6 +5,7 @@ import indicatorRoutes from './routes/indicator.route.js';
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import assessmentRoutes from './routes/assessment.route.js';
+import referralRoutes from './routes/referral.route.js';
 import { UserService } from './service/user.service.js';
 
 app.use(cors());
@@ -26,4 +27,5 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/indicators', indicatorRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/assessments', assessmentRoutes);
+app.use('/api/v1/referrals', referralRoutes);
 export default app;

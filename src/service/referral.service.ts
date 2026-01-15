@@ -1,7 +1,9 @@
 import ClinicalProfile from '../models/clinicalProfile.model.js';
 import Assessment from '../models/assessment.model.js';
 import Referral from '../models/referral.model.js';
+import mongoose from 'mongoose';
 import type { IReferralService } from './interface/ireferral.service.js';
+import type { IReferral, ReferralStatus } from '../types/referral.types.js';
 
 export class ReferralService implements IReferralService {
   /**
@@ -55,6 +57,46 @@ export class ReferralService implements IReferralService {
       assessments: [assessmentId],
       referredBy,
     });
+  }
+
+  /**
+   * List referrals for patients under the given social health worker's follow-up.
+   * Uses ClinicalProfile.healthWorkerId to determine patient assignment.
+   * Returns most recent first.
+   */
+  async listReferralsByHealthWorker(healthWorkerId: string, status: ReferralStatus = 'PENDING'): Promise<IReferral[]> {
+    const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
+
+    const results = await Referral.aggregate([
+      {
+        $lookup: {
+          from: 'clinicalprofiles',
+          localField: 'clinicalProfile',
+          foreignField: '_id',
+          as: 'cp',
+        },
+      },
+      { $unwind: '$cp' },
+      { $match: { 'cp.healthWorkerId': hwObjectId, status } },
+      { $sort: { createdAt: -1 } },
+      {
+        $project: {
+          _id: 1,
+          patient: 1,
+          patientNumber: 1,
+          clinicalProfile: 1,
+          referralDate: 1,
+          scheduledVisitDate: 1,
+          status: 1,
+          assessments: 1,
+          referredBy: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]).exec();
+
+    return results as unknown as IReferral[];
   }
 }
 

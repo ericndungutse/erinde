@@ -1,3 +1,5 @@
+import type { IReferral, ReferralStatus } from '../../types/referral.types.js';
+
 export interface IReferralService {
   /**
    * Create or update a daily referral for a patient
@@ -8,4 +10,13 @@ export interface IReferralService {
    * @param referredBy - User id of the person who initiated the referral
    */
   createReferral(assessmentId: string, patientId: string, referredBy: string): Promise<void>;
+
+  /**
+   * List referrals for patients under a specific social health worker's follow-up.
+   * Uses ClinicalProfile.healthWorkerId to scope visibility.
+   *
+   * @param healthWorkerId - Logged-in social health worker's user id
+   * @returns Array of referrals for patients assigned to the given health worker
+   */
+  listReferralsByHealthWorker(healthWorkerId: string, status: ReferralStatus): Promise<IReferral[]>;
 }
