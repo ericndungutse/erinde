@@ -7,6 +7,7 @@ import type {
   CreateAssessmentDTO,
   AssessmentCreatedResponseDTO,
   IAssessmentClassification,
+  AssessmentDetailsDTO,
 } from '../types/assessment.types.js';
 import type { IAssessmentService } from './interface/iassessment.service.js';
 import type { IIndicatorData } from '../types/indicator.types.js';
@@ -97,5 +98,38 @@ export default class AssessmentService implements IAssessmentService {
     // TODO: Log audit trail for assessment creation SEND SMS to patient of results and recomendations
 
     return response;
+  }
+
+  /**
+   * Return single assessment details by id (no population)
+   */
+  async getAssessmentById(assessmentId: string): Promise<AssessmentDetailsDTO | null> {
+    const doc = await Assessment.findById(assessmentId)
+      .select({
+        patient: 1,
+        indicator: 1,
+        evaluatedBy: 1,
+        readings: 1,
+        classification: 1,
+        recommendations: 1,
+        evaluatedAt: 1,
+      })
+      .lean()
+      .exec();
+
+    if (!doc) return null;
+
+    const details: AssessmentDetailsDTO = {
+      id: doc._id.toString(),
+      patient: doc.patient.toString(),
+      indicator: doc.indicator.toString(),
+      evaluatedBy: doc.evaluatedBy?.toString() ?? '',
+      readings: doc.readings,
+      classification: doc.classification,
+      recommendations: doc.recommendations ?? [],
+      evaluatedAt: doc.evaluatedAt as any,
+    };
+
+    return details;
   }
 }

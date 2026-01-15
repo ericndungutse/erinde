@@ -74,3 +74,6 @@ export type AssessmentCreatedResponseDTO = Omit<
 };
 
 export type IAssessment = IAssessmentData & Document;
+
+// Details DTO for a single assessment (no population)
+export type AssessmentDetailsDTO = Omit<IAssessmentData, never> & { id: string };

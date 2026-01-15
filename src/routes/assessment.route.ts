@@ -8,4 +8,7 @@ const router = Router();
 router.post('/', protect, validateCreateAssessment, (req, res) =>
   container.assessmentController.createAssessment(req, res)
 );
+
+// GET /assessments/:id - Get single assessment details (no population)
+router.get('/:id', protect, (req, res) => container.assessmentController.getAssessmentById(req, res));
 export default router;
