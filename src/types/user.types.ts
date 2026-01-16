@@ -1,5 +1,6 @@
 import type { InferSchemaType } from 'mongoose';
 import type { userSchema } from '../models/user.model.js';
+import z from 'zod';
 
 // Infer the type from the schema
 export type IUser = InferSchemaType<typeof userSchema>;
@@ -26,8 +27,14 @@ export type ILoggedInUser = Pick<IUser, 'roles'> & {
 export enum AccountRole {
   SCREENING_VOLUNTEER = 'SCREENING_VOLUNTEER',
   SOCIAL_HEALTH_WORKER = 'SOCIAL_HEALTH_WORKER',
+  ADMIN = 'ADMIN',
   USER = 'USER',
 }
+
+// Simplest version if you just want one message for any failure
+export const AccountRoleSchema = z.enum(['SCREENING_VOLUNTEER', 'SOCIAL_HEALTH_WORKER', 'USER', 'ADMIN'], {
+  message: 'Please select a valid account role',
+});
 
 export type UserRoles = Pick<IUser, 'roles'> & {
   id: string;

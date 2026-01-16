@@ -1,4 +1,8 @@
-import type { RegisterUserDTO, RegisterUserResponse } from '../../types/register-user.types.js';
+import type {
+  RegisterUserDTO,
+  RegisterUserResponse,
+  RegisterUserWithAccountDTO,
+} from '../../types/register-user.types.js';
 import type { UserRoles } from '../../types/user.types.js';
 
 export interface IUserService {
@@ -19,4 +23,7 @@ export interface IUserService {
    * @returns The social health worker user object, or null if not found
    */
   findSocialHealthWorkerByVillage(village: string): Promise<any | null>;
+
+  // RegisterUserWithAccount
+  registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any>;
 }

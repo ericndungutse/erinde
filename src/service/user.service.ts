@@ -1,10 +1,44 @@
+import { ConstantValues } from '../constants/constant.values.js';
+import Account from '../models/account.model.js';
 import ClinicalProfile from '../models/clinicalProfile.model.js';
+import Counter from '../models/counter.model.js';
 import User from '../models/user.model.js';
-import type { RegisterUserDTO, RegisterUserResponse } from '../types/register-user.types.js';
+import {
+  RegisterUserWithAccountSchema,
+  type RegisterUserDTO,
+  type RegisterUserResponse,
+  type RegisterUserWithAccountDTO,
+} from '../types/register-user.types.js';
 import { AccountRole, type UserRoles } from '../types/user.types.js';
 import type { IUserService } from './interface/iuser.service.js';
 
 export class UserService implements IUserService {
+  async registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any> {
+    // Core steps
+    // Register User
+    const parsed = RegisterUserWithAccountSchema.parse(userData);
+    const user = await User.create({ ...parsed, roles: [...(parsed.roles as AccountRole[]), AccountRole.USER] });
+    // Create Account
+
+    const account = await Account.create({
+      email: parsed.contact.email,
+      phoneNumber: parsed.contact.phone,
+      password: ConstantValues.DEFAULT_PASSWORD,
+      userId: user._id,
+      mustChangePassword: true,
+    });
+
+    // Create Clinical Profile
+    const counter = await Counter.findByIdAndUpdate('patientNumber', { $inc: { seq: 1 } }, { new: true, upsert: true });
+    const patientNumber = counter.seq;
+    const clinicalProfile = await ClinicalProfile.create({
+      userId: user._id,
+      patientNumber,
+    });
+
+    return { user, account, clinicalProfile };
+  }
+
   async registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponse> {
     const { nationalIdentificationNumber, contact } = userData;
 
@@ -23,7 +57,6 @@ export class UserService implements IUserService {
 
     // 3. Generate patient number from Counter
     // Counter _id: 'patientNumber'
-    const Counter = (await import('../models/counter.model.js')).default;
     const counter = await Counter.findByIdAndUpdate('patientNumber', { $inc: { seq: 1 } }, { new: true, upsert: true });
     const patientNumber = counter.seq;
 
@@ -31,8 +64,6 @@ export class UserService implements IUserService {
 
     // Find Health worker in the same village
     const socialHealthWorker = await this.findSocialHealthWorkerByVillage(userData.address.village);
-
-    console.log('Assigned Health Worker:', socialHealthWorker);
 
     await ClinicalProfile.create({
       userId: user._id,

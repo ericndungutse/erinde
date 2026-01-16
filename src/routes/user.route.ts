@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { validateRegisterUser } from '../validation/validateRegisterUser.js';
+import { validateRegisterUser, validateRegisterUserWithAccount } from '../validation/validateRegisterUser.js';
 import { container } from '../container.js';
 import { authorize, protect } from '../security/auth.middleware.js';
 import { AccountRole } from '../types/user.types.js';
@@ -13,7 +13,9 @@ router.post(
   validateRegisterUser,
   (req, res) => container.userController.registerUserController(req, res)
 );
-
+router.post('/admin/register', protect, authorize(AccountRole.ADMIN), validateRegisterUserWithAccount, (req, res) =>
+  container.userController.registerUserWithAccountController(req, res)
+);
 router.get('/:patientNumber', (req, res) => container.userController.findUserByPatientNumberController(req, res));
 
 export default router;

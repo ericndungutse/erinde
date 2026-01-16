@@ -11,6 +11,7 @@ export const accountSchema = new Schema<IAccount>(
     password: { type: String, required: true, minlength: 6 },
     phoneNumber: { type: String, required: true, trim: true, unique: true },
     isActive: { type: Boolean, default: true },
+    mustChangePassword: { type: Boolean, default: false },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

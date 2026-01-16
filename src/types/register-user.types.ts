@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { Types } from 'mongoose';
+import { AccountRole, AccountRoleSchema } from './user.types.js';
 export interface RegisterUserDTO {
   firstname: string;
   lastname: string;
@@ -41,7 +43,7 @@ export const RegisterUserSchema = z.object({
       .string()
       .min(10, { message: 'Phone number must be at least 10 characters' })
       .regex(/^\+?[0-9]+$/, { message: 'Invalid phone format' }),
-    email: z.string().email({ message: 'Invalid email address' }),
+    email: z.email({ message: 'Invalid email address' }),
   }),
   nationalIdentificationNumber: z
     .string()
@@ -52,3 +54,14 @@ export const RegisterUserSchema = z.object({
 export type RegisterUserResponse = {
   patientNumber: number;
 };
+
+// ZOD Schema
+export const RegisterUserWithAccountSchema = RegisterUserSchema.extend({
+  roles: z.preprocess(
+    (val) => (val === undefined ? [] : val),
+    z.array(AccountRoleSchema).min(1, { message: 'At least one role is required' })
+  ),
+});
+
+// Infer the type from the schema to ensure they stay in sync
+export type RegisterUserWithAccountDTO = z.infer<typeof RegisterUserWithAccountSchema>;

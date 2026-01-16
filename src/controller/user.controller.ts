@@ -10,6 +10,23 @@ export default class UserController {
     this._userService = userService;
   }
 
+  async registerUserWithAccountController(req: Request, res: Response) {
+    try {
+      const { user, account, clinicalProfile } = await this._userService.registerUserWithAccount(req.body);
+      return res.status(201).json({
+        status: 'success',
+        message: 'User registered with account successfully',
+        data: {
+          user,
+          account,
+          clinicalProfile,
+        },
+      });
+    } catch (error: any) {
+      return res.status(400).json({ status: 'fail', message: error.message || 'Registration failed' });
+    }
+  }
+
   async registerUserController(req: Request, res: Response) {
     try {
       const userData: RegisterUserDTO = req.body;

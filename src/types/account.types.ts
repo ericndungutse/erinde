@@ -16,6 +16,7 @@ export interface IAccountData {
   userId: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  mustChangePassword?: boolean;
 }
 
 // 3. Define the Model type

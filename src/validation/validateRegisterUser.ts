@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { RegisterUserSchema } from '../types/register-user.types.js';
+import { RegisterUserSchema, RegisterUserWithAccountSchema } from '../types/register-user.types.js';
 
 export function validateRegisterUser(req: Request, res: Response, next: NextFunction) {
   const result = RegisterUserSchema.safeParse(req.body);
@@ -11,6 +11,23 @@ export function validateRegisterUser(req: Request, res: Response, next: NextFunc
         field: issue.path.join('.'),
         message: issue.message,
       })),
+    });
+  }
+  next();
+}
+
+export function validateRegisterUserWithAccount(req: Request, res: Response, next: NextFunction) {
+  const result = RegisterUserWithAccountSchema.safeParse(req.body);
+  if (!result.success) {
+    // Inside your error formatter
+    const formattedErrors = result.error.issues.map((issue) => ({
+      field: issue.path.join('.'),
+      message: issue.message,
+    }));
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Invalid request data',
+      errors: formattedErrors,
     });
   }
   next();
