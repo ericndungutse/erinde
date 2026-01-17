@@ -4,7 +4,7 @@ import type { RegisterUserDTO } from '../types/register-user.types.js';
 import type { IUserService } from '../service/interface/iuser.service.js';
 
 export default class UserController {
-  private _userService: UserService;
+  private _userService: IUserService;
 
   constructor(userService: IUserService) {
     this._userService = userService;
@@ -53,6 +53,18 @@ export default class UserController {
         return res.status(404).json({ status: 'fail', message: 'User not found' });
       }
       return res.status(200).json({ status: 'success', data: user });
+    } catch (error: any) {
+      return res.status(500).json({ status: 'error', message: error.message || 'Internal server error' });
+    }
+  }
+
+  async getAllUsersController(_req: Request, res: Response) {
+    try {
+      const users = await this._userService.getAllUsers();
+      return res.status(200).json({
+        status: 'success',
+        data: { users },
+      });
     } catch (error: any) {
       return res.status(500).json({ status: 'error', message: error.message || 'Internal server error' });
     }

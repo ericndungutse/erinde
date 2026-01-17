@@ -90,5 +90,28 @@
     "account": {
       "password": "Test@123"
     }
+  },
+  {
+    "user": {
+      "firstname": "Alice",
+      "lastname": "Admin",
+      "birthdate": "1985-07-01",
+      "address": {
+        "province": "Kigali",
+        "district": "Nyarugenge",
+        "sector": "Kiyovu",
+        "cell": "Kiyovu",
+        "village": "Kiyovu"
+      },
+      "contact": {
+        "phone": "0700000005",
+        "email": "admin.user@example.com"
+      },
+      "nationalIdentificationNumber": "1188500701005",
+      "roles": ["ADMIN", "USER"]
+    },
+    "account": {
+      "password": "Test@123"
+    }
   }
 ]

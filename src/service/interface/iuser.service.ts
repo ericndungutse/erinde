@@ -4,6 +4,7 @@ import type {
   RegisterUserWithAccountDTO,
 } from '../../types/register-user.types.js';
 import type { UserRoles } from '../../types/user.types.js';
+import type { AccountRole } from '../../types/user.types.js';
 
 export interface IUserService {
   findRolesByAccountId(accountId: string): Promise<UserRoles | null>;
@@ -16,6 +17,11 @@ export interface IUserService {
 
   // Search User by Patient Number
   findUserByPatientNumber(patientNumber: number): Promise<any | null>;
+
+  /**
+   * Get all users with basic info (id, name, roles[])
+   */
+  getAllUsers(): Promise<Array<{ id: string; name: string; roles: AccountRole[] }>>;
 
   /**
    * Find a social health worker in a given village.

@@ -13,11 +13,22 @@ import { AccountRole, type UserRoles } from '../types/user.types.js';
 import type { IUserService } from './interface/iuser.service.js';
 
 export class UserService implements IUserService {
+  async getAllUsers(): Promise<Array<{ id: string; name: string; roles: AccountRole[] }>> {
+    const users = await User.find({}, { firstname: 1, lastname: 1, roles: 1 }).lean();
+    return users.map((u: any) => {
+      const name = `${u.firstname} ${u.lastname}`.trim();
+      const roles: AccountRole[] = (
+        Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : [AccountRole.USER]
+      ) as AccountRole[];
+      return { id: u._id.toString(), name, roles };
+    });
+  }
   async registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any> {
     // Core steps
     // Register User
     const parsed = RegisterUserWithAccountSchema.parse(userData);
-    const user = await User.create({ ...parsed, roles: [...(parsed.roles as AccountRole[]), AccountRole.USER] });
+    const roles = [AccountRole.USER, ...(parsed.roles as AccountRole[])];
+    const user = await User.create({ ...parsed, roles });
     // Create Account
 
     const account = await Account.create({

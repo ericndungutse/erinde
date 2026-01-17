@@ -28,4 +28,11 @@ app.use('/api/v1/indicators', indicatorRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/assessments', assessmentRoutes);
 app.use('/api/v1/referrals', referralRoutes);
+
+app.all('/{*any}', (req, res) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Endpoint ${req.originalUrl} not found`,
+  });
+});
 export default app;
