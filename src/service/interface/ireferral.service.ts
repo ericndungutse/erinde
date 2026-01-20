@@ -24,4 +24,9 @@ export interface IReferralService {
    * Get a single referral by id. No population, raw referral data only.
    */
   getReferralById(referralId: string): Promise<IReferralDetails | null>;
+
+  /**
+   * Get Single Referral by Patient Number. Mark status as COMPLETED. When Doen by NURSE
+   */
+  completeReferralByPatientNumber(patientNumber: number): Promise<any | null>;
 }

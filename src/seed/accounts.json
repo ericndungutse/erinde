@@ -113,5 +113,28 @@
     "account": {
       "password": "Test@123"
     }
+  },
+  {
+    "user": {
+      "firstname": "Nora",
+      "lastname": "Nurse",
+      "birthdate": "1989-01-10",
+      "address": {
+        "province": "Kigali",
+        "district": "Kicukiro",
+        "sector": "Kanombe",
+        "cell": "Kanombe",
+        "village": "Kabeza"
+      },
+      "contact": {
+        "phone": "0700000006",
+        "email": "nurse.user@example.com"
+      },
+      "nationalIdentificationNumber": "1188900110006",
+      "roles": ["NURSE", "USER"]
+    },
+    "account": {
+      "password": "Test@123"
+    }
   }
 ]

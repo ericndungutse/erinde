@@ -25,6 +25,8 @@ export interface IReferralData {
   // User who recorded the assessment / initiated the referral
   referredBy: Types.ObjectId | string;
 
+  visitDate?: Date | string;
+
   createdAt: Date;
   updatedAt: Date;
 }

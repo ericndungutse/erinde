@@ -6,6 +6,29 @@ import type { IReferralService } from './interface/ireferral.service.js';
 import type { IReferralSummary, ReferralStatus, IReferralDetails } from '../types/referral.types.js';
 
 export class ReferralService implements IReferralService {
+  // TODO: Analytics: You can now calculate the "Lag Time" between scheduledVisitDate and actualVisitDate to see if patients are arriving earlier or later than expected.
+  async completeReferralByPatientNumber(patientNumber: number): Promise<any | null> {
+    const updated = await Referral.findOneAndUpdate(
+      {
+        patientNumber,
+        status: 'PENDING',
+      },
+      {
+        $set: {
+          status: 'COMPLETED',
+          visitDate: new Date(),
+        },
+      },
+      {
+        new: true,
+        sort: { createdAt: -1 },
+      },
+    )
+      .populate('patient')
+      .exec();
+
+    return updated;
+  }
   /**
    * Create or update a daily referral for a patient based on
    * a single assessment.
@@ -66,7 +89,7 @@ export class ReferralService implements IReferralService {
    */
   async listReferralsByHealthWorker(
     healthWorkerId: string,
-    status: ReferralStatus = 'PENDING'
+    status: ReferralStatus = 'PENDING',
   ): Promise<IReferralSummary[]> {
     const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
 
@@ -80,7 +103,7 @@ export class ReferralService implements IReferralService {
         },
       },
       { $unwind: '$cp' },
-      { $match: { 'cp.healthWorkerId': hwObjectId, status } },
+      { $match: { 'cp.healthWorkerId': hwObjectId } },
       { $sort: { createdAt: -1 } },
       {
         $project: {

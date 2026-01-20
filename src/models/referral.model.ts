@@ -29,6 +29,10 @@ const ReferralSchema = new Schema<IReferral>(
       index: true,
     },
 
+    visitDate: {
+      type: Date,
+    },
+
     scheduledVisitDate: {
       type: Date,
       required: true,
@@ -57,7 +61,7 @@ const ReferralSchema = new Schema<IReferral>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 ReferralSchema.set('toJSON', {

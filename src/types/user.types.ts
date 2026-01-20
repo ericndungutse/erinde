@@ -27,6 +27,7 @@ export type ILoggedInUser = Pick<IUser, 'roles'> & {
 export enum AccountRole {
   SCREENING_VOLUNTEER = 'SCREENING_VOLUNTEER',
   SOCIAL_HEALTH_WORKER = 'SOCIAL_HEALTH_WORKER',
+  NURSE = 'NURSE',
   ADMIN = 'ADMIN',
   USER = 'USER',
 }
