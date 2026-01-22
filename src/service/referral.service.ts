@@ -141,6 +141,7 @@ export class ReferralService implements IReferralService {
         clinicalProfile: 1,
         referralDate: 1,
         scheduledVisitDate: 1,
+        visitDate: 1,
         status: 1,
         assessments: 1,
         referredBy: 1,
@@ -164,6 +165,7 @@ export class ReferralService implements IReferralService {
       referredBy: doc.referredBy.toString(),
       createdAt: doc.createdAt as Date,
       updatedAt: doc.updatedAt as Date,
+      visitDate: doc.visitDate as Date,
     };
 
     return details;

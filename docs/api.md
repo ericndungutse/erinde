@@ -304,6 +304,85 @@ Base: `/api/v1/assessments`
   - If `classification.status_code !== 'healthy'`, a daily referral is created/updated for the patient.
   - Requires an authenticated user (`evaluatedBy` set from token). If missing, creation fails.
 
+#### Per-Indicator Reading Shapes (STRICT)
+
+All readings adhere to the global schema: each reading is an object `{ value: number, unit: string }`.
+
+- Types: value MUST be a positive integer (server validation uses integer-only). Decimals will be rejected.
+- Units: MUST exactly match the indicator definition (retrieved via `GET /indicators/:id`). Unit mismatches are rejected.
+
+1. Hypertension (name: `hypertension`)
+
+- Required keys in `readings`:
+  - `systolic_blood_pressure`: `{ value: <int>, unit: "mmHg" }`
+  - `diastolic_blood_pressure`: `{ value: <int>, unit: "mmHg" }`
+- Example request:
+
+```json
+{
+  "patientNumber": 12345,
+  "indicator": "<hypertension-indicator-id>",
+  "readings": {
+    "systolic_blood_pressure": { "value": 138, "unit": "mmHg" },
+    "diastolic_blood_pressure": { "value": 92, "unit": "mmHg" }
+  }
+}
+```
+
+- Classification logic:
+  - Compares systolic/diastolic against indicator `classifications[*].min_systolic/max_systolic/min_diastolic/max_diastolic`.
+  - Uses `logic` (default OR if omitted) to decide if a class matches.
+  - Returns the first matching class as `{ label, status_code }` and `recommendations`.
+
+2. Diabetes (name: `diabetes`)
+
+- Required keys in `readings`:
+  - `random_blood_glucose`: `{ value: <int>, unit: "mg/dL" }`
+- Example request:
+
+```json
+{
+  "patientNumber": 12345,
+  "indicator": "<diabetes-indicator-id>",
+  "readings": {
+    "random_blood_glucose": { "value": 165, "unit": "mg/dL" }
+  }
+}
+```
+
+- Classification logic:
+  - Compares glucose value to indicator `classifications[*].min_value/max_value` ranges.
+  - Returns `{ label, status_code }` and `recommendations` of the first matching class.
+
+3. BMI (name: `bmi`)
+
+- Required keys in `readings`:
+  - `height`: `{ value: <int cm>, unit: "cm" }` (height in centimeters)
+  - `weight`: `{ value: <int kg>, unit: "kg" }` (weight in kilograms)
+- Example request:
+
+```json
+{
+  "patientNumber": 12345,
+  "indicator": "<bmi-indicator-id>",
+  "readings": {
+    "height": { "value": 170, "unit": "cm" },
+    "weight": { "value": 70, "unit": "kg" }
+  }
+}
+```
+
+- Classification logic:
+  - Computes BMI = weight(kg) / (height(m)^2); height(m) = height(cm)/100.
+  - Rounds to 1 decimal, then matches indicator `classifications[*].min_value/max_value` range.
+  - Returns `{ label, status_code }` and `recommendations` of the first matching class.
+
+Notes for implementers:
+
+- Indicator-specific required reading keys are fixed (see seeds/indicator definitions or `GET /indicators/:id`).
+- Units are enforced: provide exactly `mmHg`, `mg/dL`, `cm`, `kg` as applicable.
+- All numeric `value`s must be integers; if you capture decimals, round appropriately on the client before sending.
+
 ### GET `/:id`
 
 - Purpose: Get a single assessment (no population) for detail view.
@@ -458,6 +537,9 @@ These reflect the DTOs returned by the API.
   - `patientNumber`: positive integer
   - `indicator`: non-empty string (ObjectId)
   - `readings`: record of `{ value: positive integer, unit: non-empty string }`
+    - Hypertension expects `systolic_blood_pressure` and `diastolic_blood_pressure` with `unit="mmHg"`.
+    - Diabetes expects `random_blood_glucose` with `unit="mg/dL"`.
+    - BMI expects `height` (`cm`) and `weight` (`kg`).
   - Unit compatibility with indicator definition is enforced
 
 Error shape for validation failures:
@@ -562,3 +644,62 @@ curl -X PATCH "$BASE/api/v1/referrals/complete/12345" -H "Authorization: Bearer 
 ## Changelog
 
 - 2026-01-22: Initial comprehensive API documentation added.
+
+---
+
+## Appendix: Frontend Integration Guide
+
+### Standard Response Envelope and Codes
+
+- Success: `{ status: "success", message?: string, data: <payload> }` (200/201)
+- Validation fail: `{ status: "fail", message: string, errors: Array<{ field: string, message: string }> }` (400)
+- Auth fail: `{ status: "fail", message: string }` (401)
+- Forbidden: `{ status: "fail", message: string }` (403)
+- Not found: `{ status: "fail", message: string }` (404)
+- Server error: `{ status: "error", message: string }` (500)
+
+Examples:
+
+- 401:
+
+```json
+{ "status": "fail", "message": "Unauthenticated. Please log in to access this resource" }
+```
+
+- 403:
+
+```json
+{ "status": "fail", "message": "You do not have permission to perform this action." }
+```
+
+- 404:
+
+```json
+{ "status": "fail", "message": "Resource not found" }
+```
+
+### UI Rendering Guidance
+
+- Severity mapping for `classification.status_code`:
+  - `healthy` → success (green)
+  - `warning` → warning (amber)
+  - `danger` → error (red)
+  - `critical` → critical (red, high emphasis)
+- Forms from indicators:
+  - Build inputs from `indicator.readings`: the `type` is the field key; display `unit` next to input.
+  - Values must be integers; round client-side if using decimals.
+  - Validate units exactly (`mmHg`, `mg/dL`, `cm`, `kg`).
+- Hints from classifications:
+  - Use `min_*`/`max_*` or `min_value`/`max_value` as soft ranges to guide input and display tooltips.
+
+### End-to-End Workflow Recipes
+
+1. Login → store `token`, `roles` → optional active role selector.
+2. SHW/Volunteer: Register patient → receive `patientNumber` → perform assessment.
+3. Assessment: Submit readings → display classification + recommendations → if abnormal, referral appears in SHW list.
+4. Nurse: Complete referral using patient number.
+5. Admin: Register staff accounts with roles.
+
+### Pagination & Filtering
+
+- Not implemented on list endpoints; implement client-side filtering/sorting for now.

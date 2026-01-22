@@ -56,4 +56,5 @@ export interface IReferralDetails {
   referredBy: string; // ObjectId string
   createdAt: Date;
   updatedAt: Date;
+  visitDate: Date;
 }
