@@ -1,0 +1,245 @@
+{
+  "info": {
+    "name": "ERINDE API v1",
+    "_postman_id": "6c4f2b3f-1d55-4e56-9b0b-9db9b7c7b999",
+    "description": "Postman collection for ERINDE backend API. Includes JWT auth, role-aware endpoints, example payloads, and a login test that stores the token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "indicatorId", "value": "REPLACE_INDICATOR_ID", "type": "string" },
+    { "key": "patientNumber", "value": "12345", "type": "string" },
+    { "key": "assessmentId", "value": "REPLACE_ASSESSMENT_ID", "type": "string" },
+    { "key": "referralId", "value": "REPLACE_REFERRAL_ID", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /api/v1/auth/login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"admin@example.com\",\n  \"password\": \"secret123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let json;",
+                  "try { json = pm.response.json(); } catch(e) { json = null }",
+                  "if (json && json.data && json.data.token) {",
+                  "  pm.environment.set('token', json.data.token);",
+                  "}",
+                  "if (json && json.data && json.data.user) {",
+                  "  pm.environment.set('userId', json.data.user.id);",
+                  "  pm.environment.set('roles', JSON.stringify(json.data.user.roles || []));",
+                  "}",
+                  "pm.test('Auth success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Indicators",
+      "item": [
+        {
+          "name": "GET /api/v1/indicators",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/indicators",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "indicators"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/indicators/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/indicators/{{indicatorId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "indicators", "{{indicatorId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET /api/v1/users (ADMIN)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/users (SHW/Volunteer)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Jane\",\n  \"lastname\": \"Doe\",\n  \"birthdate\": \"1990-01-01\",\n  \"address\": {\n    \"province\": \"...\",\n    \"district\": \"...\",\n    \"sector\": \"...\",\n    \"cell\": \"...\",\n    \"village\": \"rutenga\"\n  },\n  \"contact\": {\n    \"phone\": \"+250788000111\",\n    \"email\": \"jane@example.com\"\n  },\n  \"nationalIdentificationNumber\": \"1234567890123456\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/users/admin/register (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Sam\",\n  \"lastname\": \"Admin\",\n  \"birthdate\": \"1985-06-15\",\n  \"address\": {\n    \"province\": \"...\",\n    \"district\": \"...\",\n    \"sector\": \"...\",\n    \"cell\": \"...\",\n    \"village\": \"ruvumera\"\n  },\n  \"contact\": {\n    \"phone\": \"+250788000222\",\n    \"email\": \"admin.user@example.com\"\n  },\n  \"nationalIdentificationNumber\": \"1234567890123456\",\n  \"roles\": [\"ADMIN\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/admin/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "admin", "register"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/users/:patientNumber (public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{patientNumber}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{patientNumber}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Assessments",
+      "item": [
+        {
+          "name": "POST /api/v1/assessments",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientNumber\": {{patientNumber}},\n  \"indicator\": \"{{indicatorId}}\",\n  \"readings\": {\n    \"systolic_blood_pressure\": { \"value\": 138, \"unit\": \"mmHg\" },\n    \"diastolic_blood_pressure\": { \"value\": 92, \"unit\": \"mmHg\" }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/assessments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "assessments"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/assessments/:id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/assessments/{{assessmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "assessments", "{{assessmentId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Referrals",
+      "item": [
+        {
+          "name": "GET /api/v1/referrals/me (SHW)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/referrals/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "referrals", "me"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/referrals/:id (SHW)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/referrals/{{referralId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "referrals", "{{referralId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/referrals/complete/:patientNumber (NURSE)",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/referrals/complete/{{patientNumber}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "referrals", "complete", "{{patientNumber}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
