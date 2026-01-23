@@ -4,6 +4,8 @@ import { generateToken } from '../security/jwt.utils.js';
 import type { ILoginPayload, ILoginResponse } from '../types/auth.types.js';
 import type { UserProjection } from '../types/user.types.js';
 import type { IAuthService } from './interface/iauth.service.js';
+import AppError from '../Errors/BaseError.js';
+import InvalidCredentialsError from '../Errors/InvalidCredentialsError.js';
 
 export default class AuthService implements IAuthService {
   async login(credentials: ILoginPayload): Promise<ILoginResponse> {
@@ -13,13 +15,13 @@ export default class AuthService implements IAuthService {
     });
 
     if (!account) {
-      throw new Error('Invalid credentials');
+      throw new InvalidCredentialsError();
     }
 
     // Compare password
     const isPasswordValid = await bcrypt.compare(credentials.password, account.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
+      throw new InvalidCredentialsError();
     }
 
     // Get User and Roles - assuming account has a reference to user

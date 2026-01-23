@@ -7,6 +7,7 @@ import userRoutes from './routes/user.route.js';
 import assessmentRoutes from './routes/assessment.route.js';
 import referralRoutes from './routes/referral.route.js';
 import { UserService } from './service/user.service.js';
+import GlobalErrorHandler from './Errors/globalErrorHandler.js';
 
 app.use(cors());
 app.use(express.json());
@@ -34,5 +35,9 @@ app.all('/{*any}', (req, res) => {
     status: 'fail',
     message: `Endpoint ${req.originalUrl} not found`,
   });
+});
+
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  GlobalErrorHandler.getInstance().handleError(err, req, res, next);
 });
 export default app;
