@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import type AuthService from '../service/auth.service.js';
-import { LoginSchema, type ILoginResponse } from '../types/auth.types.js';
+import { type ILoginResponse } from '../types/auth.types.js';
 import responseFactory from './responseFactory.js';
 
 export default class AuthController {
@@ -12,9 +12,6 @@ export default class AuthController {
 
   async authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      // Validate
-      LoginSchema.parse(req.body);
-
       // Authenticate
       const result: ILoginResponse = await this.authService.login(req.body);
 

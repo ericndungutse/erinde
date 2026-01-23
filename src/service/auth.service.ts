@@ -1,11 +1,10 @@
 import bcrypt from 'bcrypt';
+import InvalidCredentialsError from '../Errors/InvalidCredentialsError.js';
 import Account from '../models/account.model.js';
 import { generateToken } from '../security/jwt.utils.js';
 import type { ILoginPayload, ILoginResponse } from '../types/auth.types.js';
 import type { UserProjection } from '../types/user.types.js';
 import type { IAuthService } from './interface/iauth.service.js';
-import AppError from '../Errors/BaseError.js';
-import InvalidCredentialsError from '../Errors/InvalidCredentialsError.js';
 
 export default class AuthService implements IAuthService {
   async login(credentials: ILoginPayload): Promise<ILoginResponse> {

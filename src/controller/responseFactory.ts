@@ -38,6 +38,8 @@ export default class ResponseFactory {
   }
 
   error(error: any, message = 'Unknown Error', status = 500) {
+    console.log('******************** ', error?.name);
+
     console.error(error);
 
     return this.res.status(status).json({
