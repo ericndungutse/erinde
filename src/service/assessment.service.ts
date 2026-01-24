@@ -16,6 +16,7 @@ import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
 import { log } from 'node:console';
 import InvalidUnit from '../Errors/InvalidUnits.js';
 import IndicatorNotFound from '../Errors/IndicatorNotFoundError.js';
+import PatientNotFoundException from '../Errors/PatientNotFoundException.js';
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
@@ -48,7 +49,7 @@ export default class AssessmentService implements IAssessmentService {
       // Resolve patient (user) by patientNumber
       const clinical = await ClinicalProfile.findOne({ patientNumber: dto.patientNumber }).lean();
       if (!clinical) {
-        throw new Error(`Patient with number ${dto.patientNumber} not found`);
+        throw new PatientNotFoundException();
       }
 
       const patientId = clinical.userId;
