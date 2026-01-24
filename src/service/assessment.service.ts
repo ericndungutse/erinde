@@ -15,6 +15,7 @@ import type { IReferralService } from './interface/ireferral.service.js';
 import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
 import { log } from 'node:console';
 import InvalidUnit from '../Errors/InvalidUnits.js';
+import IndicatorNotFound from '../Errors/IndicatorNotFoundError.js';
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
@@ -32,7 +33,7 @@ export default class AssessmentService implements IAssessmentService {
       // Validate indicator exists
       const indicatorDoc: any = await Indicator.findById(dto.indicator).lean();
       if (!indicatorDoc) {
-        throw new Error(`Indicator ${dto.indicator} not found`);
+        throw new IndicatorNotFound();
       }
 
       // Validate if patient has pending referral with this indicator already
