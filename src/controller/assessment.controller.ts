@@ -1,6 +1,6 @@
-import type { Request, Response } from 'express';
-import { CreateAssessmentSchemaZ } from '../types/assessment.types.js';
+import type { NextFunction, Request, Response } from 'express';
 import type { IAssessmentService } from '../service/interface/iassessment.service.js';
+import ResponseFactory from './responseFactory.js';
 
 export default class AssessmentController {
   private _assessmentService: IAssessmentService;
@@ -9,26 +9,15 @@ export default class AssessmentController {
     this._assessmentService = assessmentService;
   }
 
-  async createAssessment(req: Request, res: Response) {
+  async createAssessment(req: Request, res: Response, next: NextFunction) {
     try {
       // Resolve creator id from authenticated user if available
       const evaluatedBy = req.user?.id;
 
       const created = await this._assessmentService.createAssessment(req.body, evaluatedBy);
-
-      return res
-        .status(201)
-        .json({ status: 'success', message: 'Assessment created successfully', data: { assessment: created } });
+      ResponseFactory.getResponseFactory(res).created('assessment', created, 'Assessment created successfully');
     } catch (err: any) {
-      const msg = err?.message || 'Failed to create assessment';
-
-      // Map not-found style errors to 404
-      if (msg.toLowerCase().includes('not found')) {
-        return res.status(404).json({ status: 'fail', message: msg });
-      }
-
-      // Zod validation errors or other client issues
-      return res.status(400).json({ status: 'fail', message: msg });
+      next(err);
     }
   }
 

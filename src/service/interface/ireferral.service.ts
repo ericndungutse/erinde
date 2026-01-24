@@ -1,4 +1,4 @@
-import type { IReferralSummary, ReferralStatus, IReferralDetails } from '../../types/referral.types.js';
+import type { IReferral, IReferralDetails, IReferralSummary, ReferralStatus } from '../../types/referral.types.js';
 
 export interface IReferralService {
   /**
@@ -29,4 +29,17 @@ export interface IReferralService {
    * Get Single Referral by Patient Number. Mark status as COMPLETED. When Doen by NURSE
    */
   completeReferralByPatientNumber(patientNumber: number): Promise<any | null>;
+
+  /**
+   * Check if a patient currently has a pending referral.
+   * Useful for preventing duplicate referrals or UI state management.
+   * * @param patientNumber - Patient number to check for pending referrals
+   * @returns Boolean indicating if a pending referral exists
+   */
+  hasPendingReferral(patientNumber: number): Promise<boolean>;
+
+  /**
+   * Get a single referral by patient number. No population, raw referral data only.
+   */
+  getPendingReferralByPatientNumber(patientNumber: number): Promise<IReferral | null>;
 }

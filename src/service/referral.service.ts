@@ -3,9 +3,23 @@ import Assessment from '../models/assessment.model.js';
 import Referral from '../models/referral.model.js';
 import mongoose from 'mongoose';
 import type { IReferralService } from './interface/ireferral.service.js';
-import type { IReferralSummary, ReferralStatus, IReferralDetails } from '../types/referral.types.js';
+import type { IReferralSummary, ReferralStatus, IReferralDetails, IReferral } from '../types/referral.types.js';
+import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
 
 export class ReferralService implements IReferralService {
+  getPendingReferralByPatientNumber(patientNumber: number): Promise<IReferral | null> {
+    const referral = Referral.findOne({ patientNumber, status: 'PENDING' }).lean().exec();
+    return referral;
+  }
+
+  async hasPendingReferral(patientNumber: number): Promise<boolean> {
+    const exists = await Referral.exists({
+      patientNumber,
+      status: 'PENDING',
+    });
+    return !!exists;
+  }
+
   // TODO: Analytics: You can now calculate the "Lag Time" between scheduledVisitDate and actualVisitDate to see if patients are arriving earlier or later than expected.
   async completeReferralByPatientNumber(patientNumber: number): Promise<any | null> {
     const updated = await Referral.findOneAndUpdate(
@@ -49,6 +63,11 @@ export class ReferralService implements IReferralService {
     }).exec();
 
     if (existingReferral) {
+      // Reject if now is after referralDate: If there is a pending referral but the date has passed, do not update, throw error. Assessmens and refer should be on same day.
+      if (!this.isSameDay(today, new Date(existingReferral.referralDate))) {
+        throw new HasPendingReferralError();
+      }
+
       // Update: Add assessment ID if it's not already in the array
       if (!existingReferral.assessments.includes(assessmentId)) {
         existingReferral.assessments.push(assessmentId);
@@ -169,6 +188,14 @@ export class ReferralService implements IReferralService {
     };
 
     return details;
+  }
+
+  isSameDay(dateA: Date, dateB: Date): boolean {
+    return (
+      dateA.getFullYear() === dateB.getFullYear() &&
+      dateA.getMonth() === dateB.getMonth() &&
+      dateA.getDate() === dateB.getDate()
+    );
   }
 }
 

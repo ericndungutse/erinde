@@ -19,7 +19,7 @@ const AssessmentReadingSchema = new Schema<IAssessmentReading>(
       required: true,
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 /**
@@ -38,7 +38,7 @@ const AssessmentClassificationSchema = new Schema<IAssessmentClassification>(
       index: true,
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 /**
@@ -90,6 +90,17 @@ const AssessmentResultSchema = new Schema<IAssessment>(
       required: true,
       default: Date.now,
     },
+
+    evaluatedDate: {
+      type: Date,
+      required: true,
+      default: () => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
+      },
+      index: true,
+    },
   },
 
   {
@@ -100,7 +111,7 @@ const AssessmentResultSchema = new Schema<IAssessment>(
     toObject: {
       flattenMaps: true,
     },
-  }
+  },
 );
 
 /**
@@ -108,6 +119,8 @@ const AssessmentResultSchema = new Schema<IAssessment>(
  * One indicator per patient per time window (optional)
  */
 AssessmentResultSchema.index({ patient: 1, evaluatedAt: -1 });
+
+AssessmentResultSchema.index({ patient: 1, indicator: 1, evaluatedDate: 1 }, { unique: true });
 
 const Assessment = mongoose.model<IAssessment>('Assessment', AssessmentResultSchema);
 export default Assessment;

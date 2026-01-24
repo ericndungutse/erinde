@@ -17,9 +17,7 @@ export default class GlobalErrorHandler {
 
     // Handle Mongoose duplicate key error
     if (err.code === 11000) {
-      const field = Object.keys(err.keyValue)[0];
-      const message = `Duplicate value ${field}`;
-      return rf.badRequest(message);
+      return this.handleDuplicateKeyError(err, rf);
     }
 
     // Handle zod validation errors
@@ -36,6 +34,8 @@ export default class GlobalErrorHandler {
     const rf = ResponseFactory.getResponseFactory(res);
 
     switch (err.statusCode) {
+      case 400:
+        return rf.badRequest(err.message);
       case 401:
         return rf.unauthenticated(err.message);
       case 403:
@@ -46,5 +46,21 @@ export default class GlobalErrorHandler {
       default:
         return rf.error(err, err.message || 'Internal Server Error');
     }
+  }
+
+  handleDuplicateKeyError(err: any, rf: ResponseFactory) {
+    // Check if it's the patient+indicator+evaluatedDate unique index
+    const pattern = err.keyPattern; // { patient: 1, indicator: 1, evaluatedDate: 1 }
+
+    if (pattern.patient && pattern.indicator && pattern.evaluatedDate && Object.keys(pattern).length === 3) {
+      // Custom message for this compound index
+      const message = 'An assessment for this patient and indicator already exists today';
+      return rf.badRequest(message);
+    }
+
+    // fallback for other duplicate keys
+    const field = Object.keys(err.keyValue)[0];
+    const message = `Duplicate value for field: ${field}`;
+    return rf.badRequest(message);
   }
 }

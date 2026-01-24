@@ -1,3 +1,4 @@
+import type { AnyARecord } from 'dns';
 import type {
   CreateAssessmentDTO,
   AssessmentCreatedResponseDTO,
@@ -16,4 +17,6 @@ export interface IAssessmentService {
    * Get single assessment details by id (no population)
    */
   getAssessmentById(assessmentId: string): Promise<AssessmentDetailsDTO | null>;
+
+  getAssessmentIndicator(assessmentId: string): Promise<any | null>;
 }

@@ -21,7 +21,7 @@ export const CreateAssessmentSchemaZ = z.object(
     // dynamic readings map
     readings: AssessmentReadingsSchemaZ,
   },
-  { message: 'Required fields are missing or invalid types provided' }
+  { message: 'Required fields are missing or invalid types provided' },
 );
 
 export type CreateAssessmentDTO = z.infer<typeof CreateAssessmentSchemaZ>;
@@ -64,6 +64,7 @@ export interface IAssessmentData {
   classification: IAssessmentClassification;
   recommendations: string[];
   evaluatedAt: Date | string;
+  evaluatedDate?: Date | string;
 }
 
 export type AssessmentCreatedResponseDTO = Omit<

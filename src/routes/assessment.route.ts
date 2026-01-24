@@ -5,8 +5,8 @@ import { protect } from '../security/auth.middleware.js';
 
 const router = Router();
 
-router.post('/', protect, validateCreateAssessment, (req, res) =>
-  container.assessmentController.createAssessment(req, res)
+router.post('/', protect, validateCreateAssessment, (req, res, next) =>
+  container.assessmentController.createAssessment(req, res, next),
 );
 
 // GET /assessments/:id - Get single assessment details (no population)
