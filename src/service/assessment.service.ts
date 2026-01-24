@@ -14,6 +14,7 @@ import type { IIndicatorData } from '../types/indicator.types.js';
 import type { IReferralService } from './interface/ireferral.service.js';
 import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
 import { log } from 'node:console';
+import InvalidUnit from '../Errors/InvalidUnits.js';
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
@@ -26,7 +27,7 @@ export default class AssessmentService implements IAssessmentService {
     return Assessment.findById(assessmentId).select('indicator').lean().exec();
   }
 
-  async createAssessment(dto: CreateAssessmentDTO, evaluatedBy?: string): Promise<AssessmentCreatedResponseDTO> {
+  async createAssessment(dto: CreateAssessmentDTO, evaluatedBy: string): Promise<AssessmentCreatedResponseDTO> {
     try {
       // Validate indicator exists
       const indicatorDoc: any = await Indicator.findById(dto.indicator).lean();
@@ -61,7 +62,7 @@ export default class AssessmentService implements IAssessmentService {
       });
 
       if (invalids.length) {
-        throw new Error(`Reading unit mismatch: ${invalids.join('; ')}`);
+        throw new InvalidUnit(`Reading unit mismatch: ${invalids.join('; ')}`);
       }
 
       // Classify assessment
@@ -107,9 +108,6 @@ export default class AssessmentService implements IAssessmentService {
 
       // Create referral if results are abnormal (not 'healthy')
       if (classification && classification.status_code !== 'healthy') {
-        if (!evaluatedBy) {
-          throw new Error('evaluatedBy is required to create a referral for abnormal results');
-        }
         await this.referralService.createReferral(created.id, patientId.toString(), evaluatedBy);
       }
 
