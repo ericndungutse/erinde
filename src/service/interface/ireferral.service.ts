@@ -1,3 +1,4 @@
+import type { ClientSession } from 'mongoose';
 import type { IReferral, IReferralDetails, IReferralSummary, ReferralStatus } from '../../types/referral.types.js';
 
 export interface IReferralService {
@@ -9,7 +10,7 @@ export interface IReferralService {
    * @param patientId - User id of the patient
    * @param referredBy - User id of the person who initiated the referral
    */
-  createReferral(assessmentId: string, patientId: string, referredBy: string): Promise<void>;
+  createReferral(assessmentId: string, patientId: string, referredBy: string, session?: ClientSession): Promise<void>;
 
   /**
    * List referrals for patients under a specific social health worker's follow-up.
@@ -41,5 +42,5 @@ export interface IReferralService {
   /**
    * Get a single referral by patient number. No population, raw referral data only.
    */
-  getPendingReferralByPatientNumber(patientNumber: number): Promise<IReferral | null>;
+  getPendingReferralByPatientNumber(patientNumber: number, session?: ClientSession): Promise<IReferral | null>;
 }

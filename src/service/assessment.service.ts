@@ -1,13 +1,14 @@
 import ClinicalProfile from '../models/clinicalProfile.model.js';
 import Indicator from '../models/indicator.model.js';
+import type { ClientSession } from 'mongoose';
 
-import Assessment from '../models/assessment.model.js';
 import AssessmentClassifier from './assessment-classifier.service.js';
 import type {
   CreateAssessmentDTO,
   AssessmentCreatedResponseDTO,
   IAssessmentClassification,
   AssessmentDetailsDTO,
+  IAssessment,
 } from '../types/assessment.types.js';
 import type { IAssessmentService } from './interface/iassessment.service.js';
 import type { IIndicatorData } from '../types/indicator.types.js';
@@ -17,6 +18,9 @@ import { log } from 'node:console';
 import InvalidUnit from '../Errors/InvalidUnits.js';
 import IndicatorNotFound from '../Errors/IndicatorNotFoundError.js';
 import PatientNotFoundException from '../Errors/PatientNotFoundException.js';
+import mongoose from 'mongoose';
+import { Assessment } from '../models/assessment.model.js';
+import { AssessmentCreationError } from '../Errors/AssessmentCreationError.js';
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
@@ -30,35 +34,43 @@ export default class AssessmentService implements IAssessmentService {
   }
 
   async createAssessment(dto: CreateAssessmentDTO, evaluatedBy: string): Promise<AssessmentCreatedResponseDTO> {
+    const session = await mongoose.startSession();
+
     try {
-      // Validate indicator exists
-      const indicatorDoc: any = await Indicator.findById(dto.indicator).lean();
+      session.startTransaction();
+
+      // 1. Validate indicator exists
+      const indicatorDoc: any = await Indicator.findById(dto.indicator).session(session).lean();
+
       if (!indicatorDoc) {
         throw new IndicatorNotFound();
       }
 
-      // Validate if patient has pending referral with this indicator already
+      // 2. Validate pending referral
       const hasPendingReferral = await this.indicatorAssessmentExistsForPendingReferral(
         dto.patientNumber,
         dto.indicator,
+        session,
       );
+
       if (hasPendingReferral) {
         throw new HasPendingReferralError();
       }
 
-      // Resolve patient (user) by patientNumber
-      const clinical = await ClinicalProfile.findOne({ patientNumber: dto.patientNumber }).lean();
+      // 3. Resolve patient
+      const clinical = await ClinicalProfile.findOne({ patientNumber: dto.patientNumber }).session(session).lean();
+
       if (!clinical) {
         throw new PatientNotFoundException();
       }
 
       const patientId = clinical.userId;
 
-      // Validate readings units against indicator definitions (if provided)
+      // 4. Validate reading units
       const invalids: string[] = [];
       Object.entries(dto.readings).forEach(([key, val]) => {
         const expected = (indicatorDoc.readings || []).find((r: any) => r.type === key);
-        if (expected && expected.unit && val.unit && expected.unit !== val.unit) {
+        if (expected?.unit && val.unit && expected.unit !== val.unit) {
           invalids.push(`${key} expects unit ${expected.unit} but got ${val.unit}`);
         }
       });
@@ -67,31 +79,38 @@ export default class AssessmentService implements IAssessmentService {
         throw new InvalidUnit(`Reading unit mismatch: ${invalids.join('; ')}`);
       }
 
-      // Classify assessment
+      // 5. Classification
       let classification: IAssessmentClassification | undefined;
       let recommendations: string[] = [];
 
       const classifier = new AssessmentClassifier();
 
-      if (indicatorDoc.name === 'hypertension') {
-        const result = classifier.classifyHypertension(dto.readings, indicatorDoc as IIndicatorData);
-        classification = result.classification;
-        recommendations = result.recommendations;
-      } else if (indicatorDoc.name === 'bmi') {
-        const result = classifier.classifyBmi(dto.readings, indicatorDoc as IIndicatorData);
-        classification = result.classification;
-        recommendations = result.recommendations;
-      } else if (indicatorDoc.name === 'diabetes') {
-        const result = classifier.classifyDiabetes(dto.readings, indicatorDoc as IIndicatorData);
-        classification = result.classification;
-        recommendations = result.recommendations;
+      switch (indicatorDoc.name) {
+        case 'hypertension': {
+          const r = classifier.classifyHypertension(dto.readings, indicatorDoc as IIndicatorData);
+          classification = r.classification;
+          recommendations = r.recommendations;
+          break;
+        }
+        case 'bmi': {
+          const r = classifier.classifyBmi(dto.readings, indicatorDoc as IIndicatorData);
+          classification = r.classification;
+          recommendations = r.recommendations;
+          break;
+        }
+        case 'diabetes': {
+          const r = classifier.classifyDiabetes(dto.readings, indicatorDoc as IIndicatorData);
+          classification = r.classification;
+          recommendations = r.recommendations;
+          break;
+        }
       }
 
-      // Prepare assessment payload
-      const assessmentPayload: any = {
+      // 6. Create assessment
+      const assessmentPayload = {
         patient: patientId,
         indicator: dto.indicator,
-        evaluatedBy: evaluatedBy,
+        evaluatedBy,
         readings: dto.readings,
         classification,
         recommendations,
@@ -99,22 +118,29 @@ export default class AssessmentService implements IAssessmentService {
         evaluatedDate: new Date(new Date().setHours(0, 0, 0, 0)),
       };
 
-      const created = await Assessment.create(assessmentPayload as any);
+      const [created] = await Assessment.create([assessmentPayload as IAssessment], { session: session ?? null });
 
-      const response: AssessmentCreatedResponseDTO = {
+      if (!created) {
+        throw new AssessmentCreationError();
+      }
+
+      // 7. Create referral if abnormal
+      if (classification && classification.status_code !== 'healthy') {
+        await this.referralService.createReferral(created.id, patientId.toString(), evaluatedBy, session);
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
         id: created.id,
         readings: created.readings,
         classification: created.classification,
         recommendations: created.recommendations,
       };
-
-      // Create referral if results are abnormal (not 'healthy')
-      if (classification && classification.status_code !== 'healthy') {
-        await this.referralService.createReferral(created.id, patientId.toString(), evaluatedBy);
-      }
-
-      return response;
     } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
       throw error;
     }
   }
@@ -155,8 +181,9 @@ export default class AssessmentService implements IAssessmentService {
   private async indicatorAssessmentExistsForPendingReferral(
     patientNumber: number,
     indicatorId: string,
+    session?: ClientSession,
   ): Promise<boolean> {
-    const referral = await this.referralService.getPendingReferralByPatientNumber(patientNumber);
+    const referral = await this.referralService.getPendingReferralByPatientNumber(patientNumber, session);
 
     if (!referral) {
       return false;

@@ -1,14 +1,14 @@
 import ClinicalProfile from '../models/clinicalProfile.model.js';
-import Assessment from '../models/assessment.model.js';
+import { Assessment } from '../models/assessment.model.js';
 import Referral from '../models/referral.model.js';
-import mongoose from 'mongoose';
+import mongoose, { type ClientSession } from 'mongoose';
 import type { IReferralService } from './interface/ireferral.service.js';
 import type { IReferralSummary, ReferralStatus, IReferralDetails, IReferral } from '../types/referral.types.js';
 import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
 
 export class ReferralService implements IReferralService {
-  getPendingReferralByPatientNumber(patientNumber: number): Promise<IReferral | null> {
-    const referral = Referral.findOne({ patientNumber, status: 'PENDING' }).lean().exec();
+  getPendingReferralByPatientNumber(patientNumber: number, session: ClientSession): Promise<IReferral | null> {
+    const referral = Referral.findOne({ patientNumber, status: 'PENDING' }).session(session).lean().exec();
     return referral;
   }
 
@@ -51,54 +51,76 @@ export class ReferralService implements IReferralService {
    * - If a referral for (patient, referralDate) exists, append the assessment id.
    * - Otherwise create a new referral.
    */
-  async createReferral(assessmentId: string, patientId: string, referredBy: string): Promise<void> {
+
+  async createReferral(
+    assessmentId: string,
+    patientId: string,
+    referredBy: string,
+    session?: ClientSession,
+  ): Promise<void> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 1. Check for an existing PENDING referral for this patient today
+    // 1. Check for existing PENDING referral (transaction-aware)
+    // Check if there is a pending referral for the patient
     const existingReferral = await Referral.findOne({
       patient: patientId,
-      referralDate: today,
       status: 'PENDING',
-    }).exec();
+    })
+      .session(session ?? null)
+      .exec();
 
     if (existingReferral) {
-      // Reject if now is after referralDate: If there is a pending referral but the date has passed, do not update, throw error. Assessmens and refer should be on same day.
+      // Ensure assessments are added for the same day as referral was created.
       if (!this.isSameDay(today, new Date(existingReferral.referralDate))) {
         throw new HasPendingReferralError();
       }
 
-      // Update: Add assessment ID if it's not already in the array
+      // Add assessment if not already included
       if (!existingReferral.assessments.includes(assessmentId)) {
         existingReferral.assessments.push(assessmentId);
-        await existingReferral.save();
+        await existingReferral.save({ session: session ?? null });
       }
       return;
     }
 
-    // 2. If no referral exists, fetch necessary profiles and create a new one
+    // 2. Fetch assessment and clinical profile (transaction-aware)
     const [assessment, clinicalProfile] = await Promise.all([
-      Assessment.findById(assessmentId).lean().exec(),
-      ClinicalProfile.findOne({ userId: patientId }).lean().exec(),
+      Assessment.findById(assessmentId)
+        .session(session ?? null)
+        .lean()
+        .exec(),
+      ClinicalProfile.findOne({ userId: patientId })
+        .session(session ?? null)
+        .lean()
+        .exec(),
     ]);
 
     if (!assessment || !clinicalProfile) {
       throw new Error('Required Assessment or Clinical Profile not found');
     }
 
+    // 3. Schedule next visit
     const scheduledVisitDate = new Date(today);
-    scheduledVisitDate.setDate(scheduledVisitDate.getDate() + 30); // Now + 30 days
+    scheduledVisitDate.setDate(scheduledVisitDate.getDate() + 30);
 
-    await Referral.create({
-      patient: patientId,
-      patientNumber: clinicalProfile.patientNumber,
-      clinicalProfile: clinicalProfile._id,
-      referralDate: today,
-      scheduledVisitDate,
-      status: 'PENDING',
-      assessments: [assessmentId],
-      referredBy,
-    });
+    // 4. Create referral (transaction-aware)
+
+    await Referral.create(
+      [
+        {
+          patient: patientId,
+          patientNumber: clinicalProfile.patientNumber,
+          clinicalProfile: clinicalProfile._id,
+          referralDate: today,
+          scheduledVisitDate,
+          status: 'PENDING',
+          assessments: [assessmentId],
+          referredBy,
+        },
+      ],
+      { session: session ?? null },
+    );
   }
 
   /**
@@ -191,6 +213,7 @@ export class ReferralService implements IReferralService {
   }
 
   isSameDay(dateA: Date, dateB: Date): boolean {
+    console.log(dateA, dateB);
     return (
       dateA.getFullYear() === dateB.getFullYear() &&
       dateA.getMonth() === dateB.getMonth() &&

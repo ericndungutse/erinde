@@ -4,6 +4,7 @@ import {
   type IAssessmentReading,
   type IAssessment,
 } from '../types/assessment.types.js';
+import type { Model } from 'mongoose';
 
 /**
  * Subdocument: single reading
@@ -122,5 +123,4 @@ AssessmentResultSchema.index({ patient: 1, evaluatedAt: -1 });
 
 AssessmentResultSchema.index({ patient: 1, indicator: 1, evaluatedDate: 1 }, { unique: true });
 
-const Assessment = mongoose.model<IAssessment>('Assessment', AssessmentResultSchema);
-export default Assessment;
+export const Assessment: Model<IAssessment> = mongoose.model<IAssessment>('Assessment', AssessmentResultSchema);
