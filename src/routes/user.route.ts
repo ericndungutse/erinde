@@ -3,6 +3,8 @@ import { validateRegisterUser, validateRegisterUserWithAccount } from '../valida
 import { container } from '../container.js';
 import { authorize, protect } from '../security/auth.middleware.js';
 import { AccountRole } from '../types/user.types.js';
+import { validateBody } from '../validation/validator.js';
+import { RegisterUserSchema, RegisterUserWithAccountSchema } from '../types/register-user.types.js';
 
 const router = Router();
 
@@ -15,11 +17,15 @@ router.post(
   '/',
   protect,
   authorize(AccountRole.SOCIAL_HEALTH_WORKER, AccountRole.SCREENING_VOLUNTEER),
-  validateRegisterUser,
+  validateBody(RegisterUserSchema),
   (req, res) => container.userController.registerUserController(req, res),
 );
-router.post('/admin/register', protect, authorize(AccountRole.ADMIN), validateRegisterUserWithAccount, (req, res) =>
-  container.userController.registerUserWithAccountController(req, res),
+router.post(
+  '/admin/register',
+  protect,
+  authorize(AccountRole.ADMIN),
+  validateBody(RegisterUserWithAccountSchema),
+  (req, res) => container.userController.registerUserWithAccountController(req, res),
 );
 router.get('/:patientNumber', (req, res) => container.userController.findUserByPatientNumberController(req, res));
 

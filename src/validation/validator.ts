@@ -7,14 +7,20 @@ export const validateBody = (schema: ZodType) => {
     const result = schema.safeParse(req.body);
 
     if (!result.success) {
-      const errors = result.error.issues.map((err: any) => ({
-        [err.path[0]]: err.message,
-      }));
+      // Use reduce to accumulate all errors into one object
+      const errorObject = result.error.issues.reduce(
+        (acc, err) => {
+          const path = err.path.join('.');
+          acc[path] = err.message;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
 
-      return ResponseFactory.getResponseFactory(res).badRequest('Validation failed', errors);
+      return ResponseFactory.getResponseFactory(res).badRequest('Validation failed', errorObject);
     }
 
-    // Attach validated data to request
+    // Attach validated and transformed data to request
     req.body = result.data;
     next();
   };

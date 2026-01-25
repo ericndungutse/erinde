@@ -21,34 +21,35 @@ export interface RegisterUserDTO {
 }
 
 export const RegisterUserSchema = z.object({
-  firstname: z.string().min(1, { message: 'First name is required' }),
-  lastname: z.string().min(1, { message: 'Last name is required' }),
+  firstname: z.string({ message: 'First name is required' }).min(1, { message: 'First name is required' }),
+  lastname: z.string({ message: 'Last name is required' }).min(1, { message: 'Last name is required' }),
   birthdate: z.preprocess(
     (arg) => {
       if (typeof arg === 'string' || arg instanceof Date) return new Date(arg);
     },
     z.date({
       message: 'Birthdate is required',
-    })
+    }),
   ),
   address: z.object({
-    province: z.string().min(1, { message: 'Province is required' }),
-    district: z.string().min(1, { message: 'District is required' }),
-    sector: z.string().min(1, { message: 'Sector is required' }),
-    cell: z.string().min(1, { message: 'Cell is required' }),
-    village: z.string().min(1, { message: 'Village is required' }),
+    province: z.string({ message: 'Province is required' }).min(1, { message: 'Province is required' }),
+    district: z.string({ message: 'District is required' }).min(1, { message: 'District is required' }),
+    sector: z.string({ message: 'Sector is required' }).min(1, { message: 'Sector is required' }),
+    cell: z.string({ message: 'Cell is required' }).min(1, { message: 'Cell is required' }),
+    village: z.string({ message: 'Village is required' }).min(1, { message: 'Village is required' }),
   }),
   contact: z.object({
     phone: z
-      .string()
+      .string({ message: 'Phone number is required' })
       .min(10, { message: 'Phone number must be at least 10 characters' })
-      .regex(/^\+?[0-9]+$/, { message: 'Invalid phone format' }),
-    email: z.email({ message: 'Invalid email address' }),
+      .max(10, { message: 'Phone number must be at most 10 characters' })
+      .regex(/^\+?[0-9]+$/, { message: 'Phone number must contain only numbers' }),
+    email: z.string({ message: 'Email is required' }).email({ message: 'Invalid email address' }),
   }),
   nationalIdentificationNumber: z
-    .string()
-    .length(16, { message: 'NIN must be exactly 16 characters' })
-    .regex(/^[0-9]+$/, { message: 'NIN must contain only numbers' }),
+    .string({ message: 'National Identification Number is required' })
+    .length(16, { message: 'National Identification Number must be exactly 16 characters' })
+    .regex(/^[0-9]+$/, { message: 'National Identification Number must contain only numbers' }),
 });
 
 export type RegisterUserResponse = {
@@ -59,7 +60,7 @@ export type RegisterUserResponse = {
 export const RegisterUserWithAccountSchema = RegisterUserSchema.extend({
   roles: z.preprocess(
     (val) => (val === undefined ? [] : val),
-    z.array(AccountRoleSchema).min(1, { message: 'At least one role is required' })
+    z.array(AccountRoleSchema).min(1, { message: 'At least one role is required' }),
   ),
 });
 
