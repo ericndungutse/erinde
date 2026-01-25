@@ -22,6 +22,15 @@ export interface IReferralService {
   listReferralsByHealthWorker(healthWorkerId: string, status: ReferralStatus): Promise<IReferralSummary[]>;
 
   /**
+   * List upcoming referrals (future or today) for patients under a specific
+   * social health worker's follow-up, ordered by scheduledVisitDate ascending.
+   *
+   * @param healthWorkerId - Logged-in social health worker's user id
+   * @returns Array of upcoming referrals for patients assigned to the given health worker
+   */
+  listUpcomingReferralsByHealthWorker(healthWorkerId: string): Promise<IReferralSummary[]>;
+
+  /**
    * Get a single referral by id. No population, raw referral data only.
    */
   getReferralById(referralId: string): Promise<IReferralDetails | null>;

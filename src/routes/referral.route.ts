@@ -10,6 +10,11 @@ router.get('/me', protect, authorize(AccountRole.SOCIAL_HEALTH_WORKER), (req, re
   container.referralController.listMyReferrals(req, res),
 );
 
+// GET /referrals/upcoming - List upcoming referral visits (by scheduledVisitDate) for the logged-in social health worker
+router.get('/upcoming', protect, authorize(AccountRole.SOCIAL_HEALTH_WORKER), (req, res) =>
+  container.referralController.listMyUpcomingReferrals(req, res),
+);
+
 // GET /referrals/:id - Get single referral details
 router.get('/:id', protect, authorize(AccountRole.SOCIAL_HEALTH_WORKER), (req, res) =>
   container.referralController.getReferralById(req, res),

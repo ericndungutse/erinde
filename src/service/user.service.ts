@@ -1,4 +1,7 @@
 import { ConstantValues } from '../constants/constant.values.js';
+import DuplicateEmailError from '../Errors/DublicateEmailError.js';
+import DuplicatePhoneError from '../Errors/DublicatePhoneError.js';
+import DuplicateIDError from '../Errors/DuplicateIDError.js';
 import Account from '../models/account.model.js';
 import ClinicalProfile from '../models/clinicalProfile.model.js';
 import Counter from '../models/counter.model.js';
@@ -53,12 +56,20 @@ export class UserService implements IUserService {
   async registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponse> {
     const { nationalIdentificationNumber, contact } = userData;
 
-    // 1. Check if user exists
-    const existingUser = await User.findOne({
-      $or: [{ nationalIdentificationNumber }, { 'contact.email': contact.email }, { 'contact.phone': contact.phone }],
-    });
-    if (existingUser) {
-      throw new Error('User already exists with provided identification, email, or phone');
+    // 1. Check if user exists (specific checks for clearer feedback)
+    const ninConflict = await User.findOne({ nationalIdentificationNumber });
+    if (ninConflict) {
+      throw new DuplicateIDError('A user already exists with the provided national identification number');
+    }
+
+    const emailConflict = await User.findOne({ 'contact.email': contact.email });
+    if (emailConflict) {
+      throw new DuplicateEmailError('A user already exists with the provided email');
+    }
+
+    const phoneConflict = await User.findOne({ 'contact.phone': contact.phone });
+    if (phoneConflict) {
+      throw new DuplicatePhoneError('A user already exists with the provided phone number');
     }
 
     // 2. Create the user

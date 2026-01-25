@@ -1,98 +1,6 @@
 [
   {
     "user": {
-      "firstname": "John",
-      "lastname": "Doe",
-      "birthdate": "1990-05-15",
-      "address": {
-        "province": "Kigali",
-        "district": "Gasabo",
-        "sector": "Gisozi",
-        "cell": "Kamatamu",
-        "village": "Kamatamu"
-      },
-      "contact": {
-        "phone": "0700000001",
-        "email": "screening.volunteer1@example.com"
-      },
-      "nationalIdentificationNumber": "1199900015001",
-      "roles": ["SCREENING_VOLUNTEER", "USER"]
-    },
-    "account": {
-      "password": "Test@123"
-    }
-  },
-  {
-    "user": {
-      "firstname": "Jane",
-      "lastname": "Smith",
-      "birthdate": "1988-08-22",
-      "address": {
-        "province": "Kigali",
-        "district": "Gasabo",
-        "sector": "Gisozi",
-        "cell": "Kamatamu",
-        "village": "Kamatamu"
-      },
-      "contact": {
-        "phone": "0700000002",
-        "email": "screening.volunteer2@example.com"
-      },
-      "nationalIdentificationNumber": "1198800822002",
-      "roles": ["SCREENING_VOLUNTEER", "USER"]
-    },
-    "account": {
-      "password": "Test@123"
-    }
-  },
-  {
-    "user": {
-      "firstname": "Robert",
-      "lastname": "Johnson",
-      "birthdate": "1992-03-10",
-      "address": {
-        "province": "south",
-        "district": "muhanga",
-        "sector": "nyamabuye",
-        "cell": "gahogo",
-        "village": "rutenga"
-      },
-      "contact": {
-        "phone": "0700000003",
-        "email": "social.health.worker1@example.com"
-      },
-      "nationalIdentificationNumber": "1199200310003",
-      "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
-    },
-    "account": {
-      "password": "Test@123"
-    }
-  },
-  {
-    "user": {
-      "firstname": "Sarah",
-      "lastname": "Williams",
-      "birthdate": "1991-11-18",
-      "address": {
-        "province": "south",
-        "district": "muhanga",
-        "sector": "nyamabuye",
-        "cell": "gahogo",
-        "village": "ruvumera"
-      },
-      "contact": {
-        "phone": "0700000004",
-        "email": "social.health.worker2@example.com"
-      },
-      "nationalIdentificationNumber": "1199100418004",
-      "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
-    },
-    "account": {
-      "password": "Test@123"
-    }
-  },
-  {
-    "user": {
       "firstname": "Alice",
       "lastname": "Admin",
       "birthdate": "1985-07-01",
@@ -109,29 +17,6 @@
       },
       "nationalIdentificationNumber": "1188500701005",
       "roles": ["ADMIN", "USER"]
-    },
-    "account": {
-      "password": "Test@123"
-    }
-  },
-  {
-    "user": {
-      "firstname": "Nora",
-      "lastname": "Nurse",
-      "birthdate": "1989-01-10",
-      "address": {
-        "province": "Kigali",
-        "district": "Kicukiro",
-        "sector": "Kanombe",
-        "cell": "Kanombe",
-        "village": "Kabeza"
-      },
-      "contact": {
-        "phone": "0700000006",
-        "email": "nurse.user@example.com"
-      },
-      "nationalIdentificationNumber": "1188900110006",
-      "roles": ["NURSE", "USER"]
     },
     "account": {
       "password": "Test@123"

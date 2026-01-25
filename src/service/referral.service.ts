@@ -172,6 +172,58 @@ export class ReferralService implements IReferralService {
   }
 
   /**
+   * List upcoming referrals (today and future) for patients under the given
+   * social health worker's follow-up, ordered by scheduledVisitDate ascending.
+   */
+  async listUpcomingReferralsByHealthWorker(healthWorkerId: string): Promise<IReferralSummary[]> {
+    const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const results = await Referral.aggregate([
+      {
+        $lookup: {
+          from: 'clinicalprofiles',
+          localField: 'clinicalProfile',
+          foreignField: '_id',
+          as: 'cp',
+        },
+      },
+      { $unwind: '$cp' },
+      {
+        $match: {
+          'cp.healthWorkerId': hwObjectId,
+          status: 'PENDING',
+        },
+      },
+      { $sort: { scheduledVisitDate: 1, createdAt: -1 } },
+      { $limit: 5 },
+      {
+        $project: {
+          _id: 1,
+          patientNumber: 1,
+          referralDate: 1,
+          scheduledVisitDate: 1,
+          status: 1,
+          assessmentCount: { $size: '$assessments' },
+        },
+      },
+    ]).exec();
+
+    const summaries: IReferralSummary[] = results.map((r: any) => ({
+      id: r._id.toString(),
+      patientNumber: r.patientNumber,
+      referralDate: r.referralDate,
+      scheduledVisitDate: r.scheduledVisitDate,
+      status: r.status,
+      assessmentCount: r.assessmentCount,
+    }));
+
+    return summaries;
+  }
+
+  /**
    * Return single referral details by id (no population).
    */
   async getReferralById(referralId: string): Promise<IReferralDetails | null> {

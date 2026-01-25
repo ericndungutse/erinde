@@ -27,6 +27,24 @@ export default class ReferralController {
   }
 
   /**
+   * List upcoming referrals (today and future) scoped to the logged-in
+   * social health worker, ordered by scheduledVisitDate.
+   */
+  async listMyUpcomingReferrals(req: Request, res: Response) {
+    try {
+      const loggedInUserId = req.user?.id;
+      if (!loggedInUserId) {
+        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
+      }
+
+      const referrals = await this._referralService.listUpcomingReferralsByHealthWorker(loggedInUserId);
+      return res.status(200).json({ status: 'success', data: { referrals } });
+    } catch (error: any) {
+      return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list upcoming referrals' });
+    }
+  }
+
+  /**
    * Get single referral details by id (no population).
    */
   async getReferralById(req: Request, res: Response) {
