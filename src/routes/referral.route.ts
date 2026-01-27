@@ -20,6 +20,11 @@ router.get('/pending/count', protect, authorize(AccountRole.SOCIAL_HEALTH_WORKER
   container.referralController.countMyPendingReferrals(req, res),
 );
 
+// GET /referrals/status/overview - Get referral status overview for the logged-in social health worker
+router.get('/status/overview', protect, authorize(AccountRole.SOCIAL_HEALTH_WORKER), (req, res) =>
+  container.referralController.getMyReferralStatusOverview(req, res),
+);
+
 // GET /referrals/:id - Get single referral details
 router.get('/:id', protect, authorize(AccountRole.SOCIAL_HEALTH_WORKER), (req, res) =>
   container.referralController.getReferralById(req, res),

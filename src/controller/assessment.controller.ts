@@ -42,4 +42,25 @@ export default class AssessmentController {
       return res.status(500).json({ status: 'error', message: msg });
     }
   }
+
+  /**
+   * List assessments taken in the last 24 hours by the logged-in
+   * social health worker, returning patient number, names, indicator,
+   * and classification label.
+   */
+  async listMyAssessmentsLast24Hours(req: Request, res: Response) {
+    try {
+      const evaluatorId = req.user?.id;
+
+      if (!evaluatorId) {
+        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
+      }
+
+      const assessments = await this._assessmentService.listAssessmentsByEvaluatorLast24Hours(evaluatorId);
+      return res.status(200).json({ status: 'success', data: { assessments } });
+    } catch (err: any) {
+      const msg = err?.message || 'Failed to fetch recent assessments';
+      return res.status(500).json({ status: 'error', message: msg });
+    }
+  }
 }

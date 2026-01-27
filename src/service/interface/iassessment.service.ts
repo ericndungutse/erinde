@@ -3,6 +3,7 @@ import type {
   CreateAssessmentDTO,
   AssessmentCreatedResponseDTO,
   AssessmentDetailsDTO,
+  RecentAssessmentSummaryDTO,
 } from '../../types/assessment.types.js';
 
 export interface IAssessmentService {
@@ -19,4 +20,10 @@ export interface IAssessmentService {
   getAssessmentById(assessmentId: string): Promise<AssessmentDetailsDTO | null>;
 
   getAssessmentIndicator(assessmentId: string): Promise<any | null>;
+
+  /**
+   * List assessments taken by a specific evaluator in the last 24 hours,
+   * returning patient number, patient name, indicator name, and classification label.
+   */
+  listAssessmentsByEvaluatorLast24Hours(evaluatorId: string): Promise<RecentAssessmentSummaryDTO[]>;
 }

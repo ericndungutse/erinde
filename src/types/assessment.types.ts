@@ -78,3 +78,11 @@ export type IAssessment = IAssessmentData & Document;
 
 // Details DTO for a single assessment (no population)
 export type AssessmentDetailsDTO = Omit<IAssessmentData, never> & { id: string };
+
+// Lightweight DTO for listing recent assessments taken by a health worker
+export interface RecentAssessmentSummaryDTO {
+  patientNumber: number;
+  patientName: string;
+  indicatorName: string;
+  classificationLabel: string;
+}

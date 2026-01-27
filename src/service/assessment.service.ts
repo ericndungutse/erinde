@@ -9,6 +9,7 @@ import type {
   IAssessmentClassification,
   AssessmentDetailsDTO,
   IAssessment,
+  RecentAssessmentSummaryDTO,
 } from '../types/assessment.types.js';
 import type { IAssessmentService } from './interface/iassessment.service.js';
 import type { IIndicatorData } from '../types/indicator.types.js';
@@ -176,6 +177,64 @@ export default class AssessmentService implements IAssessmentService {
     };
 
     return details;
+  }
+
+  /**
+   * List assessments taken by the given evaluator in the last 24 hours,
+   * returning patient number, names, indicator name, and classification label.
+   */
+  async listAssessmentsByEvaluatorLast24Hours(evaluatorId: string): Promise<RecentAssessmentSummaryDTO[]> {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const results = await Assessment.aggregate([
+      {
+        $match: {
+          evaluatedBy: new mongoose.Types.ObjectId(evaluatorId),
+          evaluatedAt: { $gte: since },
+        },
+      },
+      {
+        $lookup: {
+          from: 'clinicalprofiles',
+          localField: 'patient',
+          foreignField: 'userId',
+          as: 'cp',
+        },
+      },
+      { $unwind: '$cp' },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'patient',
+          foreignField: '_id',
+          as: 'patientUser',
+        },
+      },
+      { $unwind: '$patientUser' },
+      {
+        $lookup: {
+          from: 'indicators',
+          localField: 'indicator',
+          foreignField: '_id',
+          as: 'indicatorDoc',
+        },
+      },
+      { $unwind: '$indicatorDoc' },
+      { $sort: { evaluatedAt: -1 } },
+      {
+        $project: {
+          _id: 0,
+          patientNumber: '$cp.patientNumber',
+          patientName: {
+            $concat: ['$patientUser.firstname', ' ', '$patientUser.lastname'],
+          },
+          indicatorName: '$indicatorDoc.name',
+          classificationLabel: '$classification.label',
+        },
+      },
+    ]).exec();
+
+    return results as RecentAssessmentSummaryDTO[];
   }
 
   private async indicatorAssessmentExistsForPendingReferral(

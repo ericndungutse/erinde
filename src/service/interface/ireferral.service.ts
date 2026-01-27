@@ -1,5 +1,11 @@
 import type { ClientSession } from 'mongoose';
-import type { IReferral, IReferralDetails, IReferralSummary, ReferralStatus } from '../../types/referral.types.js';
+import type {
+  IReferral,
+  IReferralDetails,
+  IReferralSummary,
+  IReferralStatusSummary,
+  ReferralStatus,
+} from '../../types/referral.types.js';
 
 export interface IReferralService {
   /**
@@ -38,6 +44,12 @@ export interface IReferralService {
    * @returns Number of PENDING referrals for patients assigned to the given health worker
    */
   countPendingReferralsByHealthWorker(healthWorkerId: string): Promise<number>;
+
+  /**
+   * Get referral status overview (pending, completed this month, overdue)
+   * for patients under the given social health worker's follow-up.
+   */
+  getReferralStatusOverviewByHealthWorker(healthWorkerId: string): Promise<IReferralStatusSummary>;
 
   /**
    * Get a single referral by id. No population, raw referral data only.

@@ -3,7 +3,13 @@ import { Assessment } from '../models/assessment.model.js';
 import Referral from '../models/referral.model.js';
 import mongoose, { type ClientSession } from 'mongoose';
 import type { IReferralService } from './interface/ireferral.service.js';
-import type { IReferralSummary, ReferralStatus, IReferralDetails, IReferral } from '../types/referral.types.js';
+import type {
+  IReferralSummary,
+  ReferralStatus,
+  IReferralDetails,
+  IReferral,
+  IReferralStatusSummary,
+} from '../types/referral.types.js';
 import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
 
 export class ReferralService implements IReferralService {
@@ -178,8 +184,8 @@ export class ReferralService implements IReferralService {
   async listUpcomingReferralsByHealthWorker(healthWorkerId: string): Promise<IReferralSummary[]> {
     const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const in48Hours = new Date(now.getTime() + 48 * 60 * 60 * 1000);
 
     const results = await Referral.aggregate([
       {
@@ -195,6 +201,7 @@ export class ReferralService implements IReferralService {
         $match: {
           'cp.healthWorkerId': hwObjectId,
           status: 'PENDING',
+          scheduledVisitDate: { $gte: now, $lte: in48Hours },
         },
       },
       { $sort: { scheduledVisitDate: 1, createdAt: -1 } },
@@ -254,6 +261,68 @@ export class ReferralService implements IReferralService {
     }
 
     return result[0].count as number;
+  }
+
+  /**
+   * Compute referral status overview for patients assigned to a given
+   * social health worker: pending, completed this month, and overdue.
+   */
+  async getReferralStatusOverviewByHealthWorker(healthWorkerId: string): Promise<IReferralStatusSummary> {
+    const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const startOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+    const [result] = await Referral.aggregate([
+      {
+        $lookup: {
+          from: 'clinicalprofiles',
+          localField: 'clinicalProfile',
+          foreignField: '_id',
+          as: 'cp',
+        },
+      },
+      { $unwind: '$cp' },
+      {
+        $match: {
+          'cp.healthWorkerId': hwObjectId,
+        },
+      },
+      {
+        $facet: {
+          pending: [{ $match: { status: 'PENDING' } }, { $count: 'count' }],
+          completed_this_month: [
+            {
+              $match: {
+                status: 'COMPLETED',
+                visitDate: { $gte: startOfMonth, $lt: startOfNextMonth },
+              },
+            },
+            { $count: 'count' },
+          ],
+          overdue: [
+            {
+              $match: {
+                status: 'PENDING',
+                scheduledVisitDate: { $lt: today },
+              },
+            },
+            { $count: 'count' },
+          ],
+        },
+      },
+    ]).exec();
+
+    const summary: IReferralStatusSummary = {
+      pending: result?.pending?.[0]?.count ?? 0,
+      completed_this_month: result?.completed_this_month?.[0]?.count ?? 0,
+      overdue: result?.overdue?.[0]?.count ?? 0,
+    };
+
+    return summary;
   }
 
   /**

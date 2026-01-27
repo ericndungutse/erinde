@@ -58,3 +58,9 @@ export interface IReferralDetails {
   updatedAt: Date;
   visitDate: Date;
 }
+
+export interface IReferralStatusSummary {
+  pending: number;
+  completed_this_month: number;
+  overdue: number;
+}

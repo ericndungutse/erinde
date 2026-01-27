@@ -64,6 +64,32 @@ export default class ReferralController {
   }
 
   /**
+   * Get referral status overview (pending, completed this month, overdue)
+   * for the logged-in social health worker.
+   */
+  async getMyReferralStatusOverview(req: Request, res: Response) {
+    try {
+      const loggedInUserId = req.user?.id;
+      if (!loggedInUserId) {
+        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
+      }
+
+      const summary = await this._referralService.getReferralStatusOverviewByHealthWorker(loggedInUserId);
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Referral status overview retrieved successfully',
+        data: { summary },
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        status: 'error',
+        message: error?.message || 'Failed to get referral status overview',
+      });
+    }
+  }
+
+  /**
    * Get single referral details by id (no population).
    */
   async getReferralById(req: Request, res: Response) {
