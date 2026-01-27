@@ -224,6 +224,39 @@ export class ReferralService implements IReferralService {
   }
 
   /**
+   * Return the total number of PENDING referrals for patients assigned to
+   * the given social health worker.
+   */
+  async countPendingReferralsByHealthWorker(healthWorkerId: string): Promise<number> {
+    const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
+
+    const result = await Referral.aggregate([
+      {
+        $lookup: {
+          from: 'clinicalprofiles',
+          localField: 'clinicalProfile',
+          foreignField: '_id',
+          as: 'cp',
+        },
+      },
+      { $unwind: '$cp' },
+      {
+        $match: {
+          'cp.healthWorkerId': hwObjectId,
+          status: 'PENDING',
+        },
+      },
+      { $count: 'count' },
+    ]).exec();
+
+    if (!result || result.length === 0) {
+      return 0;
+    }
+
+    return result[0].count as number;
+  }
+
+  /**
    * Return single referral details by id (no population).
    */
   async getReferralById(referralId: string): Promise<IReferralDetails | null> {

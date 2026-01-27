@@ -31,6 +31,15 @@ export interface IReferralService {
   listUpcomingReferralsByHealthWorker(healthWorkerId: string): Promise<IReferralSummary[]>;
 
   /**
+   * Get total count of pending referrals for patients under a specific
+   * social health worker's follow-up.
+   *
+   * @param healthWorkerId - Logged-in social health worker's user id
+   * @returns Number of PENDING referrals for patients assigned to the given health worker
+   */
+  countPendingReferralsByHealthWorker(healthWorkerId: string): Promise<number>;
+
+  /**
    * Get a single referral by id. No population, raw referral data only.
    */
   getReferralById(referralId: string): Promise<IReferralDetails | null>;

@@ -45,6 +45,25 @@ export default class ReferralController {
   }
 
   /**
+   * Get a count of pending referrals for the logged-in social health worker.
+   */
+  async countMyPendingReferrals(req: Request, res: Response) {
+    try {
+      const loggedInUserId = req.user?.id;
+      if (!loggedInUserId) {
+        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
+      }
+
+      const count = await this._referralService.countPendingReferralsByHealthWorker(loggedInUserId);
+      return res.status(200).json({ status: 'success', data: { count } });
+    } catch (error: any) {
+      return res
+        .status(500)
+        .json({ status: 'error', message: error?.message || 'Failed to get pending referrals count' });
+    }
+  }
+
+  /**
    * Get single referral details by id (no population).
    */
   async getReferralById(req: Request, res: Response) {
