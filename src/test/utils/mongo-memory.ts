@@ -17,7 +17,7 @@ export function setupTestDB() {
 
     for (const key of Object.keys(collections)) {
       const collection = collections[key];
-      await collection.deleteMany({});
+      if (collection) await collection.deleteMany({});
     }
   });
 
