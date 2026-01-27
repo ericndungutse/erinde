@@ -37,6 +37,32 @@ Authorization is enforced per route. If the authenticated user has any of the re
 
 ---
 
+## Endpoint Catalog (Cheat Sheet)
+
+All paths are relative to the base URL `/api/v1`.
+
+| Method | Path                                 | Description                                                     | Auth                                          |
+| ------ | ------------------------------------ | --------------------------------------------------------------- | --------------------------------------------- |
+| GET    | `/health`                            | Health check                                                    | Public                                        |
+| POST   | `/auth/login`                        | User login, returns JWT                                         | Public                                        |
+| GET    | `/users`                             | List all users                                                  | `ADMIN`                                       |
+| POST   | `/users`                             | Register citizen/patient (no account)                           | `SOCIAL_HEALTH_WORKER`, `SCREENING_VOLUNTEER` |
+| POST   | `/users/admin/register`              | Admin registers user + account                                  | `ADMIN`                                       |
+| GET    | `/users/:patientNumber`              | Lookup patient minimal info by patient number                   | Public                                        |
+| GET    | `/indicators`                        | List indicators (id, name, labels)                              | Public                                        |
+| GET    | `/indicators/:id`                    | Get full indicator definition                                   | Public                                        |
+| POST   | `/assessments`                       | Create assessment, may auto-create referral                     | Any authenticated                             |
+| GET    | `/assessments/:id`                   | Get assessment details                                          | Any authenticated                             |
+| GET    | `/assessments/me/last-24-hours`      | List last 24h assessments taken by logged-in health worker      | `SOCIAL_HEALTH_WORKER`                        |
+| GET    | `/referrals/me`                      | List referrals for patients assigned to logged-in health worker | `SOCIAL_HEALTH_WORKER`                        |
+| GET    | `/referrals/upcoming`                | List upcoming referrals (next 48h) for logged-in health worker  | `SOCIAL_HEALTH_WORKER`                        |
+| GET    | `/referrals/pending/count`           | Get count of pending referrals for logged-in health worker      | `SOCIAL_HEALTH_WORKER`                        |
+| GET    | `/referrals/status/overview`         | Get referral status overview for logged-in health worker        | `SOCIAL_HEALTH_WORKER`                        |
+| GET    | `/referrals/:id`                     | Get referral details                                            | `SOCIAL_HEALTH_WORKER`                        |
+| PATCH  | `/referrals/complete/:patientNumber` | Nurse completes latest pending referral by patient number       | `NURSE`                                       |
+
+---
+
 ## Health
 
 GET `/health`
@@ -411,6 +437,34 @@ Notes for implementers:
 
 ---
 
+### GET `/me/last-24-hours`
+
+- Purpose: For a logged-in social health worker, list assessments they performed in the last 24 hours. Intended for "My recent work" dashboards.
+- Auth: Required. Roles: `SOCIAL_HEALTH_WORKER`.
+- Response 200:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "assessments": [
+      {
+        "patientNumber": 12345,
+        "patientName": "Jane Doe",
+        "indicatorName": "hypertension",
+        "classificationLabel": "Stage 1 Hypertension"
+      }
+    ]
+  }
+}
+```
+
+- Notes:
+  - `patientName` is `firstname + ' ' + lastname`.
+  - Sorted by `evaluatedAt` descending (most recent first).
+
+---
+
 ## Referrals
 
 Base: `/api/v1/referrals`
@@ -419,7 +473,7 @@ Base: `/api/v1/referrals`
 
 - Purpose: For a logged-in `SOCIAL_HEALTH_WORKER`, list referrals for patients under their follow-up.
 - Auth: Required. Roles: `SOCIAL_HEALTH_WORKER`.
-- Sorting: Most recent first.
+- Sorting: Most recent first, based on referral creation time.
 - 200 Response:
 
 ```json
@@ -439,6 +493,72 @@ Base: `/api/v1/referrals`
   }
 }
 ```
+
+### GET `/upcoming`
+
+- Purpose: For a logged-in `SOCIAL_HEALTH_WORKER`, list upcoming referrals scheduled between **now** and **48 hours from now** for their assigned patients.
+- Auth: Required. Roles: `SOCIAL_HEALTH_WORKER`.
+- Sorting: By `scheduledVisitDate` ascending, then newest created first within the same date.
+- Limits: Returns at most 5 records.
+- 200 Response (same summary shape as `/me`):
+
+```json
+{
+  "status": "success",
+  "data": {
+    "referrals": [
+      {
+        "id": "...",
+        "patientNumber": 12345,
+        "referralDate": "2025-01-01T00:00:00.000Z",
+        "scheduledVisitDate": "2025-01-02T08:00:00.000Z",
+        "status": "PENDING",
+        "assessmentCount": 1
+      }
+    ]
+  }
+}
+```
+
+### GET `/pending/count`
+
+- Purpose: For a logged-in `SOCIAL_HEALTH_WORKER`, get the **number of pending referrals** for their assigned patients. Ideal for badge counters on dashboards.
+- Auth: Required. Roles: `SOCIAL_HEALTH_WORKER`.
+- 200 Response:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "count": 7
+  }
+}
+```
+
+### GET `/status/overview`
+
+- Purpose: For a logged-in `SOCIAL_HEALTH_WORKER`, get an overview of referral statuses to power analytics cards.
+- Auth: Required. Roles: `SOCIAL_HEALTH_WORKER`.
+- 200 Response:
+
+```json
+{
+  "status": "success",
+  "message": "Referral status overview retrieved successfully",
+  "data": {
+    "summary": {
+      "pending": 7,
+      "completed_this_month": 3,
+      "overdue": 2
+    }
+  }
+}
+```
+
+- Semantics:
+  - `pending`: Number of referrals with `status="PENDING"` for this health worker.
+  - `completed_this_month`: Number of referrals with `status="COMPLETED"` whose `visitDate` is within the current calendar month.
+  - `overdue`: Number of referrals with `status="PENDING"` and `scheduledVisitDate` before **today**.
 
 ### GET `/:id`
 
@@ -461,7 +581,8 @@ Base: `/api/v1/referrals`
       "assessments": ["<assessmentId>", "..."],
       "referredBy": "<userId>",
       "createdAt": "...",
-      "updatedAt": "..."
+      "updatedAt": "...",
+      "visitDate": "2025-01-15T10:00:00.000Z"
     }
   }
 }
@@ -503,10 +624,20 @@ These reflect the DTOs returned by the API.
 - Created response: `{ id: string, readings: Record<string, { value:number; unit:string }>, classification: { label: string; status_code: 'healthy'|'warning'|'danger'|'critical' }, recommendations: string[] }`
 - Details: `{ id: string, patient: string, indicator: string, evaluatedBy: string, readings: Record<string, {value:number; unit:string}>, classification: { label: string; status_code: ... }, recommendations: string[], evaluatedAt: string }`
 
+### RecentAssessmentSummary
+
+- Used by `/assessments/me/last-24-hours` for the logged-in social health worker.
+- Shape: `{ patientNumber: number, patientName: string, indicatorName: string, classificationLabel: string }`
+
 ### Referral
 
 - Summary: `{ id: string, patientNumber: number, referralDate: string, scheduledVisitDate: string, status: 'PENDING'|'COMPLETED'|'CANCELLED', assessmentCount: number }`
-- Details: `{ id: string, patient: string, patientNumber: number, clinicalProfile: string, referralDate: string, scheduledVisitDate: string, status: 'PENDING'|'COMPLETED'|'CANCELLED', assessments: string[], referredBy: string, createdAt: string, updatedAt: string }`
+- Details: `{ id: string, patient: string, patientNumber: number, clinicalProfile: string, referralDate: string, scheduledVisitDate: string, status: 'PENDING'|'COMPLETED'|'CANCELLED', assessments: string[], referredBy: string, createdAt: string, updatedAt: string, visitDate?: string }`
+
+### ReferralStatusSummary
+
+- Dashboard counts for a social health worker.
+- Shape: `{ pending: number, completed_this_month: number, overdue: number }`
 
 ### User
 
@@ -565,6 +696,9 @@ Error shape for validation failures:
 - `/assessments` (POST): Any authenticated user
 - `/assessments/:id` (GET): Any authenticated user
 - `/referrals/me` (GET): `SOCIAL_HEALTH_WORKER`
+- `/referrals/upcoming` (GET): `SOCIAL_HEALTH_WORKER`
+- `/referrals/pending/count` (GET): `SOCIAL_HEALTH_WORKER`
+- `/referrals/status/overview` (GET): `SOCIAL_HEALTH_WORKER`
 - `/referrals/:id` (GET): `SOCIAL_HEALTH_WORKER`
 - `/referrals/complete/:patientNumber` (PATCH): `NURSE`
 
@@ -577,6 +711,10 @@ Error shape for validation failures:
 - After submitting an assessment, show the classification and recommendations. If abnormal, inform the user a referral was or will be created.
 - Social Health Worker dashboard:
   - Use `/referrals/me` to list assigned pending referrals. Link to details via `/referrals/:id`.
+  - Use `/referrals/upcoming` for a "Next 48 hours" widget (limit 5).
+  - Use `/referrals/pending/count` to display a numeric badge on a "Referrals" menu item.
+  - Use `/referrals/status/overview` to power dashboard cards (Pending, Completed this month, Overdue).
+  - Use `/assessments/me/last-24-hours` to show a list of assessments recorded in the last 24 hours.
 - Nurse workflow:
   - Use `/referrals/complete/:patientNumber` to mark the latest pending referral as completed when the patient visits.
 - Admin workflow:
@@ -696,9 +834,10 @@ Examples:
 
 1. Login → store `token`, `roles` → optional active role selector.
 2. SHW/Volunteer: Register patient → receive `patientNumber` → perform assessment.
-3. Assessment: Submit readings → display classification + recommendations → if abnormal, referral appears in SHW list.
-4. Nurse: Complete referral using patient number.
-5. Admin: Register staff accounts with roles.
+3. Assessment: Submit readings → display classification + recommendations → if abnormal, referral appears in SHW list and affects dashboard counters/widgets.
+4. SHW dashboard: Show pending referrals list (`/referrals/me`), upcoming next 48h (`/referrals/upcoming`), status overview cards (`/referrals/status/overview`), and last-24h assessments (`/assessments/me/last-24-hours`).
+5. Nurse: Complete referral using patient number.
+6. Admin: Register staff accounts with roles.
 
 ### Pagination & Filtering
 

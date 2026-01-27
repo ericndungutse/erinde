@@ -33,7 +33,7 @@ export enum AccountRole {
 }
 
 // Simplest version if you just want one message for any failure
-export const AccountRoleSchema = z.enum(['SCREENING_VOLUNTEER', 'SOCIAL_HEALTH_WORKER', 'USER', 'ADMIN'], {
+export const AccountRoleSchema = z.enum(['SCREENING_VOLUNTEER', 'SOCIAL_HEALTH_WORKER', 'USER', 'ADMIN', 'NURSE'], {
   message: 'Please select a valid account role',
 });
 
