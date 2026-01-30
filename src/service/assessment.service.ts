@@ -223,7 +223,7 @@ export default class AssessmentService implements IAssessmentService {
       { $sort: { evaluatedAt: -1 } },
       {
         $project: {
-          _id: 0,
+          _id: 1,
           patientNumber: '$cp.patientNumber',
           patientName: {
             $concat: ['$patientUser.firstname', ' ', '$patientUser.lastname'],

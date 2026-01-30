@@ -1,5 +1,6 @@
 import type { IIndicatorData } from '../types/indicator.types.js';
 import type { IAssessmentReadings, IAssessmentClassification } from '../types/assessment.types.js';
+import InvalidBmiReadingsFormat from '../Errors/InvalidBmiReadingsFormat.js';
 
 /**
  * Encapsulates classification logic for assessments.
@@ -13,7 +14,7 @@ export default class AssessmentClassifier {
    */
   classifyHypertension(
     readings: IAssessmentReadings,
-    indicator: IIndicatorData
+    indicator: IIndicatorData,
   ): { classification: IAssessmentClassification; recommendations: string[] } {
     const systolic = readings['systolic_blood_pressure']?.value;
     const diastolic = readings['diastolic_blood_pressure']?.value;
@@ -63,17 +64,17 @@ export default class AssessmentClassifier {
    */
   classifyBmi(
     readings: IAssessmentReadings,
-    indicator: IIndicatorData
+    indicator: IIndicatorData,
   ): { classification: IAssessmentClassification; recommendations: string[] } {
     const heightCm = readings['height']?.value;
     const weightKg = readings['weight']?.value;
 
     if (typeof heightCm !== 'number' || typeof weightKg !== 'number') {
-      throw new Error('BMI classification requires height and weight readings');
+      throw new InvalidBmiReadingsFormat();
     }
 
     if (heightCm <= 0 || weightKg <= 0) {
-      throw new Error('BMI classification requires positive height and weight values');
+      throw new InvalidBmiReadingsFormat('BMI classification requires positive height and weight values');
     }
 
     const heightM = heightCm / 100;
@@ -111,7 +112,7 @@ export default class AssessmentClassifier {
    */
   classifyDiabetes(
     readings: IAssessmentReadings,
-    indicator: IIndicatorData
+    indicator: IIndicatorData,
   ): { classification: IAssessmentClassification; recommendations: string[] } {
     const glucose = readings['random_blood_glucose']?.value;
 

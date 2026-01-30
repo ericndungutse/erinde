@@ -81,6 +81,7 @@ export type AssessmentDetailsDTO = Omit<IAssessmentData, never> & { id: string }
 
 // Lightweight DTO for listing recent assessments taken by a health worker
 export interface RecentAssessmentSummaryDTO {
+  id: string;
   patientNumber: number;
   patientName: string;
   indicatorName: string;
