@@ -105,19 +105,19 @@ describe('AssessmentClassifier.classifyBmi', () => {
 
   it('throws if height or weight reading is missing', () => {
     expect(() => classifier.classifyBmi(makeReadings(170, undefined), baseBmiIndicator)).toThrow(
-      /BMI classification requires height and weight readings/i
+      'Invalid BMI readings format. Height(cm) and weight(kg) must be numbers.',
     );
     expect(() => classifier.classifyBmi(makeReadings(undefined, 70), baseBmiIndicator)).toThrow(
-      /BMI classification requires height and weight readings/i
+      'Invalid BMI readings format. Height(cm) and weight(kg) must be numbers.',
     );
   });
 
   it('throws if height or weight is non-positive', () => {
     expect(() => classifier.classifyBmi(makeReadings(0, 70), baseBmiIndicator)).toThrow(
-      /positive height and weight values/i
+      /positive height and weight values/i,
     );
     expect(() => classifier.classifyBmi(makeReadings(170, 0), baseBmiIndicator)).toThrow(
-      /positive height and weight values/i
+      /positive height and weight values/i,
     );
   });
 
@@ -216,7 +216,7 @@ describe('AssessmentClassifier.classifyBmi', () => {
     // With this indicator, a realistic BMI should not match the configured range
     const readings = makeReadings(170, 70); // BMI ~ 24.2
     expect(() => classifier.classifyBmi(readings, customIndicator)).toThrow(
-      /Unable to classify BMI with provided readings/i
+      /Unable to classify BMI with provided readings/i,
     );
   });
 
