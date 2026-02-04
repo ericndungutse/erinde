@@ -5,6 +5,9 @@ import app from '../../app.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
 import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
+import User from '../../models/user.model.js';
+import ClinicalProfile from '../../models/clinicalProfile.model.js';
+import { AccountRole } from '../../types/user.types.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
@@ -185,5 +188,56 @@ describe('Integration: POST /api/v1/users', () => {
         message: 'A user already exists with the provided national identification number',
       }),
     );
+  });
+
+  it('sets healthWorkerId in clinical profile when SHW exists in same village (ruvumera)', async () => {
+    const token = await loginByPhone(TEST_USERS.SOCIAL_HEALTH_WORKER.phone, TEST_USERS.SOCIAL_HEALTH_WORKER.password);
+
+    // Create a Social Health Worker in target village
+    const shw = await User.create({
+      firstname: 'Village',
+      lastname: 'Worker',
+      birthdate: new Date('1985-05-05'),
+      address: {
+        province: 'kigali',
+        district: 'gasabo',
+        sector: 'kimironko',
+        cell: 'kibagabaga',
+        village: 'ruvumera',
+      },
+      contact: {
+        phone: '0780000044',
+        email: 'shw.ruvumera@example.com',
+      },
+      nationalIdentificationNumber: '1199990000000044',
+      roles: [AccountRole.SOCIAL_HEALTH_WORKER],
+    });
+
+    const payload = {
+      firstname: 'Alice',
+      lastname: 'Patient',
+      birthdate: '1993-03-03',
+      address: {
+        province: 'kigali',
+        district: 'gasabo',
+        sector: 'kimironko',
+        cell: 'kibagabaga',
+        village: 'ruvumera', // matches SHW village
+      },
+      contact: {
+        phone: '0780000055',
+        email: 'alice.patient@example.com',
+      },
+      nationalIdentificationNumber: '1199990000000055',
+    };
+
+    const regRes = await request(app).post('/api/v1/users').set('Authorization', `Bearer ${token}`).send(payload);
+
+    expect(regRes.status).toBe(201);
+    const patientNumber: number = regRes.body.data.patientNumber.patientNumber as number;
+
+    const profile = await ClinicalProfile.findOne({ patientNumber }).lean();
+    expect(profile).toBeTruthy();
+    expect(profile!.healthWorkerId?.toString()).toBe(shw._id.toString());
   });
 });
