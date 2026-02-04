@@ -1,0 +1,234 @@
+import request from 'supertest';
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import app from '../../app.js';
+import { setupTestDB } from '../utils/mongo-memory.js';
+import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
+import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
+import { AccountRole } from '../../types/user.types.js';
+
+// Initialize in-memory MongoDB for these tests
+setupTestDB();
+
+const validRegisterWithAccountPayload = {
+  firstname: 'Regina',
+  lastname: 'AdminCase',
+  birthdate: '1991-04-04',
+  address: {
+    province: 'kigali',
+    district: 'gasabo',
+    sector: 'kimironko',
+    cell: 'kibagabaga',
+    village: 'ruvumera',
+  },
+  contact: {
+    phone: '0780001010',
+    email: 'regina.admincase@example.com',
+  },
+  nationalIdentificationNumber: '1199990000001010',
+  roles: [AccountRole.NURSE],
+};
+
+beforeEach(async () => {
+  await seedAuthTestUsers();
+});
+
+describe('Integration: POST /api/v1/users/admin/register', () => {
+  it('registers a user with account successfully (ADMIN)', async () => {
+    const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+
+    const res = await request(app)
+      .post('/api/v1/users/admin/register')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(validRegisterWithAccountPayload);
+
+    expect(res.status).toBe(201);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'success',
+        message: 'User registered with account successfully',
+        data: expect.objectContaining({
+          user: expect.objectContaining({
+            firstname: validRegisterWithAccountPayload.firstname,
+            lastname: validRegisterWithAccountPayload.lastname,
+            roles: expect.arrayContaining([AccountRole.USER, AccountRole.NURSE]),
+          }),
+          account: expect.objectContaining({
+            email: validRegisterWithAccountPayload.contact.email,
+            phoneNumber: validRegisterWithAccountPayload.contact.phone,
+            mustChangePassword: true,
+          }),
+          clinicalProfile: expect.objectContaining({
+            patientNumber: expect.any(Number),
+          }),
+        }),
+      }),
+    );
+  });
+
+  it('rejects when unauthenticated (no token)', async () => {
+    const res = await request(app).post('/api/v1/users/admin/register').send(validRegisterWithAccountPayload);
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'fail',
+      }),
+    );
+  });
+
+  it('rejects when unauthorized (non-ADMIN)', async () => {
+    const shwToken = await loginByPhone(
+      TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
+      TEST_USERS.SOCIAL_HEALTH_WORKER.password,
+    );
+
+    const res = await request(app)
+      .post('/api/v1/users/admin/register')
+      .set('Authorization', `Bearer ${shwToken}`)
+      .send(validRegisterWithAccountPayload);
+
+    expect(res.status).toBe(403);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'fail',
+        message: 'You do not have permission to perform this action.',
+      }),
+    );
+  });
+
+  it('returns 400 with detailed validation errors', async () => {
+    const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+
+    const invalidPayload = {
+      ...validRegisterWithAccountPayload,
+      firstname: '',
+      contact: { phone: '07800010ab', email: 'not-an-email' },
+      roles: [],
+    };
+
+    const res = await request(app)
+      .post('/api/v1/users/admin/register')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(invalidPayload);
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'fail',
+        message: 'Validation failed',
+        errors: expect.objectContaining({
+          firstname: 'First name is required',
+          'contact.phone': 'Phone number must contain only numbers',
+          'contact.email': 'Invalid email address',
+          roles: 'At least one role is required',
+        }),
+      }),
+    );
+  });
+
+  it('returns 400 when email already exists', async () => {
+    const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+
+    const payload = {
+      ...validRegisterWithAccountPayload,
+      contact: {
+        phone: '0780001099', // unique phone
+        email: TEST_USERS.ADMIN.email, // duplicate email
+      },
+      nationalIdentificationNumber: '1199990000001099', // unique NIN
+    };
+
+    const res = await request(app)
+      .post('/api/v1/users/admin/register')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(payload);
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'fail',
+      }),
+    );
+  });
+
+  it('returns 400 when phone number already exists', async () => {
+    const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+
+    const payload = {
+      ...validRegisterWithAccountPayload,
+      contact: {
+        phone: TEST_USERS.ADMIN.phone, // duplicate phone
+        email: 'unique.email.admin.register@example.com', // unique email
+      },
+      nationalIdentificationNumber: '1199990000001088', // unique NIN
+    };
+
+    const res = await request(app)
+      .post('/api/v1/users/admin/register')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(payload);
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'fail',
+      }),
+    );
+  });
+
+  it('returns 400 when national identification number already exists', async () => {
+    const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+
+    const payload = {
+      ...validRegisterWithAccountPayload,
+      contact: {
+        phone: '0780001022', // unique phone
+        email: 'unique2.email.admin.register@example.com', // unique email
+      },
+      nationalIdentificationNumber: TEST_USERS.ADMIN.nationalId, // duplicate NIN
+    };
+
+    const res = await request(app)
+      .post('/api/v1/users/admin/register')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(payload);
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'fail',
+      }),
+    );
+  });
+
+  it('merges provided roles with USER (SCREENING_VOLUNTEER, NURSE)', async () => {
+    const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+
+    const payload = {
+      ...validRegisterWithAccountPayload,
+      contact: {
+        phone: '0780002020',
+        email: 'multi.roles@example.com',
+      },
+      nationalIdentificationNumber: '1199990000002020',
+      roles: [AccountRole.SCREENING_VOLUNTEER, AccountRole.NURSE],
+    };
+
+    const res = await request(app)
+      .post('/api/v1/users/admin/register')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(payload);
+
+    expect(res.status).toBe(201);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'success',
+        data: expect.objectContaining({
+          user: expect.objectContaining({
+            roles: expect.arrayContaining([AccountRole.USER, AccountRole.SCREENING_VOLUNTEER, AccountRole.NURSE]),
+          }),
+        }),
+      }),
+    );
+  });
+});
