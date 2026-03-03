@@ -24,7 +24,7 @@
   },
   {
     "user": {
-      "firstname": "One",
+      "firstname": "Nyiranuma",
       "lastname": "Worker",
       "birthdate": "1985-07-01",
       "address": {
@@ -36,7 +36,7 @@
       },
       "contact": {
         "phone": "0700000006",
-        "email": "social.health.worker1@example.com"
+        "email": "nyiranuma.shw@example.com"
       },
       "nationalIdentificationNumber": "1188500701006",
       "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
@@ -55,11 +55,11 @@
         "district": "Nyarugenge",
         "sector": "Nyarugenge",
         "cell": "Biryogo",
-        "village": "Nyiranuma"
+        "village": "isoko"
       },
       "contact": {
         "phone": "0700000007",
-        "email": "social.health.worker2@example.com"
+        "email": "isoko.shw@example.com"
       },
       "nationalIdentificationNumber": "1188500701007",
       "roles": ["SOCIAL_HEALTH_WORKER", "USER"]

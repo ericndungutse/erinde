@@ -25,7 +25,7 @@ router.post(
   protect,
   authorize(AccountRole.ADMIN),
   validateBody(RegisterUserWithAccountSchema),
-  (req, res) => container.userController.registerUserWithAccountController(req, res),
+  (req, res, next) => container.userController.registerUserWithAccountController(req, res, next),
 );
 router.get('/:patientNumber', (req, res) => container.userController.findUserByPatientNumberController(req, res));
 

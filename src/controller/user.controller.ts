@@ -1,7 +1,8 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { UserService } from '../service/user.service.js';
 import type { RegisterUserDTO } from '../types/register-user.types.js';
 import type { IUserService } from '../service/interface/iuser.service.js';
+import DuplicateSHWPerVillage from '../Errors/DuplicateSHWPerVillage.js';
 
 export default class UserController {
   private _userService: IUserService;
@@ -10,7 +11,7 @@ export default class UserController {
     this._userService = userService;
   }
 
-  async registerUserWithAccountController(req: Request, res: Response) {
+  async registerUserWithAccountController(req: Request, res: Response, next: NextFunction) {
     try {
       const { user, account, clinicalProfile } = await this._userService.registerUserWithAccount(req.body);
       return res.status(201).json({
@@ -23,7 +24,7 @@ export default class UserController {
         },
       });
     } catch (error: any) {
-      return res.status(400).json({ status: 'fail', message: error.message || 'Registration failed' });
+      next(error);
     }
   }
 

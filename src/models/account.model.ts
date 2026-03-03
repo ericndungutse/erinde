@@ -7,7 +7,7 @@ import type { IUser, UserProjection } from '../types/user.types.js';
 // Move the schema definition here
 export const accountSchema = new Schema<IAccount>(
   {
-    email: { type: String, required: false, lowercase: true, trim: true, sparse: true },
+    email: { type: String, required: false, lowercase: true, trim: true},
     password: { type: String, required: true, minlength: 6 },
     phoneNumber: { type: String, required: true, trim: true, unique: true },
     isActive: { type: Boolean, default: true },

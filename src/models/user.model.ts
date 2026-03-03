@@ -29,6 +29,17 @@ export const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
+userSchema.index(
+  { 'address.village': 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      roles: AccountRole.SOCIAL_HEALTH_WORKER,
+    },
+  }
+);
+
+// Only one social health worker per village
 userSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
@@ -38,8 +49,6 @@ userSchema.set('toJSON', {
   },
 });
 
-// Compound index for finding social health workers by village
-userSchema.index({ roles: 1, 'address.village': 1 });
 
 // Create and export the model
 const User = mongoose.model<IUser>('User', userSchema);

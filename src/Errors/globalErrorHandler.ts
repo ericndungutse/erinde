@@ -1,6 +1,7 @@
-import type { NextFunction, Request, Response } from 'express';
-import ResponseFactory from '../controller/responseFactory.js';
-import BaseError from './BaseError.js';
+import type { NextFunction, Request, Response } from "express";
+import ResponseFactory from "../controller/responseFactory.js";
+import BaseError from "./BaseError.js";
+import { DUPLICATE_KEY_ERRORS } from "./duplicateKeyMessages.js";
 
 export default class GlobalErrorHandler {
   static getInstance(): GlobalErrorHandler {
@@ -21,16 +22,21 @@ export default class GlobalErrorHandler {
     }
 
     // Handle zod validation errors
-    if (err.name === 'ZodError') {
-      console.log('Zod validation error:', err);
-      return rf.badRequest('Validation failed', err);
+    if (err.name === "ZodError") {
+      console.log("Zod validation error:", err);
+      return rf.badRequest("Validation failed", err);
     }
 
     // non-operational / unknown errors
-    return rf.error(err, 'Something went wrong', 500);
+    return rf.error(err, "Something went wrong", 500);
   }
 
-  handleOperationalError(err: BaseError, req: Request, res: Response, next: NextFunction) {
+  handleOperationalError(
+    err: BaseError,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     const rf = ResponseFactory.getResponseFactory(res);
 
     switch (err.statusCode) {
@@ -44,23 +50,18 @@ export default class GlobalErrorHandler {
         return rf.notFound(err.message);
       case 500:
       default:
-        return rf.error(err, err.message || 'Internal Server Error');
+        return rf.error(err, err.message || "Internal Server Error");
     }
   }
 
   handleDuplicateKeyError(err: any, rf: ResponseFactory) {
-    // Check if it's the patient+indicator+evaluatedDate unique index
-    const pattern = err.keyPattern; // { patient: 1, indicator: 1, evaluatedDate: 1 }
+    const kv: string | undefined = Object.keys(err.keyValue)[0];
+    const factory = kv ? DUPLICATE_KEY_ERRORS[kv] : undefined;
 
-    if (pattern.patient && pattern.indicator && pattern.evaluatedDate && Object.keys(pattern).length === 3) {
-      // Custom message for this compound index
-      const message = 'An assessment for this patient and indicator already exists today';
-      return rf.badRequest(message);
-    }
-
-    // fallback for other duplicate keys
     const field = Object.keys(err.keyValue)[0];
-    const message = `Duplicate value for field: ${field}`;
+    const message = factory
+      ? factory(err.keyValue).message
+      : `Duplicate value for field: ${field}`;
     return rf.badRequest(message);
   }
 }
