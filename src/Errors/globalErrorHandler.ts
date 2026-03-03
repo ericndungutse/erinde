@@ -2,6 +2,8 @@ import type { NextFunction, Request, Response } from 'express';
 import ResponseFactory from '../controller/responseFactory.js';
 import BaseError from './BaseError.js';
 import { DUPLICATE_KEY_ERRORS } from './duplicateKeyMessages.js';
+import { ConstantValues } from '../constants/constant.values.js';
+import i18next from '../i18n.js';
 
 export default class GlobalErrorHandler {
   static getInstance(): GlobalErrorHandler {
@@ -35,9 +37,9 @@ export default class GlobalErrorHandler {
 
     switch (err.statusCode) {
       case 400:
-        return rf.badRequest(err.message);
+        return rf.badRequest(err.locale_key ? i18next.t(err.locale_key, { lng: req.language }) : err.message);
       case 401:
-        return rf.unauthenticated(err.message);
+        return rf.unauthenticated(i18next.t(err.locale_key, { lng: req.language }));
       case 403:
         return rf.forbidden();
       case 404:

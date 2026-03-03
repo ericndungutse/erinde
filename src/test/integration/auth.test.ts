@@ -71,7 +71,7 @@ describe('Integration: POST /api/v1/auth/login', () => {
     expect(res.body).toEqual(
       expect.objectContaining({
         status: 'fail',
-        message: 'Invalid credentials.',
+        message: i18next.t('invalid_credentials', { lng: TEST_LANG }),
       }),
     );
   });
