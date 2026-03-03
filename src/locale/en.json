@@ -1,0 +1,7 @@
+{
+  "phone_number_exists": "A user already exists with the provided phone number: {{ phone_number }}",
+  "welcome": "Welcome to Erinde AI!",
+  "email_exists": "A user already exists with the provided email: {{ email }}",
+  "national_identification_number_exists": "A user already exists with the provided national identification number: {{ national_identification_number }}",
+  "shw_exists_for_village": "A social health worker already exists for village: {{ village }}"
+}

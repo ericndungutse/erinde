@@ -1,19 +1,13 @@
+import i18next from '../i18n.js';
+import BaseError from './BaseError.js';
 
-export default class DuplicateSHWPerVillage extends Error {
-  public readonly statusCode: number;
-  public readonly isOperational: boolean;
+export default class DuplicateSHWPerVillage extends BaseError {
+  constructor(village: string | undefined, lng = 'rw') {
+    const message = i18next.t('shw_exists_for_village', {
+      village: village,
+      lng: lng,
+    });
 
-  constructor(village?: string) {
-    super(
-      village
-        ? `A social health worker already exists for village "${village}"`
-        : 'A social health worker already exists for this village'
-    );
-    this.name = 'DuplicateSHWPerVillage';
-    this.statusCode = 409;
-    this.isOperational = true;
-
-    // Maintains proper stack trace in V8 (Node.js)
-    Error.captureStackTrace(this, this.constructor);
+    super(message, 400);
   }
 }

@@ -28,7 +28,7 @@ export default class UserController {
     }
   }
 
-  async registerUserController(req: Request, res: Response) {
+  async registerUserController(req: Request, res: Response, next: NextFunction) {
     try {
       const userData: RegisterUserDTO = req.body;
       const patientNumber = await this._userService.registerUser(userData);
@@ -39,7 +39,7 @@ export default class UserController {
         },
       });
     } catch (error: any) {
-      return res.status(400).json({ status: 'fail', message: error.message || 'Registration failed' });
+      next(error);
     }
   }
 

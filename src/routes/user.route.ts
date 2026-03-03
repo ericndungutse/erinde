@@ -18,7 +18,7 @@ router.post(
   protect,
   authorize(AccountRole.SOCIAL_HEALTH_WORKER, AccountRole.SCREENING_VOLUNTEER),
   validateBody(RegisterUserSchema),
-  (req, res) => container.userController.registerUserController(req, res),
+  (req, res, next) => container.userController.registerUserController(req, res, next),
 );
 router.post(
   '/admin/register',

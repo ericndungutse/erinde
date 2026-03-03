@@ -1,0 +1,7 @@
+{
+  "phone_number_exists": "Umukoresha usanzwe ahari ufite nimero ya telefone yatanzwe: {{ phone_number }}",
+  "welcome": "Ikaze neza muri Erinde AI!",
+  "email_exists": "Umukoresha usanzwe ahari ufite aderesi email yatanzwe: {{ email }}",
+  "national_identification_number_exists": "Umukoresha asanzwe ahari ufite nimero y'indangamuntu: {{ national_identification_number }}",
+  "shw_exists_for_village": "Umujyanama w'ubuzima asanzwe ahari m'umudugudu: {{ village }}"
+}

@@ -1,78 +1,42 @@
-import { ConstantValues } from "../constants/constant.values.js";
-import DuplicateEmailError from "../Errors/DublicateEmailError.js";
-import DuplicatePhoneError from "../Errors/DublicatePhoneError.js";
-import DuplicateIDError from "../Errors/DuplicateIDError.js";
-import Account from "../models/account.model.js";
-import ClinicalProfile from "../models/clinicalProfile.model.js";
-import Counter from "../models/counter.model.js";
-import User from "../models/user.model.js";
+import { ConstantValues } from '../constants/constant.values.js';
+import DuplicateEmailError from '../Errors/DublicateEmailError.js';
+import DuplicatePhoneError from '../Errors/DublicatePhoneError.js';
+import DuplicateIDError from '../Errors/DuplicateIDError.js';
+import Account from '../models/account.model.js';
+import ClinicalProfile from '../models/clinicalProfile.model.js';
+import Counter from '../models/counter.model.js';
+import User from '../models/user.model.js';
 import {
   RegisterUserWithAccountSchema,
   type RegisterUserDTO,
   type RegisterUserResponse,
   type RegisterUserWithAccountDTO,
-} from "../types/register-user.types.js";
-import { AccountRole, type UserRoles } from "../types/user.types.js";
-import type { IUserService } from "./interface/iuser.service.js";
+} from '../types/register-user.types.js';
+import { AccountRole, type UserRoles } from '../types/user.types.js';
+import type { IUserService } from './interface/iuser.service.js';
 
 export class UserService implements IUserService {
-  async getAllUsers(): Promise<
-    Array<{ id: string; name: string; roles: AccountRole[] }>
-  > {
-    const users = await User.find(
-      {},
-      { firstname: 1, lastname: 1, roles: 1 },
-    ).lean();
+  async getAllUsers(): Promise<Array<{ id: string; name: string; roles: AccountRole[] }>> {
+    const users = await User.find({}, { firstname: 1, lastname: 1, roles: 1 }).lean();
     return users.map((u: any) => {
       const name = `${u.firstname} ${u.lastname}`.trim();
       const roles: AccountRole[] = (
-        Array.isArray(u.roles) && u.roles.length > 0
-          ? u.roles
-          : [AccountRole.USER]
+        Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : [AccountRole.USER]
       ) as AccountRole[];
       return { id: u._id.toString(), name, roles };
     });
   }
-  async registerUserWithAccount(
-    userData: RegisterUserWithAccountDTO,
-  ): Promise<any> {
+  async registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any> {
     // Core steps
     // Register User
     const parsed = RegisterUserWithAccountSchema.parse(userData);
     const roles = [AccountRole.USER, ...(parsed.roles as AccountRole[])];
 
-    // 1. Check if user exists (specific checks for clearer feedback)
-    const ninConflict = await User.findOne({
-      nationalIdentificationNumber: parsed.nationalIdentificationNumber,
+    const user = await User.create({
+      ...parsed,
+      contact: { email: parsed.contact?.email ?? undefined, phone: parsed.contact.phone },
+      roles,
     });
-    if (ninConflict) {
-      throw new DuplicateIDError(
-        "A user already exists with the provided national identification number",
-      );
-    }
-
-    if (parsed.contact?.email) {
-      const emailConflict = await User.findOne({
-        "contact.email": parsed.contact?.email,
-      });
-
-      if (emailConflict) {
-        throw new DuplicateEmailError(
-          "A user already exists with the provided email",
-        );
-      }
-    }
-
-    const phoneConflict = await User.findOne({
-      "contact.phone": parsed.contact.phone,
-    });
-    if (phoneConflict) {
-      throw new DuplicatePhoneError(
-        "A user already exists with the provided phone number",
-      );
-    }
-
-    const user = await User.create({ ...parsed, contact: {email: parsed.contact?.email ?? undefined, phone: parsed.contact.phone}, roles });
     // Create Account
 
     const account = await Account.create({
@@ -84,11 +48,7 @@ export class UserService implements IUserService {
     });
 
     // Create Clinical Profile
-    const counter = await Counter.findByIdAndUpdate(
-      "patientNumber",
-      { $inc: { seq: 1 } },
-      { new: true, upsert: true },
-    );
+    const counter = await Counter.findByIdAndUpdate('patientNumber', { $inc: { seq: 1 } }, { new: true, upsert: true });
     const patientNumber = counter.seq;
     const clinicalProfile = await ClinicalProfile.create({
       userId: user._id,
@@ -99,37 +59,6 @@ export class UserService implements IUserService {
   }
 
   async registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponse> {
-    const { nationalIdentificationNumber, contact } = userData;
-
-    // 1. Check if user exists (specific checks for clearer feedback)
-    const ninConflict = await User.findOne({ nationalIdentificationNumber });
-    if (ninConflict) {
-      throw new DuplicateIDError(
-        "A user already exists with the provided national identification number",
-      );
-    }
-
-    if (contact?.email) {
-      const emailConflict = await User.findOne({
-        "contact.email": contact?.email,
-      });
-
-      if (emailConflict) {
-        throw new DuplicateEmailError(
-          "A user already exists with the provided email",
-        );
-      }
-    }
-
-    const phoneConflict = await User.findOne({
-      "contact.phone": contact.phone,
-    });
-    if (phoneConflict) {
-      throw new DuplicatePhoneError(
-        "A user already exists with the provided phone number",
-      );
-    }
-
     // 2. Create the user
     const user = new User({ ...userData });
     user.roles = [AccountRole.USER];
@@ -137,19 +66,13 @@ export class UserService implements IUserService {
 
     // 3. Generate patient number from Counter
     // Counter _id: 'patientNumber'
-    const counter = await Counter.findByIdAndUpdate(
-      "patientNumber",
-      { $inc: { seq: 1 } },
-      { new: true, upsert: true },
-    );
+    const counter = await Counter.findByIdAndUpdate('patientNumber', { $inc: { seq: 1 } }, { new: true, upsert: true });
     const patientNumber = counter.seq;
 
     // 4. Create clinical profile linked to user
 
     // Find Health worker in the same village
-    const socialHealthWorker = await this.findSocialHealthWorkerByVillage(
-      userData.address.village,
-    );
+    const socialHealthWorker = await this.findSocialHealthWorkerByVillage(userData.address.village);
 
     await ClinicalProfile.create({
       userId: user._id,
@@ -177,8 +100,8 @@ export class UserService implements IUserService {
   async findUserByPatientNumber(patientNumber: number): Promise<any | null> {
     const clinicalProfile = await ClinicalProfile.findOne({ patientNumber })
       .populate({
-        path: "userId",
-        select: "firstname lastname nationalIdentificationNumber contact.phone",
+        path: 'userId',
+        select: 'firstname lastname nationalIdentificationNumber contact.phone',
       })
       .lean();
 
@@ -199,7 +122,7 @@ export class UserService implements IUserService {
   async findSocialHealthWorkerByVillage(village: string): Promise<any | null> {
     const socialHealthWorker = await User.findOne({
       roles: AccountRole.SOCIAL_HEALTH_WORKER,
-      "address.village": village,
+      'address.village': village,
     }).lean();
 
     if (!socialHealthWorker) {

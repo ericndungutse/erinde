@@ -1,7 +1,7 @@
-import type { NextFunction, Request, Response } from "express";
-import ResponseFactory from "../controller/responseFactory.js";
-import BaseError from "./BaseError.js";
-import { DUPLICATE_KEY_ERRORS } from "./duplicateKeyMessages.js";
+import type { NextFunction, Request, Response } from 'express';
+import ResponseFactory from '../controller/responseFactory.js';
+import BaseError from './BaseError.js';
+import { DUPLICATE_KEY_ERRORS } from './duplicateKeyMessages.js';
 
 export default class GlobalErrorHandler {
   static getInstance(): GlobalErrorHandler {
@@ -18,25 +18,19 @@ export default class GlobalErrorHandler {
 
     // Handle Mongoose duplicate key error
     if (err.code === 11000) {
-      return this.handleDuplicateKeyError(err, rf);
+      return this.handleDuplicateKeyError(err, rf, req);
     }
 
     // Handle zod validation errors
-    if (err.name === "ZodError") {
-      console.log("Zod validation error:", err);
-      return rf.badRequest("Validation failed", err);
+    if (err.name === 'ZodError') {
+      return rf.badRequest('Validation failed', err);
     }
 
     // non-operational / unknown errors
-    return rf.error(err, "Something went wrong", 500);
+    return rf.error(err, 'Something went wrong', 500);
   }
 
-  handleOperationalError(
-    err: BaseError,
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
+  handleOperationalError(err: BaseError, req: Request, res: Response, next: NextFunction) {
     const rf = ResponseFactory.getResponseFactory(res);
 
     switch (err.statusCode) {
@@ -50,18 +44,15 @@ export default class GlobalErrorHandler {
         return rf.notFound(err.message);
       case 500:
       default:
-        return rf.error(err, err.message || "Internal Server Error");
+        return rf.error(err, err.message || 'Internal Server Error');
     }
   }
 
-  handleDuplicateKeyError(err: any, rf: ResponseFactory) {
-    const kv: string | undefined = Object.keys(err.keyValue)[0];
-    const factory = kv ? DUPLICATE_KEY_ERRORS[kv] : undefined;
+  handleDuplicateKeyError(err: any, rf: ResponseFactory, req: Request) {
+    const field: string | undefined = Object.keys(err.keyValue)[0];
+    const factory = field ? DUPLICATE_KEY_ERRORS[field] : undefined;
 
-    const field = Object.keys(err.keyValue)[0];
-    const message = factory
-      ? factory(err.keyValue).message
-      : `Duplicate value for field: ${field}`;
+    const message = factory ? factory(err.keyValue, req.language).message : `Duplicate value for field: ${field}`;
     return rf.badRequest(message);
   }
 }

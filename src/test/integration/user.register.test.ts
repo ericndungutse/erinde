@@ -1,18 +1,16 @@
-import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import app from '../../app.js';
+import i18next from '../../i18n.js';
+import ClinicalProfile from '../../models/clinicalProfile.model.js';
+import User from '../../models/user.model.js';
+import { AccountRole } from '../../types/user.types.js';
+import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
-import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
-import User from '../../models/user.model.js';
-import ClinicalProfile from '../../models/clinicalProfile.model.js';
-import { AccountRole } from '../../types/user.types.js';
+import { client, TEST_LANG } from '../utils/request-factory.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
-
-// login helpers moved to ../utils/auth-helpers.ts for reuse
 
 const validRegisterPayload = {
   firstname: 'John',
@@ -40,10 +38,7 @@ describe('Integration: POST /api/v1/users', () => {
   it('registers a user with authorized role (SOCIAL_HEALTH_WORKER)', async () => {
     const token = await loginByPhone(TEST_USERS.SOCIAL_HEALTH_WORKER.phone, TEST_USERS.SOCIAL_HEALTH_WORKER.password);
 
-    const res = await request(app)
-      .post('/api/v1/users')
-      .set('Authorization', `Bearer ${token}`)
-      .send(validRegisterPayload);
+    const res = await client(token).post('/api/v1/users').send(validRegisterPayload);
 
     expect(res.status).toBe(201);
     expect(res.body).toEqual(
@@ -58,7 +53,6 @@ describe('Integration: POST /api/v1/users', () => {
     );
   });
 
-
   it('registers a user without email provided (SOCIAL_HEALTH_WORKER)', async () => {
     const token = await loginByPhone(TEST_USERS.SOCIAL_HEALTH_WORKER.phone, TEST_USERS.SOCIAL_HEALTH_WORKER.password);
     const payloadWithoutEmail = {
@@ -67,10 +61,7 @@ describe('Integration: POST /api/v1/users', () => {
         phone: '0780000011',
       },
     };
-    const res = await request(app)
-      .post('/api/v1/users')
-      .set('Authorization', `Bearer ${token}`)
-      .send(payloadWithoutEmail);
+    const res = await client(token).post('/api/v1/users').send(payloadWithoutEmail);
 
     expect(res.status).toBe(201);
     expect(res.body).toEqual(
@@ -88,10 +79,7 @@ describe('Integration: POST /api/v1/users', () => {
   it('rejects registration if role is not authorized (ADMIN)', async () => {
     const token = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
 
-    const res = await request(app)
-      .post('/api/v1/users')
-      .set('Authorization', `Bearer ${token}`)
-      .send(validRegisterPayload);
+    const res = await client(token).post('/api/v1/users').send(validRegisterPayload);
 
     expect(res.status).toBe(403);
     expect(res.body).toEqual(
@@ -112,7 +100,7 @@ describe('Integration: POST /api/v1/users', () => {
       contact: { phone: '078000001a', email: 'not-an-email' },
     };
 
-    const res = await request(app).post('/api/v1/users').set('Authorization', `Bearer ${token}`).send(invalidPayload);
+    const res = await client(token).post('/api/v1/users').send(invalidPayload);
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual(
@@ -129,7 +117,7 @@ describe('Integration: POST /api/v1/users', () => {
   });
 
   it('rejects registration when unauthenticated (no token)', async () => {
-    const res = await request(app).post('/api/v1/users').send(validRegisterPayload);
+    const res = await client().post('/api/v1/users').send(validRegisterPayload);
 
     expect(res.status).toBe(401);
     expect(res.body).toEqual(
@@ -151,16 +139,16 @@ describe('Integration: POST /api/v1/users', () => {
       nationalIdentificationNumber: '1199990000000099', // unique NIN
     };
 
-    const res = await request(app)
-      .post('/api/v1/users')
-      .set('Authorization', `Bearer ${token}`)
-      .send(duplicateEmailPayload);
+    const res = await client(token).post('/api/v1/users').send(duplicateEmailPayload);
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual(
       expect.objectContaining({
         status: 'fail',
-        message: 'A user already exists with the provided email',
+        message: i18next.t('email_exists', {
+          email: duplicateEmailPayload.contact.email,
+          lng: TEST_LANG,
+        }),
       }),
     );
   });
@@ -177,16 +165,15 @@ describe('Integration: POST /api/v1/users', () => {
       nationalIdentificationNumber: '1199990000000088', // unique NIN
     };
 
-    const res = await request(app)
-      .post('/api/v1/users')
-      .set('Authorization', `Bearer ${token}`)
-      .send(duplicatePhonePayload);
+    const res = await client(token).post('/api/v1/users').send(duplicatePhonePayload);
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual(
       expect.objectContaining({
-        status: 'fail',
-        message: 'A user already exists with the provided phone number',
+        message: i18next.t('phone_number_exists', {
+          phone_number: duplicatePhonePayload.contact.phone,
+          lng: TEST_LANG,
+        }),
       }),
     );
   });
@@ -203,16 +190,16 @@ describe('Integration: POST /api/v1/users', () => {
       nationalIdentificationNumber: TEST_USERS.ADMIN.nationalId, // duplicate NIN
     };
 
-    const res = await request(app)
-      .post('/api/v1/users')
-      .set('Authorization', `Bearer ${token}`)
-      .send(duplicateNinPayload);
+    const res = await client(token).post('/api/v1/users').send(duplicateNinPayload);
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual(
       expect.objectContaining({
         status: 'fail',
-        message: 'A user already exists with the provided national identification number',
+        message: i18next.t('national_identification_number_exists', {
+          national_identification_number: duplicateNinPayload.nationalIdentificationNumber,
+          lng: TEST_LANG,
+        }),
       }),
     );
   });
@@ -258,7 +245,7 @@ describe('Integration: POST /api/v1/users', () => {
       nationalIdentificationNumber: '1199990000000055',
     };
 
-    const regRes = await request(app).post('/api/v1/users').set('Authorization', `Bearer ${token}`).send(payload);
+    const regRes = await client(token).post('/api/v1/users').send(payload);
 
     expect(regRes.status).toBe(201);
     const patientNumber: number = regRes.body.data.patientNumber.patientNumber as number;

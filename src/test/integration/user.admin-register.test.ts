@@ -1,11 +1,11 @@
-import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import app from '../../app.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
 import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
 import { AccountRole } from '../../types/user.types.js';
+import { client, TEST_LANG } from '../utils/request-factory.js';
+import i18next from 'i18next';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
@@ -33,15 +33,11 @@ beforeEach(async () => {
   await seedAuthTestUsers();
 });
 
-
 describe('Integration: POST /api/v1/users/admin/register', () => {
   it('registers a user with account successfully (ADMIN)', async () => {
     const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
 
-    const res = await request(app)
-      .post('/api/v1/users/admin/register')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send(validRegisterWithAccountPayload);
+    const res = await client(adminToken).post('/api/v1/users/admin/register').send(validRegisterWithAccountPayload);
 
     expect(res.status).toBe(201);
     expect(res.body).toEqual(
@@ -68,20 +64,17 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
   });
 
   it('registers a user without email successfully (ADMIN)', async () => {
-      const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+    const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
 
-      const payload = {
-        ...validRegisterWithAccountPayload,
-        contact: {
-          phone: '0780001011',
-        },
-        nationalIdentificationNumber: '1199990000001011',
-      };
+    const payload = {
+      ...validRegisterWithAccountPayload,
+      contact: {
+        phone: '0780001011',
+      },
+      nationalIdentificationNumber: '1199990000001011',
+    };
 
-    const res = await request(app)
-      .post('/api/v1/users/admin/register')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send(payload);
+    const res = await client(adminToken).post('/api/v1/users/admin/register').send(payload);
 
     expect(res.status).toBe(201);
     expect(res.body).toEqual(
@@ -107,7 +100,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
   });
 
   it('rejects when unauthenticated (no token)', async () => {
-    const res = await request(app).post('/api/v1/users/admin/register').send(validRegisterWithAccountPayload);
+    const res = await client().post('/api/v1/users/admin/register').send(validRegisterWithAccountPayload);
     expect(res.status).toBe(401);
     expect(res.body).toEqual(
       expect.objectContaining({
@@ -122,10 +115,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
       TEST_USERS.SOCIAL_HEALTH_WORKER.password,
     );
 
-    const res = await request(app)
-      .post('/api/v1/users/admin/register')
-      .set('Authorization', `Bearer ${shwToken}`)
-      .send(validRegisterWithAccountPayload);
+    const res = await client(shwToken).post('/api/v1/users/admin/register').send(validRegisterWithAccountPayload);
 
     expect(res.status).toBe(403);
     expect(res.body).toEqual(
@@ -146,10 +136,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
       roles: [],
     };
 
-    const res = await request(app)
-      .post('/api/v1/users/admin/register')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send(invalidPayload);
+    const res = await client(adminToken).post('/api/v1/users/admin/register').send(invalidPayload);
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual(
@@ -178,10 +165,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
       nationalIdentificationNumber: '1199990000001099', // unique NIN
     };
 
-    const res = await request(app)
-      .post('/api/v1/users/admin/register')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send(payload);
+    const res = await client(adminToken).post('/api/v1/users/admin/register').send(payload);
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual(
@@ -203,15 +187,16 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
       nationalIdentificationNumber: '1199990000001088', // unique NIN
     };
 
-    const res = await request(app)
-      .post('/api/v1/users/admin/register')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send(payload);
+    const res = await client(adminToken).post('/api/v1/users/admin/register').send(payload);
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual(
       expect.objectContaining({
         status: 'fail',
+        message: i18next.t('phone_number_exists', {
+          phone_number: payload.contact.phone,
+          lng: TEST_LANG,
+        }),
       }),
     );
   });
@@ -228,10 +213,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
       nationalIdentificationNumber: TEST_USERS.ADMIN.nationalId, // duplicate NIN
     };
 
-    const res = await request(app)
-      .post('/api/v1/users/admin/register')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send(payload);
+    const res = await client(adminToken).post('/api/v1/users/admin/register').send(payload);
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual(
@@ -254,10 +236,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
       roles: [AccountRole.SCREENING_VOLUNTEER, AccountRole.NURSE],
     };
 
-    const res = await request(app)
-      .post('/api/v1/users/admin/register')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send(payload);
+    const res = await client(adminToken).post('/api/v1/users/admin/register').send(payload);
 
     expect(res.status).toBe(201);
     expect(res.body).toEqual(

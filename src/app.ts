@@ -1,5 +1,6 @@
 import cors from 'cors';
-import express from 'express';
+import * as middleware from 'i18next-http-middleware';
+import express, { type Request, type Response } from 'express';
 const app = express();
 import indicatorRoutes from './routes/indicator.route.js';
 import authRoutes from './routes/auth.route.js';
@@ -8,9 +9,11 @@ import assessmentRoutes from './routes/assessment.route.js';
 import referralRoutes from './routes/referral.route.js';
 import { UserService } from './service/user.service.js';
 import GlobalErrorHandler from './Errors/globalErrorHandler.js';
+import i18next from './i18n.js';
 
 app.use(cors());
 app.use(express.json());
+app.use(middleware.handle(i18next));
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
