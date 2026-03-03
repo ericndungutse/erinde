@@ -1,24 +1,5 @@
 import { z } from 'zod';
-import { Types } from 'mongoose';
-import { AccountRole, AccountRoleSchema } from './user.types.js';
-export interface RegisterUserDTO {
-  firstname: string;
-  lastname: string;
-  birthdate: Date | string;
-  address: {
-    province: string;
-    city: string;
-    district: string;
-    sector: string;
-    cell: string;
-    village: string;
-  };
-  contact: {
-    phone: string;
-    email: string;
-  };
-  nationalIdentificationNumber: string;
-}
+import { AccountRoleSchema } from './user.types.js';
 
 export const RegisterUserSchema = z.object({
   firstname: z.string({ message: 'First name is required' }).min(1, { message: 'First name is required' }),
@@ -44,17 +25,13 @@ export const RegisterUserSchema = z.object({
       .min(10, { message: 'Phone number must be at least 10 characters' })
       .max(10, { message: 'Phone number must be at most 10 characters' })
       .regex(/^\+?[0-9]+$/, { message: 'Phone number must contain only numbers' }),
-    email: z.string({ message: 'Email is required' }).email({ message: 'Invalid email address' }),
+    email: z.string({ message: 'Email is required' }).email({ message: 'Invalid email address' }).optional(),
   }),
   nationalIdentificationNumber: z
     .string({ message: 'National Identification Number is required' })
     .length(16, { message: 'National Identification Number must be exactly 16 characters' })
     .regex(/^[0-9]+$/, { message: 'National Identification Number must contain only numbers' }),
 });
-
-export type RegisterUserResponse = {
-  patientNumber: number;
-};
 
 // ZOD Schema
 export const RegisterUserWithAccountSchema = RegisterUserSchema.extend({
@@ -64,5 +41,10 @@ export const RegisterUserWithAccountSchema = RegisterUserSchema.extend({
   ),
 });
 
+export type RegisterUserResponse = {
+  patientNumber: number;
+};
+
 // Infer the type from the schema to ensure they stay in sync
 export type RegisterUserWithAccountDTO = z.infer<typeof RegisterUserWithAccountSchema>;
+export type RegisterUserDTO = z.infer<typeof RegisterUserSchema>;

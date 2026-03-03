@@ -1,9 +1,19 @@
-import type { InferSchemaType } from 'mongoose';
+import type { InferSchemaType, Types } from 'mongoose';
 import type { userSchema } from '../models/user.model.js';
 import z from 'zod';
 
-// Infer the type from the schema
-export type IUser = InferSchemaType<typeof userSchema>;
+
+export interface IUserData {
+  contact: IContact;
+  nationalIdentificationNumber: string;
+  roles: AccountRole[];
+  address: IAddress;
+  birthdate: Date;
+  firstname: string;
+  lastname: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Address type
 export interface IAddress {
@@ -17,7 +27,7 @@ export interface IAddress {
 // Contact type
 export interface IContact {
   phone: string;
-  email: string;
+  email: string | undefined;
 }
 
 export type ILoggedInUser = Pick<IUser, 'roles'> & {
@@ -42,3 +52,6 @@ export type UserRoles = Pick<IUser, 'roles'> & {
 };
 
 export type UserProjection<T extends keyof IUser> = Pick<IUser, T>;
+
+
+export type IUser = IUserData & Document;

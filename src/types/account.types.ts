@@ -1,6 +1,8 @@
 import { Document, Types } from 'mongoose';
 import type { IUser, UserProjection } from './user.types.js';
 
+// DOMAIN DRIVEN FLOW
+
 // 1. Define the Methods
 export interface IAccountMethods {
   getUser<T extends keyof IUser>(fields?: T[]): Promise<(UserProjection<T> & { id: string }) | null>;
@@ -9,7 +11,7 @@ export interface IAccountMethods {
 // 2. Define the Document (Data + Methods)
 // We extend Document to get Mongoose's built-in properties
 export interface IAccountData {
-  email: string;
+  email: string | undefined;
   password: string;
   phoneNumber: string;
   isActive: boolean;

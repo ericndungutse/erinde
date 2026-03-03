@@ -1,8 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { AccountRole, type IUser } from '../types/user.types.js';
-import { lowercase } from 'zod';
 // Define the User schema
-export const userSchema = new Schema(
+export const userSchema = new Schema<IUser>(
   {
     firstname: { type: String, required: true, trim: true },
     lastname: { type: String, required: true, trim: true },
@@ -17,7 +16,7 @@ export const userSchema = new Schema(
     },
     contact: {
       phone: { type: String, required: true, trim: true, unique: true },
-      email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+      email: { type: String, required: false, unique: true, lowercase: true, trim: true, sparse: true  },
       _id: false,
     },
     nationalIdentificationNumber: { type: String, required: true, unique: true, trim: true },

@@ -33,6 +33,7 @@ beforeEach(async () => {
   await seedAuthTestUsers();
 });
 
+
 describe('Integration: POST /api/v1/users/admin/register', () => {
   it('registers a user with account successfully (ADMIN)', async () => {
     const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
@@ -56,6 +57,45 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
           account: expect.objectContaining({
             email: validRegisterWithAccountPayload.contact.email,
             phoneNumber: validRegisterWithAccountPayload.contact.phone,
+            mustChangePassword: true,
+          }),
+          clinicalProfile: expect.objectContaining({
+            patientNumber: expect.any(Number),
+          }),
+        }),
+      }),
+    );
+  });
+
+  it('registers a user without email successfully (ADMIN)', async () => {
+      const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+
+      const payload = {
+        ...validRegisterWithAccountPayload,
+        contact: {
+          phone: '0780001011',
+        },
+        nationalIdentificationNumber: '1199990000001011',
+      };
+
+    const res = await request(app)
+      .post('/api/v1/users/admin/register')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(payload);
+
+    expect(res.status).toBe(201);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'success',
+        message: 'User registered with account successfully',
+        data: expect.objectContaining({
+          user: expect.objectContaining({
+            firstname: payload.firstname,
+            lastname: payload.lastname,
+            roles: expect.arrayContaining([AccountRole.USER, AccountRole.NURSE]),
+          }),
+          account: expect.objectContaining({
+            phoneNumber: payload.contact.phone,
             mustChangePassword: true,
           }),
           clinicalProfile: expect.objectContaining({

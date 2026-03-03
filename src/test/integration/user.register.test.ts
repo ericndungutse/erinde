@@ -58,6 +58,33 @@ describe('Integration: POST /api/v1/users', () => {
     );
   });
 
+
+  it('registers a user without email provided (SOCIAL_HEALTH_WORKER)', async () => {
+    const token = await loginByPhone(TEST_USERS.SOCIAL_HEALTH_WORKER.phone, TEST_USERS.SOCIAL_HEALTH_WORKER.password);
+    const payloadWithoutEmail = {
+      ...validRegisterPayload,
+      contact: {
+        phone: '0780000011',
+      },
+    };
+    const res = await request(app)
+      .post('/api/v1/users')
+      .set('Authorization', `Bearer ${token}`)
+      .send(payloadWithoutEmail);
+
+    expect(res.status).toBe(201);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'success',
+        data: expect.objectContaining({
+          patientNumber: expect.objectContaining({
+            patientNumber: expect.any(Number),
+          }),
+        }),
+      }),
+    );
+  });
+
   it('rejects registration if role is not authorized (ADMIN)', async () => {
     const token = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
 
