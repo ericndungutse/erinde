@@ -16,7 +16,7 @@ export default class AuthController {
       const result: ILoginResponse = await this.authService.login(req.body);
 
       responseFactory.getResponseFactory(res).ok({
-        message: 'Login successful',
+        message: req.t('login_successful'),
         data: result,
       });
     } catch (error) {
