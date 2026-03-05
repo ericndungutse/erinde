@@ -21,7 +21,7 @@ describe('Integration: GET /api/v1/users/:userId', () => {
 
     expect(targetUser).toBeTruthy();
 
-    const res = await client(adminToken).get(`/api/v1/users/${targetUser!._id.toString()}`);
+    const res = await client(adminToken).get(`/api/v1/users/admin/${targetUser!._id.toString()}`);
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual(
@@ -52,7 +52,7 @@ describe('Integration: GET /api/v1/users/:userId', () => {
     const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
     const nonExistingUserId = '507f1f77bcf86cd799439011';
 
-    const res = await client(adminToken).get(`/api/v1/users/${nonExistingUserId}`);
+    const res = await client(adminToken).get(`/api/v1/users/admin/${nonExistingUserId}`);
 
     expect(res.status).toBe(404);
     expect(res.body).toEqual(

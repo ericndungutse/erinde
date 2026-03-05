@@ -1,14 +1,19 @@
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { beforeAll, afterAll, afterEach } from 'vitest';
+import mongoose from "mongoose";
+import { MongoMemoryReplSet, MongoMemoryServer } from "mongodb-memory-server";
+import { beforeAll, afterAll, afterEach } from "vitest";
 
 let mongoServer: MongoMemoryServer | null = null;
 
+let replSet: MongoMemoryReplSet;
+
 export function setupTestDB() {
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
+    // create in-memory replica set
+    replSet = await MongoMemoryReplSet.create({
+      replSet: { count: 1 }, // single-node replica set
+    });
 
+    const uri = replSet.getUri();
     await mongoose.connect(uri);
   });
 
@@ -30,6 +35,7 @@ export function setupTestDB() {
     if (mongoServer) {
       await mongoServer.stop();
       mongoServer = null;
+      await replSet.stop();
     }
   });
 }

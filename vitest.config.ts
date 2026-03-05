@@ -15,6 +15,9 @@ if (existsSync(envTestPath)) {
 
 export default defineConfig({
   test: {
+     coverage: {
+      reporter: ['text', 'html', 'json'],
+    },
     environment: 'node',
     include: ['src/test/**/*.test.ts'],
     exclude: ['dist/**', 'node_modules/**'],

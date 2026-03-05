@@ -2,6 +2,7 @@ import { ConstantValues } from '../constants/constant.values.js';
 import DuplicateEmailError from '../Errors/DublicateEmailError.js';
 import DuplicatePhoneError from '../Errors/DublicatePhoneError.js';
 import DuplicateIDError from '../Errors/DuplicateIDError.js';
+import mongoose from 'mongoose';
 import Account from '../models/account.model.js';
 import ClinicalProfile from '../models/clinicalProfile.model.js';
 import Counter from '../models/counter.model.js';
@@ -59,29 +60,58 @@ export class UserService implements IUserService {
   }
 
   async registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponse> {
-    // 2. Create the user
-    const user = new User({ ...userData });
-    user.roles = [AccountRole.USER];
-    await user.save();
+    const session = await mongoose.startSession();
+    let patientNumber: number | undefined;
 
-    // 3. Generate patient number from Counter
-    // Counter _id: 'patientNumber'
-    const counter = await Counter.findByIdAndUpdate('patientNumber', { $inc: { seq: 1 } }, { new: true, upsert: true });
-    const patientNumber = counter.seq;
+    try {
+      await session.withTransaction(async () => {
+        const user = new User({ ...userData });
+        user.roles = [AccountRole.USER];
+        await user.save({ session });
 
-    // 4. Create clinical profile linked to user
+        const counter = await Counter.findByIdAndUpdate(
+          'patientNumber',
+          { $inc: { seq: 1 } },
+          { new: true, upsert: true, session }
+        );
 
-    // Find Health worker in the same village
-    const socialHealthWorker = await this.findSocialHealthWorkerByVillage(userData.address.village);
+        if (!counter) {
+          throw new Error('Failed to generate patient number');
+        }
 
-    await ClinicalProfile.create({
-      userId: user._id,
-      patientNumber,
-      healthWorkerId: socialHealthWorker?._id,
-    });
+        patientNumber = counter.seq;
 
-    // 5. Return patientNumber
-    return { patientNumber };
+        const socialHealthWorker = await User.findOne({
+          roles: AccountRole.SOCIAL_HEALTH_WORKER,
+          'address.village': userData.address.village,
+        })
+          .session(session)
+          .lean();
+
+        const clinicalProfilePayload: {
+          userId: typeof user._id;
+          patientNumber: number;
+          healthWorkerId?: (typeof socialHealthWorker & { _id: unknown })['_id'];
+        } = {
+          userId: user._id,
+          patientNumber,
+        };
+
+        if (socialHealthWorker?._id) {
+          clinicalProfilePayload.healthWorkerId = socialHealthWorker._id;
+        }
+
+        await ClinicalProfile.create([clinicalProfilePayload], { session });
+      });
+
+      if (patientNumber === undefined) {
+        throw new Error('Failed to register user');
+      }
+
+      return { patientNumber };
+    } finally {
+      await session.endSession();
+    }
   }
 
   async findRolesByAccountId(accountId: string): Promise<UserRoles | null> {
