@@ -5,5 +5,8 @@
   "national_identification_number_exists": "Umukoresha asanzwe ahari ufite nimero y'indangamuntu: {{ national_identification_number }}",
   "shw_exists_for_village": "Umujyanama w'ubuzima asanzwe ahari m'umudugudu: {{ village }}",
   "login_successful": "kwinjira muri Erinde AI byangenze neza!",
-  "invalid_credentials": "Amakuru yinjijwe ntabwo ari yo."
+  "invalid_credentials": "Amakuru yinjijwe ntabwo ari yo.",
+  "user_not_found": "Nta mukoresha wabonetse.",
+  "parameter_required": "{{ parameter }} irakenewe.",
+  "user_details": "Amakuru y'umukoresha yabonetse neza."
 }

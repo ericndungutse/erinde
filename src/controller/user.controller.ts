@@ -1,8 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
-import { UserService } from '../service/user.service.js';
-import type { RegisterUserDTO } from '../types/register-user.types.js';
+import UserNotFoundError from '../Errors/UserNotFoundError.js';
 import type { IUserService } from '../service/interface/iuser.service.js';
-import DuplicateSHWPerVillage from '../Errors/DuplicateSHWPerVillage.js';
+import type { RegisterUserDTO } from '../types/register-user.types.js';
 
 export default class UserController {
   private _userService: IUserService;
@@ -56,6 +55,25 @@ export default class UserController {
       return res.status(200).json({ status: 'success', data: user });
     } catch (error: any) {
       return res.status(500).json({ status: 'error', message: error.message || 'Internal server error' });
+    }
+  }
+
+  async findUserDetailsByUserIdForAdminController(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        return res.status(400).json({ status: 'fail', message: req.t('parameter_required', { parameter: 'userId' }) });
+      }
+
+      const details = await this._userService.findUserDetailsByUserIdForAdmin(userId);
+
+      if (!details) {
+        throw new UserNotFoundError();
+      }
+
+      return res.status(200).json({ status: 'success', data: details });
+    } catch (error: any) {
+      next(error);
     }
   }
 

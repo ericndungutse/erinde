@@ -18,6 +18,9 @@ export interface IUserService {
   // Search User by Patient Number
   findUserByPatientNumber(patientNumber: number): Promise<any | null>;
 
+  // Admin: detailed lookup by user id
+  findUserDetailsByUserIdForAdmin(userId: string): Promise<any | null>;
+
   /**
    * Get all users with basic info (id, name, roles[])
    */

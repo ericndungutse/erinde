@@ -119,6 +119,21 @@ export class UserService implements IUserService {
     };
   }
 
+  async findUserDetailsByUserIdForAdmin(userId: string): Promise<any | null> {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return null;
+    }
+
+    const account = await Account.findOne({ userId: user._id });
+
+    return {
+      user,
+      account,
+    };
+  }
+
   async findSocialHealthWorkerByVillage(village: string): Promise<any | null> {
     const socialHealthWorker = await User.findOne({
       roles: AccountRole.SOCIAL_HEALTH_WORKER,
