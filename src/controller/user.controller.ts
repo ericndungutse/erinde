@@ -77,6 +77,25 @@ export default class UserController {
     }
   }
 
+  async updateUserPasswordByAdminController(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        return res.status(400).json({ status: 'fail', message: req.t('parameter_required', { parameter: 'userId' }) });
+      }
+
+      await this._userService.updateUserPasswordByAdmin(userId, req.body);
+
+      return res.status(200).json({
+        status: 'success',
+        message: req.t('password_updated_successfully'),
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
   async getAllUsersController(_req: Request, res: Response) {
     try {
       const users = await this._userService.getAllUsers();

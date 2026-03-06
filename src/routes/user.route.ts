@@ -5,6 +5,7 @@ import { authorize, protect } from '../security/auth.middleware.js';
 import { AccountRole } from '../types/user.types.js';
 import { validateBody } from '../validation/validator.js';
 import { RegisterUserSchema, RegisterUserWithAccountSchema } from '../types/register-user.types.js';
+import { AdminUpdateUserPasswordSchema } from '../types/user.types.js';
 
 const router = Router();
 
@@ -29,6 +30,13 @@ router.post(
 );
 router.get('/admin/:userId', protect, authorize(AccountRole.ADMIN), (req, res, next) =>
   container.userController.findUserDetailsByUserIdForAdminController(req, res, next),
+);
+router.patch(
+  '/admin/:userId/update-password',
+  protect,
+  authorize(AccountRole.ADMIN),
+  validateBody(AdminUpdateUserPasswordSchema),
+  (req, res, next) => container.userController.updateUserPasswordByAdminController(req, res, next),
 );
 router.get('/:patientNumber', (req, res) => container.userController.findUserByPatientNumberController(req, res));
 

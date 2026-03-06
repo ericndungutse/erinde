@@ -48,6 +48,7 @@ All paths are relative to the base URL `/api/v1`.
 | GET    | `/users`                             | List all users                                                  | `ADMIN`                                       |
 | POST   | `/users`                             | Register citizen/patient (no account)                           | `SOCIAL_HEALTH_WORKER`, `SCREENING_VOLUNTEER` |
 | POST   | `/users/admin/register`              | Admin registers user + account                                  | `ADMIN`                                       |
+| PATCH  | `/users/admin/:userId/password`      | Admin updates a user's password                                 | `ADMIN`                                       |
 | GET    | `/users/:patientNumber`              | Lookup patient minimal info by patient number                   | Public                                        |
 | GET    | `/indicators`                        | List indicators (id, name, labels)                              | Public                                        |
 | GET    | `/indicators/:id`                    | Get full indicator definition                                   | Public                                        |
@@ -191,6 +192,35 @@ Base: `/api/v1/users`
 ```
 
 - Notes: Account password is initially set to a default (`ConstantValues.DEFAULT_PASSWORD`) and `mustChangePassword: true`.
+
+### PATCH `/admin/:userId/password`
+
+- Purpose: Admin updates the login password for an existing user's account (password reset flow).
+- Auth: Required. Roles: `ADMIN`.
+- Params:
+  - `userId`: target user id.
+- Body (validated):
+
+```json
+{
+  "password": "string (min 6)"
+}
+```
+
+- Responses:
+  - 200:
+
+```json
+{
+  "status": "success",
+  "message": "User password updated successfully."
+}
+```
+
+  - 400: validation failure (e.g., password too short)
+  - 401: unauthenticated
+  - 403: authenticated but not `ADMIN`
+  - 404: target user/account not found
 
 ### GET `/:patientNumber`
 

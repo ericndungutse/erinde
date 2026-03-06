@@ -15,4 +15,9 @@ export const client = (defaultToken?: string, defaultLang = TEST_LANG) => ({
     if (token) req.set('Authorization', `Bearer ${token}`);
     return req;
   },
+  patch: (url: string, token = defaultToken, lang = defaultLang) => {
+    const req = request(app).patch(url).set('Accept-Language', lang);
+    if (token) req.set('Authorization', `Bearer ${token}`);
+    return req;
+  },
 });

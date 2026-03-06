@@ -3,7 +3,7 @@ import type {
   RegisterUserResponse,
   RegisterUserWithAccountDTO,
 } from '../../types/register-user.types.js';
-import type { UserRoles } from '../../types/user.types.js';
+import type { IAdminUpdateUserPasswordPayload, UserRoles } from '../../types/user.types.js';
 import type { AccountRole } from '../../types/user.types.js';
 
 export interface IUserService {
@@ -35,4 +35,7 @@ export interface IUserService {
 
   // RegisterUserWithAccount
   registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any>;
+
+  // Admin: update account password for a given user
+  updateUserPasswordByAdmin(userId: string, payload: IAdminUpdateUserPasswordPayload): Promise<void>;
 }

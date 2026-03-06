@@ -2,6 +2,7 @@ import { ConstantValues } from '../constants/constant.values.js';
 import DuplicateEmailError from '../Errors/DublicateEmailError.js';
 import DuplicatePhoneError from '../Errors/DublicatePhoneError.js';
 import DuplicateIDError from '../Errors/DuplicateIDError.js';
+import UserNotFoundError from '../Errors/UserNotFoundError.js';
 import mongoose from 'mongoose';
 import Account from '../models/account.model.js';
 import ClinicalProfile from '../models/clinicalProfile.model.js';
@@ -13,7 +14,7 @@ import {
   type RegisterUserResponse,
   type RegisterUserWithAccountDTO,
 } from '../types/register-user.types.js';
-import { AccountRole, type UserRoles } from '../types/user.types.js';
+import { AccountRole, type IAdminUpdateUserPasswordPayload, type UserRoles } from '../types/user.types.js';
 import type { IUserService } from './interface/iuser.service.js';
 
 export class UserService implements IUserService {
@@ -57,6 +58,22 @@ export class UserService implements IUserService {
     });
 
     return { user, account, clinicalProfile };
+  }
+
+  async updateUserPasswordByAdmin(userId: string, payload: IAdminUpdateUserPasswordPayload): Promise<void> {
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new UserNotFoundError();
+    }
+
+    const account = await Account.findOne({ userId });
+
+    if (!account) {
+      throw new UserNotFoundError();
+    }
+
+    account.password = payload.password;
+    account.mustChangePassword = true;
+    await account.save();
   }
 
   async registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponse> {

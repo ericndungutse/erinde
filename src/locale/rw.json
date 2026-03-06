@@ -8,5 +8,6 @@
   "invalid_credentials": "Amakuru yinjijwe ntabwo ari yo.",
   "user_not_found": "Nta mukoresha wabonetse.",
   "parameter_required": "{{ parameter }} irakenewe.",
-  "user_details": "Amakuru y'umukoresha yabonetse neza."
+  "user_details": "Amakuru y'umukoresha yabonetse neza.",
+  "password_updated_successfully": "Ijambobanga ry'umukoresha ryahinduwe neza."
 }

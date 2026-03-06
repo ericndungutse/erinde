@@ -53,5 +53,12 @@ export type UserRoles = Pick<IUser, 'roles'> & {
 
 export type UserProjection<T extends keyof IUser> = Pick<IUser, T>;
 
+export interface IAdminUpdateUserPasswordPayload {
+  password: string;
+}
+
+export const AdminUpdateUserPasswordSchema = z.object({
+  password: z.string({ message: 'Password is required' }).min(6, 'Password must be at least 6 characters long'),
+}) satisfies z.ZodType<IAdminUpdateUserPasswordPayload>;
 
 export type IUser = IUserData & Document;
