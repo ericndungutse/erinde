@@ -29,35 +29,56 @@ export class UserService implements IUserService {
     });
   }
   async registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any> {
-    // Core steps
-    // Register User
     const parsed = RegisterUserWithAccountSchema.parse(userData);
     const roles = [AccountRole.USER, ...(parsed.roles as AccountRole[])];
+    const session = await mongoose.startSession();
+    let user;
+    let account;
+    let clinicalProfile;
 
-    const user = await User.create({
-      ...parsed,
-      contact: { email: parsed.contact?.email ?? undefined, phone: parsed.contact.phone },
-      roles,
-    });
-    // Create Account
+    try {
+      await session.withTransaction(async () => {
+        user = new User({
+          ...parsed,
+          contact: { email: parsed.contact?.email ?? undefined, phone: parsed.contact.phone },
+          roles,
+        });
+        await user.save({ session });
 
-    const account = await Account.create({
-      email: parsed?.contact?.email ?? undefined,
-      phoneNumber: parsed.contact.phone,
-      password: ConstantValues.DEFAULT_PASSWORD,
-      userId: user._id,
-      mustChangePassword: true,
-    });
+        account = new Account({
+          email: parsed?.contact?.email ?? undefined,
+          phoneNumber: parsed.contact.phone,
+          password: ConstantValues.DEFAULT_PASSWORD,
+          userId: user._id,
+          mustChangePassword: true,
+        });
+        await account.save({ session });
 
-    // Create Clinical Profile
-    const counter = await Counter.findByIdAndUpdate('patientNumber', { $inc: { seq: 1 } }, { new: true, upsert: true });
-    const patientNumber = counter.seq;
-    const clinicalProfile = await ClinicalProfile.create({
-      userId: user._id,
-      patientNumber,
-    });
+        const counter = await Counter.findByIdAndUpdate(
+          'patientNumber',
+          { $inc: { seq: 1 } },
+          { new: true, upsert: true, session },
+        );
 
-    return { user, account, clinicalProfile };
+        if (!counter) {
+          throw new Error('Failed to generate patient number');
+        }
+
+        clinicalProfile = new ClinicalProfile({
+          userId: user._id,
+          patientNumber: counter.seq,
+        });
+        await clinicalProfile.save({ session });
+      });
+
+      if (!user || !account || !clinicalProfile) {
+        throw new Error('Failed to register user with account');
+      }
+
+      return { user, account, clinicalProfile };
+    } finally {
+      await session.endSession();
+    }
   }
 
   async updateUserPasswordByAdmin(userId: string, payload: IAdminUpdateUserPasswordPayload): Promise<void> {
@@ -89,7 +110,7 @@ export class UserService implements IUserService {
         const counter = await Counter.findByIdAndUpdate(
           'patientNumber',
           { $inc: { seq: 1 } },
-          { new: true, upsert: true, session }
+          { new: true, upsert: true, session },
         );
 
         if (!counter) {

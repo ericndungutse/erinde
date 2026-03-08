@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
@@ -6,6 +6,10 @@ import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
 import { AccountRole } from '../../types/user.types.js';
 import { client, TEST_LANG } from '../utils/request-factory.js';
 import i18next from 'i18next';
+import Account from '../../models/account.model.js';
+import ClinicalProfile from '../../models/clinicalProfile.model.js';
+import Counter from '../../models/counter.model.js';
+import User from '../../models/user.model.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
@@ -97,6 +101,44 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
         }),
       }),
     );
+  });
+
+  it('rolls back user and account creation when clinical profile setup fails', async () => {
+    const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
+    const payload = {
+      ...validRegisterWithAccountPayload,
+      contact: {
+        phone: '0780003030',
+        email: 'rollback.admin.register@example.com',
+      },
+      nationalIdentificationNumber: '1199990000003030',
+    };
+
+    const counterSpy = vi
+      .spyOn(Counter, 'findByIdAndUpdate')
+      .mockRejectedValueOnce(new Error('Forced counter failure for rollback test'));
+
+    const res = await client(adminToken).post('/api/v1/users/admin/register').send(payload);
+
+    counterSpy.mockRestore();
+
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: 'error',
+        message: 'Something went wrong',
+      }),
+    );
+
+    const [user, account, clinicalProfilesCount] = await Promise.all([
+      User.findOne({ nationalIdentificationNumber: payload.nationalIdentificationNumber }).lean(),
+      Account.findOne({ phoneNumber: payload.contact.phone }).lean(),
+      ClinicalProfile.countDocuments(),
+    ]);
+
+    expect(user).toBeNull();
+    expect(account).toBeNull();
+    expect(clinicalProfilesCount).toBe(0);
   });
 
   it('rejects when unauthenticated (no token)', async () => {
