@@ -21,17 +21,19 @@ const hospitalSchema = new Schema<IHospitalDocument>(
       _id: false,
     },
   },
-  { timestamps: true },
+   {
+    timestamps: true,
+    versionKey: false,
+    toJSON: {
+      virtuals: true,
+    },
+    toObject: {
+      virtuals: true,
+    },
+  }
 );
 
-hospitalSchema.set("toJSON", {
-  virtuals: true,
-  versionKey: false,
-  transform: (_doc, ret) => {
-    const { _id, __v, ...rest } = ret;
-    return rest;
-  },
-});
+
 
 const Hospital = mongoose.model<IHospitalDocument>("Hospital", hospitalSchema);
 

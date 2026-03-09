@@ -10,6 +10,7 @@
     "start": "node dist/index.js",
     "seed:accounts": "tsx --env-file=.env src/seed/seedAccounts.ts",
     "seed:indicators": "tsx --env-file=.env src/seed/seedIndicators.ts",
+    "seed:hospitals": "tsx --env-file=.env src/seed/seedHospitals.ts",
     "test": "vitest",
     "test:coverage": "vitest run --coverage"
   },

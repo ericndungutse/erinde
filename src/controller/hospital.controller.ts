@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import type { IHospitalService } from "../service/interface/ihospital.service.js";
+import type { IHospital } from "../types/hospital.types.js";
 
 export default class HospitalController {
   private _hospitalService: IHospitalService;
@@ -10,7 +11,7 @@ export default class HospitalController {
 
   async getAllHospitals(req: Request, res: Response, next: NextFunction) {
     try {
-      const hospitals = await this._hospitalService.getAllHospitals();
+      const hospitals: IHospital[]= await this._hospitalService.getAllHospitals();
       res.status(200).json({
         status: "success",
         message: "Hospitals retrieved successfully",

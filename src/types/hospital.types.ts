@@ -1,8 +1,9 @@
+import type { Document, Types } from "mongoose";
 import { z } from "zod";
 import { AddressSchema, type IAddress } from "./address.type.js";
-import type { Document } from "mongoose";
 
 export interface IHospital {
+  id: Types.ObjectId;
   name: string;
   type: HospitalType;
   address: IAddress;

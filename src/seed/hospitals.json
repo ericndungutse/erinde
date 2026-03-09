@@ -1,0 +1,68 @@
+[
+  {
+    "name": "CHU Kigali",
+    "type": "REFERRAL_HOSPITAL",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyarugenge",
+      "cell": "biryogo",
+      "village": "agatare"
+    }
+  },
+  {
+    "name": "King Faisal Hospital",
+    "type": "REFERRAL_HOSPITAL",
+    "address": {
+      "province": "kigali",
+      "district": "kicukiro",
+      "sector": "kicukiro",
+      "cell": "ngoma",
+      "village": "rebero"
+    }
+  },
+  {
+    "name": "Kibagabaga Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "kigali",
+      "district": "gasabo",
+      "sector": "kimironko",
+      "cell": "kibagabaga",
+      "village": "kibagabaga"
+    }
+  },
+  {
+    "name": "Kimironko Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "gasabo",
+      "sector": "kimironko",
+      "cell": "kimironko",
+      "village": "kimironko"
+    }
+  },
+  {
+    "name": "Muhima Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "muhima",
+      "cell": "muhima",
+      "village": "muhima"
+    }
+  },
+  {
+    "name": "Biryogo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyarugenge",
+      "cell": "biryogo",
+      "village": "biryogo"
+    }
+  }
+]
