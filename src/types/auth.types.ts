@@ -1,5 +1,5 @@
 import z from 'zod';
-import type { IUser } from './user.types.js';
+import type { IUser } from '../dto/user.dto.js';
 
 export interface ILoginPayload {
   identifier: string; // email, or phone number

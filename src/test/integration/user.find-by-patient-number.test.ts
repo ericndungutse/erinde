@@ -7,7 +7,7 @@ import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
 import { loginByPhone } from '../utils/auth-helpers.js';
 import User from '../../models/user.model.js';
 import ClinicalProfile from '../../models/clinicalProfile.model.js';
-import { AccountRole } from '../../types/user.types.js';
+import { AccountRole } from '../../dto/user.dto.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();

@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { RegisterUserSchema, RegisterUserWithAccountSchema } from '../types/register-user.types.js';
+import { RegisterUserSchema, RegisterUserWithAccountSchema } from '../dto/user.dto.js';
 
 export function validateRegisterUser(req: Request, res: Response, next: NextFunction) {
   const result = RegisterUserSchema.safeParse(req.body);

@@ -3,8 +3,8 @@ import type {
   RegisterUserResponse,
   RegisterUserWithAccountDTO,
 } from '../../types/register-user.types.js';
-import type { IAdminUpdateUserPasswordPayload, UserRoles } from '../../types/user.types.js';
-import type { AccountRole } from '../../types/user.types.js';
+import type { IAdminUpdateUserPasswordPayload, UserRoles } from '../../dto/user.dto.js';
+import type { AccountRole } from '../../dto/user.dto.js';
 
 export interface IUserService {
   findRolesByAccountId(accountId: string): Promise<UserRoles | null>;

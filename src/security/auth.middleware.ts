@@ -1,7 +1,7 @@
 import type { Response, Request, NextFunction } from 'express';
 import { verifyToken } from '../security/jwt.utils.js';
 import User from '../models/user.model.js';
-import type { AccountRole } from '../types/user.types.js';
+import type { AccountRole } from '../dto/user.dto.js';
 
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
   try {

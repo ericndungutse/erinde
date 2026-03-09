@@ -1,36 +1,36 @@
-import { ConstantValues } from '../constants/constant.values.js';
-import DuplicateEmailError from '../Errors/DublicateEmailError.js';
-import DuplicatePhoneError from '../Errors/DublicatePhoneError.js';
-import DuplicateIDError from '../Errors/DuplicateIDError.js';
-import UserNotFoundError from '../Errors/UserNotFoundError.js';
 import mongoose from 'mongoose';
+import { ConstantValues } from '../constants/constant.values.js';
+import UserNotFoundError from '../Errors/UserNotFoundError.js';
 import Account from '../models/account.model.js';
 import ClinicalProfile from '../models/clinicalProfile.model.js';
 import Counter from '../models/counter.model.js';
 import User from '../models/user.model.js';
+
 import {
   RegisterUserWithAccountSchema,
+  type IAdminUpdateUserPasswordPayload,
   type RegisterUserDTO,
   type RegisterUserResponse,
   type RegisterUserWithAccountDTO,
-} from '../types/register-user.types.js';
-import { AccountRole, type IAdminUpdateUserPasswordPayload, type UserRoles } from '../types/user.types.js';
+  type UserRoles,
+} from '../dto/user.dto.js';
+import { UserRole } from '../types/roles.types.js';
 import type { IUserService } from './interface/iuser.service.js';
 
 export class UserService implements IUserService {
-  async getAllUsers(): Promise<Array<{ id: string; name: string; roles: AccountRole[] }>> {
+  async getAllUsers(): Promise<Array<{ id: string; name: string; roles: UserRole[] }>> {
     const users = await User.find({}, { firstname: 1, lastname: 1, roles: 1 }).lean();
     return users.map((u: any) => {
       const name = `${u.firstname} ${u.lastname}`.trim();
-      const roles: AccountRole[] = (
-        Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : [AccountRole.USER]
-      ) as AccountRole[];
+      const roles: UserRole[] = (
+        Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : [UserRole.USER]
+      ) as UserRole[];
       return { id: u._id.toString(), name, roles };
     });
   }
   async registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any> {
     const parsed = RegisterUserWithAccountSchema.parse(userData);
-    const roles = [AccountRole.USER, ...(parsed.roles as AccountRole[])];
+    const roles = [UserRole.USER, ...(parsed.roles as UserRole[])];
     const session = await mongoose.startSession();
     let user;
     let account;
@@ -104,7 +104,7 @@ export class UserService implements IUserService {
     try {
       await session.withTransaction(async () => {
         const user = new User({ ...userData });
-        user.roles = [AccountRole.USER];
+        user.roles = [UserRole.USER];
         await user.save({ session });
 
         const counter = await Counter.findByIdAndUpdate(
@@ -120,7 +120,7 @@ export class UserService implements IUserService {
         patientNumber = counter.seq;
 
         const socialHealthWorker = await User.findOne({
-          roles: AccountRole.SOCIAL_HEALTH_WORKER,
+          roles: UserRole.SOCIAL_HEALTH_WORKER,
           'address.village': userData.address.village,
         })
           .session(session)
@@ -204,7 +204,7 @@ export class UserService implements IUserService {
 
   async findSocialHealthWorkerByVillage(village: string): Promise<any | null> {
     const socialHealthWorker = await User.findOne({
-      roles: AccountRole.SOCIAL_HEALTH_WORKER,
+      roles: UserRole.SOCIAL_HEALTH_WORKER,
       'address.village': village,
     }).lean();
 

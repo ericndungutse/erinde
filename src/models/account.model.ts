@@ -2,12 +2,12 @@ import bcrypt from 'bcrypt';
 import mongoose, { Schema } from 'mongoose';
 import { type IAccount } from '../types/account.types.js';
 import User from './user.model.js';
-import type { IUser, UserProjection } from '../types/user.types.js';
+import type { IUser, UserProjection } from '../dto/user.dto.js';
 
 // Move the schema definition here
 export const accountSchema = new Schema<IAccount>(
   {
-    email: { type: String, required: false, lowercase: true, trim: true},
+    email: { type: String, required: false, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 6 },
     phoneNumber: { type: String, required: true, trim: true, unique: true },
     isActive: { type: Boolean, default: true },
@@ -18,15 +18,15 @@ export const accountSchema = new Schema<IAccount>(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 accountSchema.index(
   { email: 1 },
   {
     unique: true,
-    partialFilterExpression: { email: { $type: "string" } }
-  }
+    partialFilterExpression: { email: { $type: 'string' } },
+  },
 );
 
 accountSchema.set('toJSON', {
@@ -60,7 +60,7 @@ accountSchema.pre('save', async function () {
 });
 
 accountSchema.methods.getUser = async function <T extends keyof IUser>(
-  fields?: T[]
+  fields?: T[],
 ): Promise<(UserProjection<T> & { id: string }) | null> {
   const userId = this.userId;
 

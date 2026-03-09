@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 
 import Account from '../../models/account.model.js';
 import User from '../../models/user.model.js';
-import { AccountRole } from '../../types/user.types.js';
+import { UserRole } from '../../types/roles.types.js';
 
 type TestUserDefinition = {
   firstname: string;
@@ -10,7 +10,7 @@ type TestUserDefinition = {
   email: string;
   phone: string;
   nationalId: string;
-  role: AccountRole;
+  role: UserRole;
   password: string;
 };
 
@@ -21,7 +21,7 @@ export const TEST_USERS = {
     email: 'admin@example.com',
     phone: '0780000001',
     nationalId: '1199990000000001',
-    role: AccountRole.ADMIN,
+    role: UserRole.ADMIN,
     password: 'Password123!',
   },
   NURSE: {
@@ -30,7 +30,7 @@ export const TEST_USERS = {
     email: 'nurse@example.com',
     phone: '0780000002',
     nationalId: '1199990000000002',
-    role: AccountRole.NURSE,
+    role: UserRole.NURSE,
     password: 'Password123!',
   },
   SCREENING_VOLUNTEER: {
@@ -39,7 +39,7 @@ export const TEST_USERS = {
     email: 'volunteer@example.com',
     phone: '0780000003',
     nationalId: '1199990000000003',
-    role: AccountRole.SCREENING_VOLUNTEER,
+    role: UserRole.SCREENING_VOLUNTEER,
     password: 'Password123!',
   },
   SOCIAL_HEALTH_WORKER: {
@@ -48,7 +48,7 @@ export const TEST_USERS = {
     email: 'shw@example.com',
     phone: '0780000004',
     nationalId: '1199990000000004',
-    role: AccountRole.SOCIAL_HEALTH_WORKER,
+    role: UserRole.SOCIAL_HEALTH_WORKER,
     password: 'Password123!',
   },
 } satisfies Record<'ADMIN' | 'NURSE' | 'SCREENING_VOLUNTEER' | 'SOCIAL_HEALTH_WORKER', TestUserDefinition>;

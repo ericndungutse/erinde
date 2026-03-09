@@ -3,13 +3,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
 import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
-import { AccountRole } from '../../types/user.types.js';
 import { client, TEST_LANG } from '../utils/request-factory.js';
 import i18next from 'i18next';
 import Account from '../../models/account.model.js';
 import ClinicalProfile from '../../models/clinicalProfile.model.js';
 import Counter from '../../models/counter.model.js';
 import User from '../../models/user.model.js';
+import { UserRole } from '../../types/roles.types.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
@@ -30,7 +30,7 @@ const validRegisterWithAccountPayload = {
     email: 'regina.admincase@example.com',
   },
   nationalIdentificationNumber: '1199990000001010',
-  roles: [AccountRole.NURSE],
+  roles: [UserRole.NURSE],
 };
 
 beforeEach(async () => {
@@ -52,7 +52,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
           user: expect.objectContaining({
             firstname: validRegisterWithAccountPayload.firstname,
             lastname: validRegisterWithAccountPayload.lastname,
-            roles: expect.arrayContaining([AccountRole.USER, AccountRole.NURSE]),
+            roles: expect.arrayContaining([UserRole.USER, UserRole.NURSE]),
           }),
           account: expect.objectContaining({
             email: validRegisterWithAccountPayload.contact.email,
@@ -89,7 +89,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
           user: expect.objectContaining({
             firstname: payload.firstname,
             lastname: payload.lastname,
-            roles: expect.arrayContaining([AccountRole.USER, AccountRole.NURSE]),
+            roles: expect.arrayContaining([UserRole.USER, UserRole.NURSE]),
           }),
           account: expect.objectContaining({
             phoneNumber: payload.contact.phone,
@@ -275,7 +275,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
         email: 'multi.roles@example.com',
       },
       nationalIdentificationNumber: '1199990000002020',
-      roles: [AccountRole.SCREENING_VOLUNTEER, AccountRole.NURSE],
+      roles: [UserRole.SCREENING_VOLUNTEER, UserRole.NURSE],
     };
 
     const res = await client(adminToken).post('/api/v1/users/admin/register').send(payload);
@@ -286,7 +286,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
         status: 'success',
         data: expect.objectContaining({
           user: expect.objectContaining({
-            roles: expect.arrayContaining([AccountRole.USER, AccountRole.SCREENING_VOLUNTEER, AccountRole.NURSE]),
+            roles: expect.arrayContaining([UserRole.USER, UserRole.SCREENING_VOLUNTEER, UserRole.NURSE]),
           }),
         }),
       }),

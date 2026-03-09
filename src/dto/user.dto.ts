@@ -1,5 +1,28 @@
-import { z } from 'zod';
-import { AccountRoleSchema } from './user.types.js';
+import z from 'zod';
+import type { IUser } from '../domain/user.js';
+
+export type ILoggedInUser = Pick<IUser, 'roles'> & {
+  id: string;
+};
+
+// Simplest version if you just want one message for any failure
+export const UserRoleSchema = z.enum(['SCREENING_VOLUNTEER', 'SOCIAL_HEALTH_WORKER', 'USER', 'ADMIN', 'NURSE'], {
+  message: 'Please select a valid user role',
+});
+
+export type UserRoles = Pick<IUser, 'roles'> & {
+  id: string;
+};
+
+export type UserProjection<T extends keyof IUser> = Pick<IUser, T>;
+
+export interface IAdminUpdateUserPasswordPayload {
+  password: string;
+}
+
+export const AdminUpdateUserPasswordSchema = z.object({
+  password: z.string({ message: 'Password is required' }).min(6, 'Password must be at least 6 characters long'),
+}) satisfies z.ZodType<IAdminUpdateUserPasswordPayload>;
 
 export const RegisterUserSchema = z.object({
   firstname: z.string({ message: 'First name is required' }).min(1, { message: 'First name is required' }),
@@ -37,7 +60,7 @@ export const RegisterUserSchema = z.object({
 export const RegisterUserWithAccountSchema = RegisterUserSchema.extend({
   roles: z.preprocess(
     (val) => (val === undefined ? [] : val),
-    z.array(AccountRoleSchema).min(1, { message: 'At least one role is required' }),
+    z.array(UserRoleSchema).min(1, { message: 'At least one role is required' }),
   ),
 });
 

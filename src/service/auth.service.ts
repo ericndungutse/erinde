@@ -3,7 +3,7 @@ import InvalidCredentialsError from '../Errors/InvalidCredentialsError.js';
 import Account from '../models/account.model.js';
 import { generateToken } from '../security/jwt.utils.js';
 import type { ILoginPayload, ILoginResponse } from '../types/auth.types.js';
-import type { UserProjection } from '../types/user.types.js';
+import type { UserProjection } from '../dto/user.dto.js';
 import type { IAuthService } from './interface/iauth.service.js';
 
 export default class AuthService implements IAuthService {

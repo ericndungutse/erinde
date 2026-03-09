@@ -1,5 +1,5 @@
 import { Document, Types } from 'mongoose';
-import type { IUser, UserProjection } from './user.types.js';
+import type { IUser, UserProjection } from '../dto/user.dto.js';
 
 // DOMAIN DRIVEN FLOW
 

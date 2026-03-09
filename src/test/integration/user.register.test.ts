@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import i18next from '../../i18n.js';
 import ClinicalProfile from '../../models/clinicalProfile.model.js';
 import User from '../../models/user.model.js';
-import { AccountRole } from '../../types/user.types.js';
 import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
 import { client, TEST_LANG } from '../utils/request-factory.js';
+import { UserRole } from '../../types/roles.types.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
@@ -224,7 +224,7 @@ describe('Integration: POST /api/v1/users', () => {
         email: 'shw.ruvumera@example.com',
       },
       nationalIdentificationNumber: '1199990000000044',
-      roles: [AccountRole.SOCIAL_HEALTH_WORKER],
+      roles: [UserRole.SOCIAL_HEALTH_WORKER],
     });
 
     const payload = {
