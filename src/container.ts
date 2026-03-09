@@ -2,6 +2,7 @@ import AssessmentController from './controller/assessment.controller.js';
 import AuthController from './controller/auth.controller.js';
 import IndicatorController from './controller/indicator.controller.js';
 import UserController from './controller/user.controller.js';
+import HospitalController from './controller/hospital.controller.js';
 import ReferralController from './controller/referral.controller.js';
 import AssessmentService from './service/assessment.service.js';
 import AuthService from './service/auth.service.js';
@@ -9,8 +10,10 @@ import { IndicatorService } from './service/indicator.service.js';
 import type { IAssessmentService } from './service/interface/iassessment.service.js';
 import type { IAuthService } from './service/interface/iauth.service.js';
 import type { IIndicatorService } from './service/interface/iindicators.service.js';
+import type { IHospitalService } from './service/interface/ihospital.service.js';
 import type { IReferralService } from './service/interface/ireferral.service.js';
 import type { IUserService } from './service/interface/iuser.service.js';
+import { HospitalService } from './service/hospital.service.js';
 import ReferralService from './service/referral.service.js';
 import { UserService } from './service/user.service.js';
 
@@ -21,6 +24,10 @@ class Container {
   private _indicatorController: IndicatorController;
   private _userService: IUserService;
   private _userController: UserController;
+
+  // Hospital
+  private _hospitalService: IHospitalService;
+  private _hospitalController: HospitalController;
 
   // Referral
   private _referralService: IReferralService;
@@ -35,6 +42,8 @@ class Container {
     this._authController = new AuthController(this._authService);
     this._indicatorService = new IndicatorService();
     this._indicatorController = new IndicatorController(this._indicatorService);
+    this._hospitalService = new HospitalService();
+    this._hospitalController = new HospitalController(this._hospitalService);
     this._referralService = new ReferralService();
     this._referralController = new ReferralController(this._referralService);
 
@@ -66,6 +75,10 @@ class Container {
 
   get assessmentController() {
     return this._assessmentController;
+  }
+
+  get hospitalController() {
+    return this._hospitalController;
   }
 
   get referralController() {
