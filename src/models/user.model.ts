@@ -1,9 +1,13 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
 import type { IUser } from '../domain/user.js';
 import { UserRole } from '../types/roles.types.js';
-// Define the User schema
+import type { INurse } from '../domain/nurse.js';
 
 export interface IUserDocument extends IUser, Document {}
+export interface INurseDocument extends INurse, Document {}
+
+// Discriminator key to differentiate between User and Nurse
+const option = { discriminatorKey: 'role', collection: 'users' };
 
 export const userSchema = new Schema<IUserDocument>(
   {
@@ -30,7 +34,7 @@ export const userSchema = new Schema<IUserDocument>(
       default: [UserRole.USER],
     },
   },
-  { timestamps: true },
+  { timestamps: true, ...option },
 );
 
 userSchema.index(
@@ -55,5 +59,12 @@ userSchema.set('toJSON', {
 
 // Create and export the model
 const User = mongoose.model<IUserDocument>('User', userSchema);
+const Nurse = User.discriminator<INurseDocument>(
+  'Nurse',
+  new Schema<INurseDocument>({
+    hospitalId: { type: Types.ObjectId, ref: 'Hospital', required: true },
+  }),
+);
 
 export default User;
+export { Nurse };

@@ -62,6 +62,16 @@ export const RegisterUserWithAccountSchema = RegisterUserSchema.extend({
     (val) => (val === undefined ? [] : val),
     z.array(UserRoleSchema).min(1, { message: 'At least one role is required' }),
   ),
+  hospitalId: z.string().optional(),
+}).superRefine((data, ctx) => {
+  const roles = data.roles as string[];
+  if (roles.includes('NURSE') && !data.hospitalId) {
+    ctx.addIssue({
+      path: ['hospitalId'],
+      message: 'hospitalId is required when role is NURSE',
+      code: 'custom',
+    });
+  }
 });
 
 export type RegisterUserResponse = {

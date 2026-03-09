@@ -30,7 +30,7 @@ const validRegisterWithAccountPayload = {
     email: 'regina.admincase@example.com',
   },
   nationalIdentificationNumber: '1199990000001010',
-  roles: [UserRole.NURSE],
+  roles: [UserRole.ADMIN],
 };
 
 beforeEach(async () => {
@@ -52,7 +52,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
           user: expect.objectContaining({
             firstname: validRegisterWithAccountPayload.firstname,
             lastname: validRegisterWithAccountPayload.lastname,
-            roles: expect.arrayContaining([UserRole.USER, UserRole.NURSE]),
+            roles: expect.arrayContaining([UserRole.USER, UserRole.ADMIN]),
           }),
           account: expect.objectContaining({
             email: validRegisterWithAccountPayload.contact.email,
@@ -89,7 +89,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
           user: expect.objectContaining({
             firstname: payload.firstname,
             lastname: payload.lastname,
-            roles: expect.arrayContaining([UserRole.USER, UserRole.NURSE]),
+            roles: expect.arrayContaining([UserRole.USER, UserRole.ADMIN]),
           }),
           account: expect.objectContaining({
             phoneNumber: payload.contact.phone,
@@ -265,7 +265,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
     );
   });
 
-  it('merges provided roles with USER (SCREENING_VOLUNTEER, NURSE)', async () => {
+  it('merges provided roles with USER (SCREENING_VOLUNTEER, SOCIAL_HEALTH_WORKER)', async () => {
     const adminToken = await loginByEmail(TEST_USERS.ADMIN.email, TEST_USERS.ADMIN.password);
 
     const payload = {
@@ -275,7 +275,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
         email: 'multi.roles@example.com',
       },
       nationalIdentificationNumber: '1199990000002020',
-      roles: [UserRole.SCREENING_VOLUNTEER, UserRole.NURSE],
+      roles: [UserRole.SCREENING_VOLUNTEER, UserRole.SOCIAL_HEALTH_WORKER],
     };
 
     const res = await client(adminToken).post('/api/v1/users/admin/register').send(payload);
@@ -286,7 +286,7 @@ describe('Integration: POST /api/v1/users/admin/register', () => {
         status: 'success',
         data: expect.objectContaining({
           user: expect.objectContaining({
-            roles: expect.arrayContaining([UserRole.USER, UserRole.SCREENING_VOLUNTEER, UserRole.NURSE]),
+            roles: expect.arrayContaining([UserRole.USER, UserRole.SCREENING_VOLUNTEER, UserRole.SOCIAL_HEALTH_WORKER]),
           }),
         }),
       }),
