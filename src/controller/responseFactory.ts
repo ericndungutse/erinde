@@ -1,4 +1,6 @@
 import type { Request, Response } from 'express';
+import i18next from 'i18next';
+import { ConstantValues } from '../constants/constant.values.js';
 
 // BaseController.js
 export default class ResponseFactory {
@@ -73,7 +75,7 @@ export default class ResponseFactory {
   notFound(message = 'Resource not found') {
     return this.res.status(404).json({
       status: 'fail',
-      message,
+      message: i18next.t(message, { lng: this.res.req?.language || ConstantValues.DEFAULT_LANGUAGE, defaultValue: message }),
     });
   }
 }

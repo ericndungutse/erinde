@@ -1,7 +1,7 @@
 import BaseError from './BaseError.js';
 
 export default class IndicatorNotFound extends BaseError {
-  constructor(message = 'Indicator not found.') {
+  constructor(message = 'indicator_not_found') {
     super(message, 404);
   }
 }

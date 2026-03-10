@@ -43,7 +43,7 @@ export default class GlobalErrorHandler {
       case 403:
         return rf.forbidden();
       case 404:
-        return rf.notFound(err.locale_key ? i18next.t(err.locale_key, { lng: req.language }) : err.message);
+        return rf.notFound(err.message);
       case 500:
       default:
         return rf.error(err, err.message || 'Internal Server Error');

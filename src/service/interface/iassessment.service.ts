@@ -1,8 +1,7 @@
-import type { AnyARecord } from 'dns';
 import type {
-  CreateAssessmentDTO,
   AssessmentCreatedResponseDTO,
   AssessmentDetailsDTO,
+  CreateAssessmentDTO,
   RecentAssessmentSummaryDTO,
 } from '../../types/assessment.types.js';
 

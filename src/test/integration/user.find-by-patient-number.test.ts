@@ -2,12 +2,9 @@ import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import app from '../../app.js';
+import { loginByPhone } from '../utils/auth-helpers.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
-import { loginByPhone } from '../utils/auth-helpers.js';
-import User from '../../models/user.model.js';
-import ClinicalProfile from '../../models/clinicalProfile.model.js';
-import { AccountRole } from '../../dto/user.dto.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();

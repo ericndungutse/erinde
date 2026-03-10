@@ -9,5 +9,10 @@
   "user_not_found": "Nta mukoresha wabonetse.",
   "parameter_required": "{{ parameter }} irakenewe.",
   "user_details": "Amakuru y'umukoresha yabonetse neza.",
-  "password_updated_successfully": "Ijambobanga ry'umukoresha ryahinduwe neza."
+  "password_updated_successfully": "Ijambobanga ry'umukoresha ryahinduwe neza.",
+   "hospital_id_required": "Ibitaro akoreraho birakenewe.",
+  "hospital_not_found": "Ibitaro ntibibashije kuboneka.",
+   "password_required": "Ijambobanga rirakenewe.",
+   "indicator_not_found": "Ikigereranyo ntibibashije kuboneka.",
+   "patient_not_found": "Umurwayi ntibibashije kuboneka."
 }

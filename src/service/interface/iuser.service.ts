@@ -1,10 +1,6 @@
-import type {
-  RegisterUserDTO,
-  RegisterUserResponse,
-  RegisterUserWithAccountDTO,
-} from '../../types/register-user.types.js';
-import type { IAdminUpdateUserPasswordPayload, UserRoles } from '../../dto/user.dto.js';
-import type { AccountRole } from '../../dto/user.dto.js';
+
+import type { IAdminUpdateUserPasswordPayload, RegisterUserDTO, RegisterUserResponse, RegisterUserWithAccountDTO, UserRoles } from '../../dto/user.dto.js';
+import type { UserRole } from '../../types/roles.types.js';
 
 export interface IUserService {
   findRolesByAccountId(accountId: string): Promise<UserRoles | null>;
@@ -24,7 +20,7 @@ export interface IUserService {
   /**
    * Get all users with basic info (id, name, roles[])
    */
-  getAllUsers(): Promise<Array<{ id: string; name: string; roles: AccountRole[] }>>;
+  getAllUsers(): Promise<Array<{ id: string; name: string; roles: UserRole[] }>>;
 
   /**
    * Find a social health worker in a given village.

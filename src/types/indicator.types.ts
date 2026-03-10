@@ -1,4 +1,3 @@
-import e from 'express';
 import { Document } from 'mongoose';
 
 export type StatusCode = 'healthy' | 'warning' | 'danger' | 'critical';

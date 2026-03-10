@@ -9,5 +9,10 @@
   "user_not_found": "User not found.",
   "parameter_required": "{{ parameter }} is required.",
   "user_details": "User details retrieved successfully.",
-  "password_updated_successfully": "User password updated successfully."
+  "password_updated_successfully": "User password updated successfully.",
+  "hospital_id_required": "Hospital ID is required.",
+  "hospital_not_found": "Hospital not found.",
+  "password_required": "Password is required.",
+  "indicator_not_found": "Indicator not found.",
+  "patient_not_found": "Patient not found."
 }

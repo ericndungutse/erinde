@@ -2,7 +2,8 @@ import bcrypt from 'bcrypt';
 import mongoose, { Schema } from 'mongoose';
 import { type IAccount } from '../types/account.types.js';
 import User from './user.model.js';
-import type { IUser, UserProjection } from '../dto/user.dto.js';
+import type {  UserProjection } from '../dto/user.dto.js';
+import type { IUser } from '../domain/user.js';
 
 // Move the schema definition here
 export const accountSchema = new Schema<IAccount>(

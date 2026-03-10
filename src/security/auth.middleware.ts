@@ -1,7 +1,7 @@
 import type { Response, Request, NextFunction } from 'express';
 import { verifyToken } from '../security/jwt.utils.js';
 import User from '../models/user.model.js';
-import type { AccountRole } from '../dto/user.dto.js';
+import type { UserRole } from '../types/roles.types.js';
 
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -48,7 +48,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-export const authorize = (...roles: AccountRole[]) => {
+export const authorize = (...roles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({

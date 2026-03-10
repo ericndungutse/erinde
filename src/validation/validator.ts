@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { ZodType } from 'zod';
 import ResponseFactory from '../controller/responseFactory.js';
+import i18next from '../i18n.js';
 
 export const validateBody = (schema: ZodType) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -11,7 +12,7 @@ export const validateBody = (schema: ZodType) => {
       const errorObject = result.error.issues.reduce(
         (acc, err) => {
           const path = err.path.join('.');
-          acc[path] = err.message;
+          acc[path] = i18next.t(err.message, { defaultValue: err.message });
           return acc;
         },
         {} as Record<string, string>,

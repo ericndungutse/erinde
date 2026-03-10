@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import UserNotFoundError from '../Errors/UserNotFoundError.js';
 import type { IUserService } from '../service/interface/iuser.service.js';
-import type { RegisterUserDTO } from '../types/register-user.types.js';
+import type { RegisterUserDTO } from '../dto/user.dto.js';
 
 export default class UserController {
   private _userService: IUserService;

@@ -68,7 +68,7 @@ export const RegisterUserWithAccountSchema = RegisterUserSchema.extend({
   if (roles.includes('NURSE') && !data.hospitalId) {
     ctx.addIssue({
       path: ['hospitalId'],
-      message: 'hospitalId is required when role is NURSE',
+      message: 'hospital_id_required',
       code: 'custom',
     });
   }
