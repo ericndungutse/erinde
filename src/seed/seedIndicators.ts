@@ -29,3 +29,5 @@ seedIndicators().catch((err) => {
   console.error('Error seeding indicators:', err);
   process.exit(1);
 });
+
+export default seedIndicators;
