@@ -1,0 +1,50 @@
+{
+  "NYIRANUMA_HEALTH_CENTER": {
+    "name": "Nyiranuma Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyarugenge",
+      "cell": "biryogo",
+      "village": "nyiranuma"
+    }
+  },
+
+    "NYIRANUMA_DISTRICT_HOSPITAL": {
+    "name": "Nyarugenge District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyamirambo",
+      "cell": "mumena",
+      "village": "itaba"
+    }
+  },
+
+  "KICUKIRO_HEALTH_CENTER": {
+    "name": "Niboye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "Kicukiro",
+      "sector": "Niboye",
+      "cell": "Gatare",
+      "village": "Byimana"
+    }
+  },
+
+  "KICUKIRO_DISTRICT_HOSPITAL": {
+    "name": "Kicukiro District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "kigali",
+      "district": "Kicukiro",
+      "sector": "Niboye",
+      "cell": "Gatare",
+      "village": "Byimana"
+    }
+  }
+}
+

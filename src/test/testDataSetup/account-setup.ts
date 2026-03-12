@@ -5,7 +5,7 @@ import { UserService } from '../../service/user.service.js';
 
 type AccountSetupMap = Record<string, RegisterUserWithAccountDTO>;
 
-const accountSetupPath = new URL('./account-setup.json', import.meta.url);
+const accountSetupPath = new URL('../fixtures/account-setup.json', import.meta.url);
 
 export const ACCOUNT_SETUP = JSON.parse(
 	readFileSync(accountSetupPath, 'utf-8'),
