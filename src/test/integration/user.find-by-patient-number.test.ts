@@ -2,12 +2,21 @@ import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import app from '../../app.js';
+import { ConstantValues } from '../../constants/constant.values.js';
+import { ACCOUNT_SETUP } from '../testDataSetup/account-setup.js';
+import { setupTestData } from '../testDataSetup/index.js';
 import { loginByPhone } from '../utils/auth-helpers.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
-import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
+
+const TEST_USERS = {
+  SOCIAL_HEALTH_WORKER: {
+    phone: ACCOUNT_SETUP.SOCIAL_HEALTH_WORKER_NYIRANUMA!.contact.phone,
+    password: ConstantValues.DEFAULT_PASSWORD,
+  },
+} as const;
 
 const validRegisterPayload = {
   firstname: 'Jane',
@@ -28,7 +37,7 @@ const validRegisterPayload = {
 };
 
 beforeEach(async () => {
-  await seedAuthTestUsers();
+  await setupTestData();
 });
 
 describe('Integration: GET /api/v1/users/:patientNumber', () => {

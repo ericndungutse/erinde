@@ -1,16 +1,31 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { ConstantValues } from '../../constants/constant.values.js';
 import i18next from '../../i18n.js';
 import ClinicalProfile from '../../models/clinicalProfile.model.js';
 import User from '../../models/user.model.js';
+import { ACCOUNT_SETUP } from '../testDataSetup/account-setup.js';
+import { setupTestData } from '../testDataSetup/index.js';
 import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
-import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
 import { client, TEST_LANG } from '../utils/request-factory.js';
 import { UserRole } from '../../types/roles.types.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
+
+const TEST_USERS = {
+  ADMIN: {
+    email: ACCOUNT_SETUP.ADMIN!.contact.email!,
+    phone: ACCOUNT_SETUP.ADMIN!.contact.phone,
+    nationalId: ACCOUNT_SETUP.ADMIN!.nationalIdentificationNumber,
+    password: ConstantValues.DEFAULT_PASSWORD,
+  },
+  SOCIAL_HEALTH_WORKER: {
+    phone: ACCOUNT_SETUP.SOCIAL_HEALTH_WORKER_NYIRANUMA!.contact.phone,
+    password: ConstantValues.DEFAULT_PASSWORD,
+  },
+} as const;
 
 const validRegisterPayload = {
   firstname: 'John',
@@ -31,7 +46,7 @@ const validRegisterPayload = {
 };
 
 beforeEach(async () => {
-  await seedAuthTestUsers();
+  await setupTestData();
 });
 
 describe('Integration: POST /api/v1/users', () => {
@@ -58,7 +73,7 @@ describe('Integration: POST /api/v1/users', () => {
     const payloadWithoutEmail = {
       ...validRegisterPayload,
       contact: {
-        phone: '0780000011',
+        phone: '0780000071',
       },
     };
     const res = await client(token).post('/api/v1/users').send(payloadWithoutEmail);

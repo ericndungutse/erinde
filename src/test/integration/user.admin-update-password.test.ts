@@ -1,17 +1,37 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { ConstantValues } from '../../constants/constant.values.js';
 import i18next from '../../i18n.js';
 import User from '../../models/user.model.js';
+import { UserRole } from '../../types/roles.types.js';
+import { ACCOUNT_SETUP } from '../testDataSetup/account-setup.js';
+import { setupTestData } from '../testDataSetup/index.js';
+import { NURSE_SETUP } from '../testDataSetup/nurse-setup.js';
 import { loginByEmail, loginByPhone } from '../utils/auth-helpers.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { client, TEST_LANG } from '../utils/request-factory.js';
-import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
 
+const TEST_USERS = {
+  ADMIN: {
+    email: ACCOUNT_SETUP.ADMIN!.contact.email!,
+    password: ConstantValues.DEFAULT_PASSWORD,
+  },
+  NURSE: {
+    email: NURSE_SETUP.NURSE_NYIRANUMA_HEALTH_CENTER!.contact.email!,
+    role: UserRole.NURSE,
+    password: ConstantValues.DEFAULT_PASSWORD,
+  },
+  SOCIAL_HEALTH_WORKER: {
+    phone: ACCOUNT_SETUP.SOCIAL_HEALTH_WORKER_NYIRANUMA!.contact.phone,
+    password: ConstantValues.DEFAULT_PASSWORD,
+  },
+} as const;
+
 beforeEach(async () => {
-  await seedAuthTestUsers();
+  await setupTestData();
 });
 
 describe('Integration: PATCH /api/v1/users/admin/:userId/update-password', () => {

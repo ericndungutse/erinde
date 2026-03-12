@@ -1,17 +1,37 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { ConstantValues } from '../../constants/constant.values.js';
 import i18next from '../../i18n.js';
 import User from '../../models/user.model.js';
+import { UserRole } from '../../types/roles.types.js';
+import { ACCOUNT_SETUP } from '../testDataSetup/account-setup.js';
+import { setupTestData } from '../testDataSetup/index.js';
+import { NURSE_SETUP } from '../testDataSetup/nurse-setup.js';
 import { loginByEmail } from '../utils/auth-helpers.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { client, TEST_LANG } from '../utils/request-factory.js';
-import { seedAuthTestUsers, TEST_USERS } from '../utils/seed-auth-users.js';
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
 
+const TEST_USERS = {
+  ADMIN: {
+    email: ACCOUNT_SETUP.ADMIN!.contact.email!,
+    password: ConstantValues.DEFAULT_PASSWORD,
+  },
+  NURSE: {
+    firstname: NURSE_SETUP.NURSE_NYIRANUMA_HEALTH_CENTER!.firstname,
+    lastname: NURSE_SETUP.NURSE_NYIRANUMA_HEALTH_CENTER!.lastname,
+    email: NURSE_SETUP.NURSE_NYIRANUMA_HEALTH_CENTER!.contact.email!,
+    phone: NURSE_SETUP.NURSE_NYIRANUMA_HEALTH_CENTER!.contact.phone,
+    nationalId: NURSE_SETUP.NURSE_NYIRANUMA_HEALTH_CENTER!
+      .nationalIdentificationNumber,
+    role: UserRole.NURSE,
+  },
+} as const;
+
 beforeEach(async () => {
-  await seedAuthTestUsers();
+  await setupTestData();
 });
 
 describe('Integration: GET /api/v1/users/:userId', () => {
