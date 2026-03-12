@@ -1,0 +1,77 @@
+{
+    "NURSE_NYIRANUMA_HEALTH_CENTER": {
+    "firstname": "Nurse",
+    "lastname": "NyiranumaHealthCenter",
+    "birthdate": "1990-01-01",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyarugenge",
+      "cell": "biryogo",
+      "village": "nyiranuma"
+    },
+    "contact": {
+      "phone": "0780000011",
+      "email": "nurse.nyiranuma.hc@example.com"
+    },
+    "nationalIdentificationNumber": "1199990000000011",
+    "roles": ["NURSE"]
+  },
+
+  "NURSE_NYARUGENGE_DISTRICT_HOSPITAL": {
+    "firstname": "Nurse",
+    "lastname": "NyarugengeDistrictHospital",
+    "birthdate": "1990-01-01",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyamirambo",
+      "cell": "mumena",
+      "village": "itaba"
+    },
+    "contact": {
+      "phone": "0780000012",
+      "email": "nurse.nyiranuma.dh@example.com"
+    },
+    "nationalIdentificationNumber": "1199990000000012",
+    "roles": ["NURSE"]
+  },
+
+  "NURSE_GATARE_HEALTH_CENTER": {
+    "firstname": "Nurse",
+    "lastname": "GatareHealthCenter",
+    "birthdate": "1990-01-01",
+    "address": {
+      "province": "kigali",
+      "district": "Kicukiro",
+      "sector": "Niboye",
+      "cell": "Gatare",
+      "village": "Byimana"
+    },
+    "contact": {
+      "phone": "0780000013",
+      "email": "nurse.kicukiro.hc@example.com"
+    },
+    "nationalIdentificationNumber": "1199990000000013",
+    "roles": ["NURSE"]
+  },
+
+  "NURSE_KICUKIRO_DISTRICT_HOSPITAL": {
+    "firstname": "Nurse",
+    "lastname": "KicukiroDistrictHospital",
+    "birthdate": "1990-01-01",
+    "address": {
+      "province": "kigali",
+      "district": "Kicukiro",
+      "sector": "Niboye",
+      "cell": "Gatare",
+      "village": "Byimana"
+    },
+    "contact": {
+      "phone": "0780000014",
+      "email": "nurse.kicukiro.dh@example.com"
+    },
+    "nationalIdentificationNumber": "1199990000000014",
+    "roles": ["NURSE"]
+  }
+}

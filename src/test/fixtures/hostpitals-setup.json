@@ -11,7 +11,7 @@
     }
   },
 
-    "NYIRANUMA_DISTRICT_HOSPITAL": {
+    "NYARUGENGE_DISTRICT_HOSPITAL": {
     "name": "Nyarugenge District Hospital",
     "type": "DISTRICT_HOSPITAL",
     "address": {
@@ -23,8 +23,8 @@
     }
   },
 
-  "KICUKIRO_HEALTH_CENTER": {
-    "name": "Niboye Health Center",
+  "GATARE_HEALTH_CENTER": {
+    "name": "Gatare Health Center",
     "type": "HEALTH_CENTER",
     "address": {
       "province": "kigali",
