@@ -1,0 +1,66 @@
+{
+  "PATIENT_NYIRANUMA_HEALTH_CENTER": {
+    "firstname": "Patient",
+    "lastname": "Nyiranuma",
+    "birthdate": "1990-01-01",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyarugenge",
+      "cell": "biryogo",
+      "village": "nyiranuma"
+    },
+    "contact": {
+      "phone": "0780000101"
+    },
+    "nationalIdentificationNumber": "1199990000000101"
+  },
+  "PATIENT_NYARUGENGE_DISTRICT_HOSPITAL": {
+    "firstname": "Patient",
+    "lastname": "Nyarugenge",
+    "birthdate": "1990-01-02",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyamirambo",
+      "cell": "mumena",
+      "village": "itaba"
+    },
+    "contact": {
+      "phone": "0780000102"
+    },
+    "nationalIdentificationNumber": "1199990000000102"
+  },
+  "PATIENT_GATARE_HEALTH_CENTER": {
+    "firstname": "Patient",
+    "lastname": "Gatare",
+    "birthdate": "1990-01-03",
+    "address": {
+      "province": "kigali",
+      "district": "kicukiro",
+      "sector": "niboye",
+      "cell": "gatare",
+      "village": "byimana"
+    },
+    "contact": {
+      "phone": "0780000103"
+    },
+    "nationalIdentificationNumber": "1199990000000103"
+  },
+  "PATIENT_KICUKIRO_DISTRICT_HOSPITAL": {
+    "firstname": "Patient",
+    "lastname": "Kicukiro",
+    "birthdate": "1990-01-04",
+    "address": {
+      "province": "kigali",
+      "district": "kicukiro",
+      "sector": "niboye",
+      "cell": "gatare",
+      "village": "byimana"
+    },
+    "contact": {
+      "phone": "0780000104"
+    },
+    "nationalIdentificationNumber": "1199990000000104"
+  }
+}

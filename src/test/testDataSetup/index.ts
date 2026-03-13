@@ -3,6 +3,7 @@ import {
   createHospitalsFromSetup,
   type CreatedHospitalIdsMap,
 } from './hospital-setup.js';
+import { seedIndicatorsFromSetup } from './indicator-setup.js';
 import { createNursesFromSetup } from './nurse-setup.js';
 
 export type OrchestratedTestDataSetup = {
@@ -15,6 +16,8 @@ export async function setupTestData(): Promise<OrchestratedTestDataSetup> {
   const createdHospitals = await createHospitalsFromSetup();
 
   await createNursesFromSetup(createdHospitals);
+
+  await seedIndicatorsFromSetup();
 
   return {
     createdHospitals,
