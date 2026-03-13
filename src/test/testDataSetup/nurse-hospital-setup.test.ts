@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import Hospital from '../../models/hospital.model.js';
-import { createHospitalsFromSetup, HOSPITAL_SETUP } from '../testDataSetup/hospital-setup.js';
-import { createNursesFromSetup, NURSE_SETUP } from '../testDataSetup/nurse-setup.js';
+import { createHospitalsFromSetup, HOSPITAL_SETUP } from './hospital-setup.js';
+import { createNursesFromSetup, NURSE_SETUP } from './nurse-setup.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { Nurse } from '../../models/user.model.js';
 

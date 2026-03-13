@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 import Account from '../../models/account.model.js';
 import Hospital from '../../models/hospital.model.js';
 import User, { Nurse } from '../../models/user.model.js';
-import { ACCOUNT_SETUP } from '../testDataSetup/account-setup.js';
-import { HOSPITAL_SETUP } from '../testDataSetup/hospital-setup.js';
-import { NURSE_SETUP } from '../testDataSetup/nurse-setup.js';
-import { setupTestData } from '../testDataSetup/index.js';
+import { ACCOUNT_SETUP } from './account-setup.js';
+import { HOSPITAL_SETUP } from './hospital-setup.js';
+import { NURSE_SETUP } from './nurse-setup.js';
+import { setupTestData } from './index.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { UserRole } from '../../types/roles.types.js';
 
