@@ -194,3 +194,320 @@ describe('ReferralService.isSameDay', () => {
     expect(result).toBe(false);
   });
 });
+
+describe('ReferralService.getPendingReferralByPatientNumber', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns pending referral scoped by patient number and session', async () => {
+    const service = new ReferralService();
+    const referral = { _id: 'ref-1', patientNumber: 1001, status: 'PENDING' };
+    const query = createSessionLeanExecQuery(referral);
+    const session = { id: 'session-1' };
+
+    vi.spyOn(Referral, 'findOne').mockReturnValue(query as any);
+
+    const result = await service.getPendingReferralByPatientNumber(1001, session as any);
+
+    expect(Referral.findOne).toHaveBeenCalledWith({ patientNumber: 1001, status: 'PENDING' });
+    expect(query.session).toHaveBeenCalledWith(session);
+    expect(result).toEqual(referral);
+  });
+});
+
+describe('ReferralService.hasPendingReferral', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns true when a pending referral exists', async () => {
+    const service = new ReferralService();
+    vi.spyOn(Referral, 'exists').mockResolvedValue({ _id: 'ref-1' } as any);
+
+    const result = await service.hasPendingReferral(1002);
+
+    expect(Referral.exists).toHaveBeenCalledWith({ patientNumber: 1002, status: 'PENDING' });
+    expect(result).toBe(true);
+  });
+
+  it('returns false when no pending referral exists', async () => {
+    const service = new ReferralService();
+    vi.spyOn(Referral, 'exists').mockResolvedValue(null);
+
+    const result = await service.hasPendingReferral(1003);
+
+    expect(result).toBe(false);
+  });
+});
+
+describe('ReferralService.completeReferralByPatientNumber', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('marks latest pending referral as completed and returns updated referral', async () => {
+    const service = new ReferralService();
+    const updated = { _id: 'ref-2', status: 'COMPLETED' };
+    const exec = vi.fn().mockResolvedValue(updated);
+    const populate = vi.fn().mockReturnValue({ exec });
+    const findOneAndUpdateSpy = vi.spyOn(Referral, 'findOneAndUpdate').mockReturnValue({ populate } as any);
+
+    const result = await service.completeReferralByPatientNumber(1004);
+
+    expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+      { patientNumber: 1004, status: 'PENDING' },
+      {
+        $set: {
+          status: 'COMPLETED',
+          visitDate: expect.any(Date),
+        },
+      },
+      {
+        new: true,
+        sort: { createdAt: -1 },
+      },
+    );
+    expect(populate).toHaveBeenCalledWith('patient');
+    expect(result).toEqual(updated);
+  });
+
+  it('returns null when no pending referral matches the patient number', async () => {
+    const service = new ReferralService();
+    const exec = vi.fn().mockResolvedValue(null);
+    const populate = vi.fn().mockReturnValue({ exec });
+
+    vi.spyOn(Referral, 'findOneAndUpdate').mockReturnValue({ populate } as any);
+
+    const result = await service.completeReferralByPatientNumber(9999);
+
+    expect(result).toBeNull();
+  });
+});
+
+describe('ReferralService.listReferralsByHealthWorker', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('maps aggregate results into referral summaries', async () => {
+    const service = new ReferralService();
+    const aggregateResults = [
+      {
+        _id: { toString: () => 'ref-10' },
+        patientNumber: 2001,
+        referralDate: new Date('2026-03-10T00:00:00.000Z'),
+        scheduledVisitDate: new Date('2026-04-09T00:00:00.000Z'),
+        status: 'PENDING',
+        assessmentCount: 2,
+      },
+    ];
+    const exec = vi.fn().mockResolvedValue(aggregateResults);
+    const aggregateSpy = vi.spyOn(Referral, 'aggregate').mockReturnValue({ exec } as any);
+
+    const result = await service.listReferralsByHealthWorker('507f1f77bcf86cd799439011', 'PENDING');
+
+    expect(aggregateSpy).toHaveBeenCalledTimes(1);
+    const pipeline = aggregateSpy.mock.calls[0][0] as any[];
+    expect(pipeline.some((stage) => stage.$lookup?.from === 'clinicalprofiles')).toBe(true);
+    expect(pipeline.some((stage) => stage.$sort?.createdAt === -1)).toBe(true);
+
+    expect(result).toEqual([
+      {
+        id: 'ref-10',
+        patientNumber: 2001,
+        referralDate: aggregateResults[0].referralDate,
+        scheduledVisitDate: aggregateResults[0].scheduledVisitDate,
+        status: 'PENDING',
+        assessmentCount: 2,
+      },
+    ]);
+  });
+});
+
+describe('ReferralService.listUpcomingReferralsByHealthWorker', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it('filters upcoming pending referrals within 48 hours and maps summaries', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-10T08:00:00.000Z'));
+
+    const service = new ReferralService();
+    const aggregateResults = [
+      {
+        _id: { toString: () => 'ref-upcoming-1' },
+        patientNumber: 3001,
+        referralDate: new Date('2026-03-10T00:00:00.000Z'),
+        scheduledVisitDate: new Date('2026-03-11T07:00:00.000Z'),
+        status: 'PENDING',
+        assessmentCount: 1,
+      },
+    ];
+    const exec = vi.fn().mockResolvedValue(aggregateResults);
+    const aggregateSpy = vi.spyOn(Referral, 'aggregate').mockReturnValue({ exec } as any);
+
+    const result = await service.listUpcomingReferralsByHealthWorker('507f1f77bcf86cd799439012');
+
+    const pipeline = aggregateSpy.mock.calls[0][0] as any[];
+    const matchStage = pipeline.find((stage) => stage.$match)?.$match;
+    expect(matchStage.status).toBe('PENDING');
+    expect(matchStage.scheduledVisitDate.$gte).toBeInstanceOf(Date);
+    expect(matchStage.scheduledVisitDate.$lte).toBeInstanceOf(Date);
+    expect(matchStage.scheduledVisitDate.$lte.getTime() - matchStage.scheduledVisitDate.$gte.getTime()).toBe(
+      48 * 60 * 60 * 1000,
+    );
+    expect(pipeline.some((stage) => stage.$limit === 5)).toBe(true);
+
+    expect(result).toEqual([
+      {
+        id: 'ref-upcoming-1',
+        patientNumber: 3001,
+        referralDate: aggregateResults[0].referralDate,
+        scheduledVisitDate: aggregateResults[0].scheduledVisitDate,
+        status: 'PENDING',
+        assessmentCount: 1,
+      },
+    ]);
+  });
+});
+
+describe('ReferralService.countPendingReferralsByHealthWorker', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns aggregate count when present', async () => {
+    const service = new ReferralService();
+    vi.spyOn(Referral, 'aggregate').mockReturnValue({ exec: vi.fn().mockResolvedValue([{ count: 6 }]) } as any);
+
+    const result = await service.countPendingReferralsByHealthWorker('507f1f77bcf86cd799439013');
+
+    expect(result).toBe(6);
+  });
+
+  it('returns 0 when aggregate returns no rows', async () => {
+    const service = new ReferralService();
+    vi.spyOn(Referral, 'aggregate').mockReturnValue({ exec: vi.fn().mockResolvedValue([]) } as any);
+
+    const result = await service.countPendingReferralsByHealthWorker('507f1f77bcf86cd799439014');
+
+    expect(result).toBe(0);
+  });
+});
+
+describe('ReferralService.getReferralStatusOverviewByHealthWorker', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns computed summary from aggregate facets', async () => {
+    const service = new ReferralService();
+    vi.spyOn(Referral, 'aggregate').mockReturnValue(
+      {
+        exec: vi.fn().mockResolvedValue([
+          {
+            pending: [{ count: 3 }],
+            completed_this_month: [{ count: 9 }],
+            overdue: [{ count: 1 }],
+          },
+        ]),
+      } as any,
+    );
+
+    const result = await service.getReferralStatusOverviewByHealthWorker('507f1f77bcf86cd799439015');
+
+    expect(result).toEqual({
+      pending: 3,
+      completed_this_month: 9,
+      overdue: 1,
+    });
+  });
+
+  it('defaults all counters to zero when aggregate has no rows', async () => {
+    const service = new ReferralService();
+    vi.spyOn(Referral, 'aggregate').mockReturnValue({ exec: vi.fn().mockResolvedValue([]) } as any);
+
+    const result = await service.getReferralStatusOverviewByHealthWorker('507f1f77bcf86cd799439016');
+
+    expect(result).toEqual({
+      pending: 0,
+      completed_this_month: 0,
+      overdue: 0,
+    });
+  });
+});
+
+describe('ReferralService.getReferralById', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns null when referral is not found', async () => {
+    const service = new ReferralService();
+    const exec = vi.fn().mockResolvedValue(null);
+    const lean = vi.fn().mockReturnValue({ exec });
+    const select = vi.fn().mockReturnValue({ lean });
+
+    vi.spyOn(Referral, 'findById').mockReturnValue({ select } as any);
+
+    const result = await service.getReferralById('missing-referral');
+
+    expect(result).toBeNull();
+  });
+
+  it('maps referral document to details DTO', async () => {
+    const service = new ReferralService();
+    const doc = {
+      _id: { toString: () => 'ref-42' },
+      patient: { toString: () => 'patient-42' },
+      patientNumber: 4242,
+      clinicalProfile: { toString: () => 'cp-42' },
+      referralDate: new Date('2026-03-10T00:00:00.000Z'),
+      scheduledVisitDate: new Date('2026-04-09T00:00:00.000Z'),
+      visitDate: new Date('2026-03-20T00:00:00.000Z'),
+      status: 'COMPLETED',
+      assessments: [{ toString: () => 'a-1' }, { toString: () => 'a-2' }],
+      referredBy: { toString: () => 'user-42' },
+      createdAt: new Date('2026-03-10T01:00:00.000Z'),
+      updatedAt: new Date('2026-03-20T01:00:00.000Z'),
+    };
+    const exec = vi.fn().mockResolvedValue(doc);
+    const lean = vi.fn().mockReturnValue({ exec });
+    const select = vi.fn().mockReturnValue({ lean });
+    const findByIdSpy = vi.spyOn(Referral, 'findById').mockReturnValue({ select } as any);
+
+    const result = await service.getReferralById('ref-42');
+
+    expect(findByIdSpy).toHaveBeenCalledWith('ref-42');
+    expect(select).toHaveBeenCalledWith({
+      patient: 1,
+      patientNumber: 1,
+      clinicalProfile: 1,
+      referralDate: 1,
+      scheduledVisitDate: 1,
+      visitDate: 1,
+      status: 1,
+      assessments: 1,
+      referredBy: 1,
+      createdAt: 1,
+      updatedAt: 1,
+    });
+    expect(result).toEqual({
+      id: 'ref-42',
+      patient: 'patient-42',
+      patientNumber: 4242,
+      clinicalProfile: 'cp-42',
+      referralDate: doc.referralDate,
+      scheduledVisitDate: doc.scheduledVisitDate,
+      status: 'COMPLETED',
+      assessments: ['a-1', 'a-2'],
+      referredBy: 'user-42',
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      visitDate: doc.visitDate,
+    });
+  });
+});
