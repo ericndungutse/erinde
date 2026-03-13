@@ -134,3 +134,154 @@ describe('AssessmentController.createAssessment', () => {
     expect(res.json).not.toHaveBeenCalled();
   });
 });
+
+describe('AssessmentController.getAssessmentById', () => {
+  it('returns 400 when assessment id is missing', async () => {
+    const mockService: any = {
+      getAssessmentById: vi.fn(),
+    };
+    const controller = new AssessmentController(mockService);
+
+    const req = { params: {} } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.getAssessmentById(req, res);
+
+    expect(mockService.getAssessmentById).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({
+      status: 'fail',
+      message: 'Assessment id is required',
+    });
+  });
+
+  it('returns 404 when assessment is not found', async () => {
+    const mockService: any = {
+      getAssessmentById: vi.fn().mockResolvedValue(null),
+    };
+    const controller = new AssessmentController(mockService);
+
+    const req = { params: { id: 'assessment-404' } } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.getAssessmentById(req, res);
+
+    expect(mockService.getAssessmentById).toHaveBeenCalledWith('assessment-404');
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toEqual({
+      status: 'fail',
+      message: 'Assessment not found',
+    });
+  });
+
+  it('returns 200 with assessment details when found', async () => {
+    const assessment = {
+      id: 'assessment-200',
+      classification: {
+        label: 'Normal',
+        status_code: 'healthy',
+      },
+    };
+    const mockService: any = {
+      getAssessmentById: vi.fn().mockResolvedValue(assessment),
+    };
+    const controller = new AssessmentController(mockService);
+
+    const req = { params: { id: 'assessment-200' } } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.getAssessmentById(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({
+      status: 'success',
+      data: { assessment },
+    });
+  });
+
+  it('returns 500 when service throws', async () => {
+    const mockService: any = {
+      getAssessmentById: vi.fn().mockRejectedValue(new Error('Failed to query assessment')),
+    };
+    const controller = new AssessmentController(mockService);
+
+    const req = { params: { id: 'assessment-500' } } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.getAssessmentById(req, res);
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toEqual({
+      status: 'error',
+      message: 'Failed to query assessment',
+    });
+  });
+});
+
+describe('AssessmentController.listMyAssessmentsLast24Hours', () => {
+  it('returns 401 when authenticated user context is missing', async () => {
+    const mockService: any = {
+      listAssessmentsByEvaluatorLast24Hours: vi.fn(),
+    };
+    const controller = new AssessmentController(mockService);
+
+    const req = {} as unknown as Request;
+    const res = createMockRes();
+
+    await controller.listMyAssessmentsLast24Hours(req, res);
+
+    expect(mockService.listAssessmentsByEvaluatorLast24Hours).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({
+      status: 'fail',
+      message: 'Unauthorized: missing user context',
+    });
+  });
+
+  it('returns 200 with last 24-hour assessments for the authenticated evaluator', async () => {
+    const assessments = [
+      {
+        _id: 'assessment-1',
+        patientNumber: 1001,
+        patientName: 'John Doe',
+        indicatorName: 'diabetes',
+        classificationLabel: 'Normal',
+      },
+    ];
+
+    const mockService: any = {
+      listAssessmentsByEvaluatorLast24Hours: vi.fn().mockResolvedValue(assessments),
+    };
+    const controller = new AssessmentController(mockService);
+
+    const req = { user: { id: 'evaluator-1' } } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.listMyAssessmentsLast24Hours(req, res);
+
+    expect(mockService.listAssessmentsByEvaluatorLast24Hours).toHaveBeenCalledWith('evaluator-1');
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({
+      status: 'success',
+      data: { assessments },
+    });
+  });
+
+  it('returns 500 when listing assessments fails', async () => {
+    const mockService: any = {
+      listAssessmentsByEvaluatorLast24Hours: vi.fn().mockRejectedValue(new Error('Aggregation failed')),
+    };
+    const controller = new AssessmentController(mockService);
+
+    const req = { user: { id: 'evaluator-2' } } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.listMyAssessmentsLast24Hours(req, res);
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toEqual({
+      status: 'error',
+      message: 'Aggregation failed',
+    });
+  });
+});
