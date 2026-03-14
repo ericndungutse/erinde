@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import { MongoMemoryReplSet, MongoMemoryServer } from "mongodb-memory-server";
-import { beforeAll, afterAll, afterEach } from "vitest";
+import mongoose from 'mongoose';
+import { MongoMemoryReplSet, MongoMemoryServer } from 'mongodb-memory-server';
+import { beforeAll, afterAll, afterEach } from 'vitest';
 
 let mongoServer: MongoMemoryServer | null = null;
 
@@ -8,9 +8,8 @@ let replSet: MongoMemoryReplSet;
 
 export function setupTestDB() {
   beforeAll(async () => {
-    // create in-memory replica set
     replSet = await MongoMemoryReplSet.create({
-      replSet: { count: 1 }, // single-node replica set
+      replSet: { count: 1 },
     });
 
     const uri = replSet.getUri();
@@ -18,8 +17,8 @@ export function setupTestDB() {
   });
 
   afterEach(async () => {
+    // Standard cleanup
     const collections = mongoose.connection.collections;
-
     for (const key of Object.keys(collections)) {
       const collection = collections[key];
       if (collection) await collection.deleteMany({});
@@ -27,15 +26,15 @@ export function setupTestDB() {
   });
 
   afterAll(async () => {
+    // 1. Close Mongoose connection first
     if (mongoose.connection.readyState !== 0) {
-      await mongoose.connection.dropDatabase();
       await mongoose.connection.close();
     }
 
-    if (mongoServer) {
-      await mongoServer.stop();
-      mongoServer = null;
-      await replSet.stop();
+    // 2. ALWAYS stop the replSet if it exists
+    if (replSet) {
+      // 'true' ensures the storage directory is deleted even if the process is stubborn
+      await replSet.stop({ doCleanup: true });
     }
   });
 }
