@@ -21,12 +21,16 @@ import PatientNotFoundException from '../Errors/PatientNotFoundException.js';
 import mongoose from 'mongoose';
 import { Assessment } from '../models/assessment.model.js';
 import { AssessmentCreationError } from '../Errors/AssessmentCreationError.js';
+import type { IUserService } from './interface/iuser.service.js';
+import Hospital from '../models/hospital.model.js';
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
+  private _userService: IUserService;
 
-  constructor(referralService: IReferralService) {
+  constructor(referralService: IReferralService, userService: IUserService) {
     this.referralService = referralService;
+    this._userService = userService;
   }
 
   getAssessmentIndicator(assessmentId: string): Promise<any | null> {
@@ -43,7 +47,7 @@ export default class AssessmentService implements IAssessmentService {
 
       await this.ensureNoPendingReferral(dto.patientNumber, dto.indicator, session);
 
-      const patientId = await this.getPatientIdOrThrow(dto.patientNumber, session);
+      const patient = await this._userService.findUserByPatientNumber(dto.patientNumber, session);
 
       this.validateReadingUnits(dto, indicatorDoc);
 
@@ -52,14 +56,13 @@ export default class AssessmentService implements IAssessmentService {
       const assessmentPayload = this.buildAssessmentPayload(
         dto,
         evaluatedBy,
-        patientId,
+        patient.id,
         classification,
         recommendations,
       );
 
       const created = await this.createAssessmentRecord(assessmentPayload, session);
-
-      await this.createReferralIfNeeded(created.id, patientId.toString(), evaluatedBy, classification, session);
+      await this.createReferralIfNeeded(created.id, patient.id, evaluatedBy, classification, patient.district, session);
 
       await session.commitTransaction();
 
@@ -307,12 +310,25 @@ export default class AssessmentService implements IAssessmentService {
     patientId: string,
     evaluatedBy: string,
     classification: IAssessmentClassification | undefined,
+    districtOfPatient: string,
     session: ClientSession,
   ): Promise<void> {
     if (!classification || classification.status_code === 'healthy') {
       return;
     }
+    const hospitalId = await this.getDistrictHospitalId(districtOfPatient, session);
 
-    await this.referralService.createReferral(assessmentId, patientId, evaluatedBy, session);
+    if (!hospitalId) {
+      throw new Error('No hospital found for the specified district');
+    }
+
+    await this.referralService.createReferral(assessmentId, patientId, hospitalId, evaluatedBy, session);
+  }
+
+  // Resolve district hospitalId
+  // Search for the district hospital in the same district as the patient's
+  private async getDistrictHospitalId(district: string, session: ClientSession): Promise<string | null> {
+    const hospital = await Hospital.findOne({ 'address.district': district }).session(session).lean();
+    return hospital ? hospital._id.toString() : null;
   }
 }

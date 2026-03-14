@@ -1,14 +1,10 @@
-import mongoose from "mongoose";
-import { ConstantValues } from "../constants/constant.values.js";
-import UserNotFoundError from "../Errors/UserNotFoundError.js";
-import Account from "../models/account.model.js";
-import ClinicalProfile from "../models/clinicalProfile.model.js";
-import Counter from "../models/counter.model.js";
-import User, {
-  Nurse,
-  type INurseDocument,
-  type IUserDocument,
-} from "../models/user.model.js";
+import mongoose from 'mongoose';
+import { ConstantValues } from '../constants/constant.values.js';
+import UserNotFoundError from '../Errors/UserNotFoundError.js';
+import Account from '../models/account.model.js';
+import ClinicalProfile from '../models/clinicalProfile.model.js';
+import Counter from '../models/counter.model.js';
+import User, { Nurse, type INurseDocument, type IUserDocument } from '../models/user.model.js';
 
 import {
   RegisterUserWithAccountSchema,
@@ -17,20 +13,15 @@ import {
   type RegisterUserResponse,
   type RegisterUserWithAccountDTO,
   type UserRoles,
-} from "../dto/user.dto.js";
-import HospitalNotFoundError from "../Errors/HospitalNotFoundError.js";
-import Hospital from "../models/hospital.model.js";
-import { UserRole } from "../types/roles.types.js";
-import type { IUserService } from "./interface/iuser.service.js";
+} from '../dto/user.dto.js';
+import HospitalNotFoundError from '../Errors/HospitalNotFoundError.js';
+import Hospital from '../models/hospital.model.js';
+import { UserRole } from '../types/roles.types.js';
+import type { IUserService } from './interface/iuser.service.js';
 
 export class UserService implements IUserService {
-  async getAllUsers(): Promise<
-    Array<{ id: string; name: string; roles: UserRole[] }>
-  > {
-    const users = await User.find(
-      {},
-      { firstname: 1, lastname: 1, roles: 1 },
-    ).lean();
+  async getAllUsers(): Promise<Array<{ id: string; name: string; roles: UserRole[] }>> {
+    const users = await User.find({}, { firstname: 1, lastname: 1, roles: 1 }).lean();
     return users.map((u: any) => {
       const name = `${u.firstname} ${u.lastname}`.trim();
       const roles: UserRole[] = (
@@ -39,9 +30,7 @@ export class UserService implements IUserService {
       return { id: u._id.toString(), name, roles };
     });
   }
-  async registerUserWithAccount(
-    userData: RegisterUserWithAccountDTO,
-  ): Promise<any> {
+  async registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any> {
     const parsed = RegisterUserWithAccountSchema.parse(userData);
     const roles = [UserRole.USER, ...(parsed.roles as UserRole[])];
     const session = await mongoose.startSession();
@@ -54,11 +43,9 @@ export class UserService implements IUserService {
     // -------------------------
     const hasNurseRole = roles.includes(UserRole.NURSE);
     if (hasNurseRole) {
-      if (!parsed.hospitalId) throw new Error("hospital_id_required");
+      if (!parsed.hospitalId) throw new Error('hospital_id_required');
 
-      const exists = await Hospital.existsById(
-        new mongoose.Types.ObjectId(parsed.hospitalId),
-      );
+      const exists = await Hospital.existsById(new mongoose.Types.ObjectId(parsed.hospitalId));
       if (!exists) throw new HospitalNotFoundError();
     }
 
@@ -77,13 +64,13 @@ export class UserService implements IUserService {
         await account.save({ session });
 
         const counter = await Counter.findByIdAndUpdate(
-          "patientNumber",
+          'patientNumber',
           { $inc: { seq: 1 } },
           { new: true, upsert: true, session },
         );
 
         if (!counter) {
-          throw new Error("Failed to generate patient number");
+          throw new Error('Failed to generate patient number');
         }
 
         clinicalProfile = new ClinicalProfile({
@@ -94,7 +81,7 @@ export class UserService implements IUserService {
       });
 
       if (!user || !account || !clinicalProfile) {
-        throw new Error("Failed to register user with account");
+        throw new Error('Failed to register user with account');
       }
 
       return { user, account, clinicalProfile };
@@ -103,10 +90,7 @@ export class UserService implements IUserService {
     }
   }
 
-  async updateUserPasswordByAdmin(
-    userId: string,
-    payload: IAdminUpdateUserPasswordPayload,
-  ): Promise<void> {
+  async updateUserPasswordByAdmin(userId: string, payload: IAdminUpdateUserPasswordPayload): Promise<void> {
     if (!mongoose.isValidObjectId(userId)) {
       throw new UserNotFoundError();
     }
@@ -133,20 +117,20 @@ export class UserService implements IUserService {
         await user.save({ session });
 
         const counter = await Counter.findByIdAndUpdate(
-          "patientNumber",
+          'patientNumber',
           { $inc: { seq: 1 } },
           { new: true, upsert: true, session },
         );
 
         if (!counter) {
-          throw new Error("Failed to generate patient number");
+          throw new Error('Failed to generate patient number');
         }
 
         patientNumber = counter.seq;
 
         const socialHealthWorker = await User.findOne({
           roles: UserRole.SOCIAL_HEALTH_WORKER,
-          "address.village": userData.address.village,
+          'address.village': userData.address.village,
         })
           .session(session)
           .lean();
@@ -156,7 +140,7 @@ export class UserService implements IUserService {
           patientNumber: number;
           healthWorkerId?: (typeof socialHealthWorker & {
             _id: unknown;
-          })["_id"];
+          })['_id'];
         } = {
           userId: user._id,
           patientNumber,
@@ -170,7 +154,7 @@ export class UserService implements IUserService {
       });
 
       if (patientNumber === undefined) {
-        throw new Error("Failed to register user");
+        throw new Error('Failed to register user');
       }
 
       return { patientNumber };
@@ -192,11 +176,11 @@ export class UserService implements IUserService {
     };
   }
 
-  async findUserByPatientNumber(patientNumber: number): Promise<any | null> {
-    const clinicalProfile = await ClinicalProfile.findOne({ patientNumber })
+  async findUserByPatientNumber(patientNumber: number, session?: any): Promise<any | null> {
+    const clinicalProfile = await ClinicalProfile.findOne({ patientNumber }, {}, { session })
       .populate({
-        path: "userId",
-        select: "firstname lastname nationalIdentificationNumber contact.phone",
+        path: 'userId',
+        select: 'firstname lastname nationalIdentificationNumber contact.phone address.district',
       })
       .lean();
 
@@ -207,10 +191,12 @@ export class UserService implements IUserService {
     const user: any = clinicalProfile.userId;
 
     return {
+      id: user._id.toString(),
       nationalIdentificationNumber: user.nationalIdentificationNumber,
       firstname: user.firstname,
       lastname: user.lastname,
       phone: user.contact?.phone,
+      district: user.address?.district,
     };
   }
 
@@ -232,7 +218,7 @@ export class UserService implements IUserService {
   async findSocialHealthWorkerByVillage(village: string): Promise<any | null> {
     const socialHealthWorker = await User.findOne({
       roles: UserRole.SOCIAL_HEALTH_WORKER,
-      "address.village": village,
+      'address.village': village,
     }).lean();
 
     if (!socialHealthWorker) {
@@ -242,14 +228,11 @@ export class UserService implements IUserService {
     return socialHealthWorker;
   }
 
-  createUserByRole(
-    parsed: any,
-    roles: string[],
-  ): IUserDocument | INurseDocument {
+  createUserByRole(parsed: any, roles: string[]): IUserDocument | INurseDocument {
     // If the user is a Nurse, use the Nurse discriminator
     if (roles.includes(UserRole.NURSE)) {
       if (!parsed.hospitalId) {
-        throw new Error("hospitalId is required for a Nurse");
+        throw new Error('hospitalId is required for a Nurse');
       }
       return new Nurse({
         ...parsed,

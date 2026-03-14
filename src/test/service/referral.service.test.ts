@@ -49,7 +49,7 @@ describe('ReferralService.createReferral', () => {
 
     vi.spyOn(Referral, 'findOne').mockReturnValue(findOneQuery as any);
 
-    await service.createReferral('assessment-new', 'patient-1', 'user-1', session as any);
+    await service.createReferral('assessment-new', 'patient-1', 'hospital-1', 'user-1', session as any);
 
     expect(Referral.findOne).toHaveBeenCalledWith({
       patient: 'patient-1',
@@ -72,7 +72,7 @@ describe('ReferralService.createReferral', () => {
 
     vi.spyOn(Referral, 'findOne').mockReturnValue(findOneQuery as any);
 
-    await service.createReferral('assessment-existing', 'patient-1', 'user-1', session as any);
+    await service.createReferral('assessment-existing', 'patient-1', 'hospital-1', 'user-1', session as any);
 
     expect(existingReferral.assessments).toEqual(['assessment-existing']);
     expect(existingReferral.save).not.toHaveBeenCalled();
@@ -89,9 +89,9 @@ describe('ReferralService.createReferral', () => {
 
     vi.spyOn(Referral, 'findOne').mockReturnValue(findOneQuery as any);
 
-    await expect(service.createReferral('assessment-new', 'patient-1', 'user-1', session as any)).rejects.toBeInstanceOf(
-      HasPendingReferralError,
-    );
+    await expect(
+      service.createReferral('assessment-new', 'patient-1', 'hospital-1', 'user-1', session as any),
+    ).rejects.toBeInstanceOf(HasPendingReferralError);
 
     expect(existingReferral.save).not.toHaveBeenCalled();
   });
@@ -111,7 +111,7 @@ describe('ReferralService.createReferral', () => {
     vi.spyOn(Assessment, 'findById').mockReturnValue(assessmentQuery as any);
     vi.spyOn(ClinicalProfile, 'findOne').mockReturnValue(clinicalQuery as any);
 
-    await service.createReferral('assessment-1', 'patient-1', 'user-1', session as any);
+    await service.createReferral('assessment-1', 'patient-1', 'hospital-1', 'user-1', session as any);
 
     expect(Assessment.findById).toHaveBeenCalledWith('assessment-1');
     expect(assessmentQuery.session).toHaveBeenCalledWith(session);
@@ -131,6 +131,7 @@ describe('ReferralService.createReferral', () => {
     expect(referralPayload.status).toBe('PENDING');
     expect(referralPayload.assessments).toEqual(['assessment-1']);
     expect(referralPayload.referredBy).toBe('user-1');
+    expect(referralPayload.hospitalId).toBe('hospital-1');
     expect(referralPayload.referralDate).toEqual(expectedReferralDate);
     expect(referralPayload.scheduledVisitDate).toEqual(expectedScheduledVisitDate);
   });
@@ -145,9 +146,9 @@ describe('ReferralService.createReferral', () => {
     vi.spyOn(Assessment, 'findById').mockReturnValue(assessmentQuery as any);
     vi.spyOn(ClinicalProfile, 'findOne').mockReturnValue(clinicalQuery as any);
 
-    await expect(service.createReferral('assessment-1', 'patient-1', 'user-1', session as any)).rejects.toThrow(
-      'Required Assessment or Clinical Profile not found',
-    );
+    await expect(
+      service.createReferral('assessment-1', 'patient-1', 'hospital-1', 'user-1', session as any),
+    ).rejects.toThrow('Required Assessment or Clinical Profile not found');
 
     expect(createSpy).not.toHaveBeenCalled();
   });
@@ -162,9 +163,9 @@ describe('ReferralService.createReferral', () => {
     vi.spyOn(Assessment, 'findById').mockReturnValue(assessmentQuery as any);
     vi.spyOn(ClinicalProfile, 'findOne').mockReturnValue(clinicalQuery as any);
 
-    await expect(service.createReferral('assessment-1', 'patient-1', 'user-1', session as any)).rejects.toThrow(
-      'Required Assessment or Clinical Profile not found',
-    );
+    await expect(
+      service.createReferral('assessment-1', 'patient-1', 'hospital-1', 'user-1', session as any),
+    ).rejects.toThrow('Required Assessment or Clinical Profile not found');
 
     expect(createSpy).not.toHaveBeenCalled();
   });
@@ -308,16 +309,18 @@ describe('ReferralService.listReferralsByHealthWorker', () => {
     const result = await service.listReferralsByHealthWorker('507f1f77bcf86cd799439011', 'PENDING');
 
     expect(aggregateSpy).toHaveBeenCalledTimes(1);
-    const pipeline = aggregateSpy.mock.calls[0][0] as any[];
+    const [firstCall] = aggregateSpy.mock.calls;
+    const pipeline = firstCall![0] as any[];
     expect(pipeline.some((stage) => stage.$lookup?.from === 'clinicalprofiles')).toBe(true);
     expect(pipeline.some((stage) => stage.$sort?.createdAt === -1)).toBe(true);
 
+    const [firstResult] = aggregateResults;
     expect(result).toEqual([
       {
         id: 'ref-10',
         patientNumber: 2001,
-        referralDate: aggregateResults[0].referralDate,
-        scheduledVisitDate: aggregateResults[0].scheduledVisitDate,
+        referralDate: firstResult!.referralDate,
+        scheduledVisitDate: firstResult!.scheduledVisitDate,
         status: 'PENDING',
         assessmentCount: 2,
       },
@@ -351,7 +354,8 @@ describe('ReferralService.listUpcomingReferralsByHealthWorker', () => {
 
     const result = await service.listUpcomingReferralsByHealthWorker('507f1f77bcf86cd799439012');
 
-    const pipeline = aggregateSpy.mock.calls[0][0] as any[];
+    const [firstCall] = aggregateSpy.mock.calls;
+    const pipeline = firstCall![0] as any[];
     const matchStage = pipeline.find((stage) => stage.$match)?.$match;
     expect(matchStage.status).toBe('PENDING');
     expect(matchStage.scheduledVisitDate.$gte).toBeInstanceOf(Date);
@@ -361,12 +365,13 @@ describe('ReferralService.listUpcomingReferralsByHealthWorker', () => {
     );
     expect(pipeline.some((stage) => stage.$limit === 5)).toBe(true);
 
+    const [firstResult] = aggregateResults;
     expect(result).toEqual([
       {
         id: 'ref-upcoming-1',
         patientNumber: 3001,
-        referralDate: aggregateResults[0].referralDate,
-        scheduledVisitDate: aggregateResults[0].scheduledVisitDate,
+        referralDate: firstResult!.referralDate,
+        scheduledVisitDate: firstResult!.scheduledVisitDate,
         status: 'PENDING',
         assessmentCount: 1,
       },
@@ -405,17 +410,15 @@ describe('ReferralService.getReferralStatusOverviewByHealthWorker', () => {
 
   it('returns computed summary from aggregate facets', async () => {
     const service = new ReferralService();
-    vi.spyOn(Referral, 'aggregate').mockReturnValue(
-      {
-        exec: vi.fn().mockResolvedValue([
-          {
-            pending: [{ count: 3 }],
-            completed_this_month: [{ count: 9 }],
-            overdue: [{ count: 1 }],
-          },
-        ]),
-      } as any,
-    );
+    vi.spyOn(Referral, 'aggregate').mockReturnValue({
+      exec: vi.fn().mockResolvedValue([
+        {
+          pending: [{ count: 3 }],
+          completed_this_month: [{ count: 9 }],
+          overdue: [{ count: 1 }],
+        },
+      ]),
+    } as any);
 
     const result = await service.getReferralStatusOverviewByHealthWorker('507f1f77bcf86cd799439015');
 

@@ -32,6 +32,12 @@ const referralSchema = new Schema<IReferralDocument>(
       index: true,
     },
 
+    hospitalId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Hospital',
+      required: true,
+    },
+
     visitDate: {
       type: Date,
     },

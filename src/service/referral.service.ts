@@ -1,16 +1,13 @@
 import ClinicalProfile from '../models/clinicalProfile.model.js';
 import { Assessment } from '../models/assessment.model.js';
 import Referral from '../models/referral.model.js';
-import mongoose, { type ClientSession } from 'mongoose';
+import mongoose, { Types, type ClientSession } from 'mongoose';
 import type { IReferralService } from './interface/ireferral.service.js';
-import type {
-  IReferralSummary,
-  ReferralStatus,
-  IReferralDetails,
-  IReferral,
-  IReferralStatusSummary,
-} from '../types/referral.types.js';
+
 import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
+import type { IReferral } from '../domain/referral.js';
+import type { IReferralDetails, IReferralStatusSummary, IReferralSummary } from '../dto/referral.dto.js';
+import type { ReferralStatus } from '../types/ReferralStatus.types.js';
 
 export class ReferralService implements IReferralService {
   getPendingReferralByPatientNumber(patientNumber: number, session: ClientSession): Promise<IReferral | null> {
@@ -61,6 +58,7 @@ export class ReferralService implements IReferralService {
   async createReferral(
     assessmentId: string,
     patientId: string,
+    hospitalId: String,
     referredBy: string,
     session?: ClientSession,
   ): Promise<void> {
@@ -119,6 +117,7 @@ export class ReferralService implements IReferralService {
           patientNumber: clinicalProfile.patientNumber,
           clinicalProfile: clinicalProfile._id,
           referralDate: today,
+          hospitalId: hospitalId as string,
           scheduledVisitDate,
           status: 'PENDING',
           assessments: [assessmentId],

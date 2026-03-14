@@ -1,12 +1,7 @@
 import type { ClientSession } from 'mongoose';
-import type {
-  IReferral,
-  IReferralDetails,
-  IReferralSummary,
-  IReferralStatusSummary,
-  ReferralStatus,
-} from '../../types/referral.types.js';
-
+import type { ReferralStatus } from '../../types/ReferralStatus.types.js';
+import type { IReferralDetails, IReferralStatusSummary, IReferralSummary } from '../../dto/referral.dto.js';
+import type { IReferral } from '../../domain/referral.js';
 export interface IReferralService {
   /**
    * Create or update a daily referral for a patient
@@ -16,7 +11,13 @@ export interface IReferralService {
    * @param patientId - User id of the patient
    * @param referredBy - User id of the person who initiated the referral
    */
-  createReferral(assessmentId: string, patientId: string, referredBy: string, session?: ClientSession): Promise<void>;
+  createReferral(
+    assessmentId: string,
+    patientId: string,
+    hospitalId: String,
+    referredBy: string,
+    session?: ClientSession,
+  ): Promise<void>;
 
   /**
    * List referrals for patients under a specific social health worker's follow-up.

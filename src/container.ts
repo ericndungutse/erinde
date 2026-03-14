@@ -52,7 +52,7 @@ class Container {
     this._userController = new UserController(this._userService);
 
     // Assessment Injections
-    this._assessmentService = new AssessmentService(this._referralService);
+    this._assessmentService = new AssessmentService(this._referralService, this._userService);
     this._assessmentController = new AssessmentController(this._assessmentService);
   }
 

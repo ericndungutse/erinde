@@ -11,6 +11,9 @@ export interface IReferral {
   // Date on which the referral was created (day precision)
   referralDate: Date | string;
 
+  // referral hospital (destination)
+  hospitalId: Types.ObjectId | string;
+
   // Date when the patient is expected to go to hospital (referralDate + 3 days)
   scheduledVisitDate: Date | string;
 

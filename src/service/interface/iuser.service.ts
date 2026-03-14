@@ -1,5 +1,10 @@
-
-import type { IAdminUpdateUserPasswordPayload, RegisterUserDTO, RegisterUserResponse, RegisterUserWithAccountDTO, UserRoles } from '../../dto/user.dto.js';
+import type {
+  IAdminUpdateUserPasswordPayload,
+  RegisterUserDTO,
+  RegisterUserResponse,
+  RegisterUserWithAccountDTO,
+  UserRoles,
+} from '../../dto/user.dto.js';
 import type { UserRole } from '../../types/roles.types.js';
 
 export interface IUserService {
@@ -12,7 +17,7 @@ export interface IUserService {
   registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponse>;
 
   // Search User by Patient Number
-  findUserByPatientNumber(patientNumber: number): Promise<any | null>;
+  findUserByPatientNumber(patientNumber: number, session?: any): Promise<any | null>;
 
   // Admin: detailed lookup by user id
   findUserDetailsByUserIdForAdmin(userId: string): Promise<any | null>;
