@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { Assessment } from '../../models/assessment.model.js';
+import ClinicalProfile from '../../models/clinicalProfile.model.js';
+import Hospital from '../../models/hospital.model.js';
 import Referral from '../../models/referral.model.js';
+import User from '../../models/user.model.js';
 import { setupTestData } from '../testDataSetup/index.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { arrangeAssessment, createAssessment } from './util/utils.js';
@@ -120,6 +123,17 @@ describe('BMI Assessment: POST /api/v1/assessments', () => {
     const referral = await Referral.findOne({ patientNumber }).lean();
     expect(referral).not.toBeNull();
     expect(referral!.assessments.map(String)).toContain(assessmentId);
+
+    // 2.3.1: Referral is routed to the hospital in the patient's district
+    const clinicalProfile = await ClinicalProfile.findOne({ patientNumber }).lean();
+    expect(clinicalProfile).not.toBeNull();
+
+    const patient = await User.findById(clinicalProfile!.userId).lean();
+    expect(patient).not.toBeNull();
+
+    const expectedHospital = await Hospital.findOne({ 'address.district': patient!.address.district }).lean();
+    expect(expectedHospital).not.toBeNull();
+    expect(String(referral!.hospitalId)).toBe(String(expectedHospital!._id));
 
     // 2.4: Cannot take another BMI assessment while referral is pending
     const secondRes = await createAssessment(
