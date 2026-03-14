@@ -1,7 +1,10 @@
-import mongoose, { Schema } from 'mongoose';
-import { type IReferral } from '../types/referral.types.js';
+import mongoose, { type AnyArray, type Model, Schema } from 'mongoose';
+import type { IReferral } from '../domain/referral.js';
 
-const ReferralSchema = new Schema<IReferral>(
+export interface IReferralDocument extends IReferral, Document {}
+export interface IReferralModel extends Model<IReferralDocument> {}
+
+const referralSchema = new Schema<IReferralDocument>(
   {
     patient: {
       type: Schema.Types.ObjectId,
@@ -64,7 +67,7 @@ const ReferralSchema = new Schema<IReferral>(
   },
 );
 
-ReferralSchema.set('toJSON', {
+referralSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
   transform: (_doc, ret) => {
@@ -73,6 +76,6 @@ ReferralSchema.set('toJSON', {
   },
 });
 
-const Referral = mongoose.model<IReferral>('Referral', ReferralSchema);
+const Referral = mongoose.model<IReferralDocument, IReferralModel>('Referral', referralSchema);
 
 export default Referral;
