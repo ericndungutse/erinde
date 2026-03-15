@@ -1,7 +1,14 @@
 import jwt, { type SignOptions } from 'jsonwebtoken';
+import type { IAuthTokenPayload } from '../types/auth.types.js';
 
-export const verifyToken = (token: string) => {
-  return jwt.verify(token, process.env.JWT_SECRET as string);
+export const verifyToken = (token: string): IAuthTokenPayload => {
+  const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+
+  if (typeof decoded === 'string' || !decoded.sub) {
+    throw new Error('Invalid token payload');
+  }
+
+  return decoded as IAuthTokenPayload;
 };
 
 export const generateToken = (payload: any, sub: string): string => {

@@ -1,4 +1,4 @@
-import type { ILoggedInUser } from '../dto/user.dto.ts';
+import type { ILoggedInUser } from './auth.types.js';
 
 declare global {
   namespace Express {

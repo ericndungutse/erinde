@@ -42,11 +42,13 @@ export default class AuthService implements IAuthService {
     }
 
     // Generate JWT token
-    const payload: { accountId: string; email: string | undefined; roles: string[] } = {
-      accountId: account._id.toString(),
-      email: account?.email || undefined,
-      roles: user.roles,
-    };
+    const payload: { accountId: string; email: string | undefined; roles: string[]; hospitalId?: string | undefined } =
+      {
+        accountId: account._id.toString(),
+        email: account?.email || undefined,
+        roles: user.roles,
+        hospitalId: nurse?.hospitalId.toString() || undefined,
+      };
 
     const token: string = generateToken(payload, user.id);
 

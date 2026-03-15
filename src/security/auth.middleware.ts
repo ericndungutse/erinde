@@ -2,6 +2,7 @@ import type { Response, Request, NextFunction } from 'express';
 import { verifyToken } from '../security/jwt.utils.js';
 import User from '../models/user.model.js';
 import type { UserRole } from '../types/roles.types.js';
+import { UserRole as UserRoleEnum } from '../types/roles.types.js';
 
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -40,8 +41,12 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       });
     }
 
-    // Attach user to request object
-    req.user = user;
+    // Attach the authenticated user context used by controllers/services.
+    req.user = {
+      id: user.id,
+      roles: user.roles,
+      hospitalId: user.roles.includes(UserRoleEnum.NURSE) ? decoded.hospitalId : undefined,
+    };
     next();
   } catch (error) {
     return;

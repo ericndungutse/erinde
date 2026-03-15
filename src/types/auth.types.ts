@@ -1,4 +1,5 @@
 import z from 'zod';
+import type { JwtPayload } from 'jsonwebtoken';
 import type { IUser } from '../domain/user.js';
 
 export interface ILoginPayload {
@@ -15,6 +16,14 @@ export type ILoggedInUser = Pick<IUser, 'roles'> & {
   id: string;
   hospitalId?: string | undefined;
 };
+
+export interface IAuthTokenPayload extends JwtPayload {
+  sub: string;
+  accountId: string;
+  email?: string | undefined;
+  roles: string[];
+  hospitalId?: string | undefined;
+}
 
 export interface ILoginResponse {
   token: string;
