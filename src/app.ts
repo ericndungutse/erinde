@@ -32,7 +32,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/indicators', indicatorRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/assessments', assessmentRoutes);
-app.use('/api/v1/referrals', referralRoutes);
+app.use('/api/v1/shw/referrals', referralRoutes);
 app.use('/api/v1/hospitals', hospitalRoutes);
 
 app.all('/{*any}', (req, res) => {

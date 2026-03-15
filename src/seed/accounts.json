@@ -1,22 +1,22 @@
 [
   {
     "user": {
-      "firstname": "Alice",
-      "lastname": "Admin",
-      "birthdate": "1985-07-01",
+      "firstname": "Admin",
+      "lastname": "User",
+      "birthdate": "1990-01-01",
       "address": {
-        "province": "Kigali",
+        "province": "kigali",
         "district": "Nyarugenge",
         "sector": "Nyarugenge",
         "cell": "Biryogo",
-        "village": "Nyiranuma"
+        "village": "nyarutarama"
       },
       "contact": {
-        "phone": "0700000005",
-        "email": "admin.user@example.com"
+        "phone": "0780000001",
+        "email": "admin@example.com"
       },
-      "nationalIdentificationNumber": "1188500701005",
-      "roles": ["ADMIN", "USER"]
+      "nationalIdentificationNumber": "1199990000000001",
+      "roles": ["ADMIN"]
     },
     "account": {
       "password": "Test@123"
@@ -24,22 +24,22 @@
   },
   {
     "user": {
-      "firstname": "Nyiranuma",
-      "lastname": "Worker",
-      "birthdate": "1985-07-01",
+      "firstname": "Social",
+      "lastname": "HealthWorker",
+      "birthdate": "1990-01-01",
       "address": {
-        "province": "Kigali",
+        "province": "kigali",
         "district": "Nyarugenge",
         "sector": "Nyarugenge",
         "cell": "Biryogo",
-        "village": "Nyiranuma"
+        "village": "nyiranuma"
       },
       "contact": {
-        "phone": "0700000006",
-        "email": "nyiranuma.shw@example.com"
+        "phone": "0780000004",
+        "email": "shw@example.com"
       },
-      "nationalIdentificationNumber": "1188500701006",
-      "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
+      "nationalIdentificationNumber": "1199990000000004",
+      "roles": ["SOCIAL_HEALTH_WORKER"]
     },
     "account": {
       "password": "Test@123"
@@ -47,22 +47,45 @@
   },
   {
     "user": {
-      "firstname": "Two",
-      "lastname": "Worker",
-      "birthdate": "1985-07-01",
+      "firstname": "Social",
+      "lastname": "HealthWorkerIsoko",
+      "birthdate": "1990-01-01",
       "address": {
-        "province": "Kigali",
+        "province": "kigali",
         "district": "Nyarugenge",
         "sector": "Nyarugenge",
         "cell": "Biryogo",
-        "village": "isoko"
+        "village": "Isoko"
       },
       "contact": {
-        "phone": "0700000007",
-        "email": "isoko.shw@example.com"
+        "phone": "0780000005",
+        "email": "shw.isoko@example.com"
       },
-      "nationalIdentificationNumber": "1188500701007",
-      "roles": ["SOCIAL_HEALTH_WORKER", "USER"]
+      "nationalIdentificationNumber": "1199990000000005",
+      "roles": ["SOCIAL_HEALTH_WORKER"]
+    },
+    "account": {
+      "password": "Test@123"
+    }
+  },
+  {
+    "user": {
+      "firstname": "Social",
+      "lastname": "HealthWorkerByimana",
+      "birthdate": "1990-01-01",
+      "address": {
+        "province": "kigali",
+        "district": "Kicukiro",
+        "sector": "Niboye",
+        "cell": "Gatare",
+        "village": "Byimana"
+      },
+      "contact": {
+        "phone": "0780000006",
+        "email": "shw.byimana@example.com"
+      },
+      "nationalIdentificationNumber": "1199990000000006",
+      "roles": ["SOCIAL_HEALTH_WORKER"]
     },
     "account": {
       "password": "Test@123"

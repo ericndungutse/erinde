@@ -1,68 +1,49 @@
 [
   {
-    "name": "CHU Kigali",
-    "type": "REFERRAL_HOSPITAL",
-    "address": {
-      "province": "kigali",
-      "district": "nyarugenge",
-      "sector": "nyarugenge",
-      "cell": "biryogo",
-      "village": "agatare"
-    }
-  },
-  {
-    "name": "King Faisal Hospital",
-    "type": "REFERRAL_HOSPITAL",
-    "address": {
-      "province": "kigali",
-      "district": "kicukiro",
-      "sector": "kicukiro",
-      "cell": "ngoma",
-      "village": "rebero"
-    }
-  },
-  {
-    "name": "Kibagabaga Hospital",
-    "type": "DISTRICT_HOSPITAL",
-    "address": {
-      "province": "kigali",
-      "district": "gasabo",
-      "sector": "kimironko",
-      "cell": "kibagabaga",
-      "village": "kibagabaga"
-    }
-  },
-  {
-    "name": "Kimironko Health Center",
-    "type": "HEALTH_CENTER",
-    "address": {
-      "province": "kigali",
-      "district": "gasabo",
-      "sector": "kimironko",
-      "cell": "kimironko",
-      "village": "kimironko"
-    }
-  },
-  {
-    "name": "Muhima Hospital",
-    "type": "DISTRICT_HOSPITAL",
-    "address": {
-      "province": "kigali",
-      "district": "nyarugenge",
-      "sector": "muhima",
-      "cell": "muhima",
-      "village": "muhima"
-    }
-  },
-  {
-    "name": "Biryogo Health Center",
+    "name": "Nyiranuma Health Center",
     "type": "HEALTH_CENTER",
     "address": {
       "province": "kigali",
       "district": "nyarugenge",
       "sector": "nyarugenge",
       "cell": "biryogo",
-      "village": "biryogo"
+      "village": "nyiranuma"
+    }
+  },
+
+  {
+    "name": "Nyarugenge District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyamirambo",
+      "cell": "mumena",
+      "village": "itaba"
+    }
+  },
+
+  {
+    "name": "Gatare Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "Kicukiro",
+      "sector": "Niboye",
+      "cell": "Gatare",
+      "village": "Byimana"
+    }
+  },
+
+  {
+    "name": "Kicukiro District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "kigali",
+      "district": "Kicukiro",
+      "sector": "Niboye",
+      "cell": "Gatare",
+      "village": "Byimana"
     }
   }
 ]
