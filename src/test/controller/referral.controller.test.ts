@@ -37,20 +37,87 @@ describe('ReferralController.listMyReferrals', () => {
     expect(res.body).toEqual({ status: 'fail', message: 'Unauthorized: missing user context' });
   });
 
-  it('returns 200 with pending referrals for logged-in user', async () => {
+  it('returns 200 with default pending referrals for logged-in user', async () => {
     const referrals = [{ id: 'ref-1' }];
+    const pagination = {
+      currentPage: 2,
+      perPage: 5,
+      totalResults: 7,
+      totalPages: 2,
+      hasNextPage: false,
+      hasPrevPage: true,
+      nextPage: null,
+      prevPage: 1,
+    };
     const mockService: any = {
-      listReferralsByHealthWorker: vi.fn().mockResolvedValue(referrals),
+      listReferralsByHealthWorker: vi.fn().mockResolvedValue({ referrals, pagination }),
     };
     const controller = new ReferralController(mockService);
-    const req = { user: { id: 'hw-1' } } as unknown as Request;
+    const req = { user: { id: 'hw-1' }, query: { page: '2', limit: '5' } } as unknown as Request;
     const res = createMockRes();
 
     await controller.listMyReferrals(req, res);
 
-    expect(mockService.listReferralsByHealthWorker).toHaveBeenCalledWith('hw-1', 'PENDING');
+    expect(mockService.listReferralsByHealthWorker).toHaveBeenCalledWith('hw-1', 'PENDING', {
+      page: '2',
+      limit: '5',
+    });
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({ status: 'success', data: { referrals } });
+    expect(res.body).toEqual({ status: 'success', data: { referrals, pagination } });
+  });
+
+  it('uses status from query when provided', async () => {
+    const referrals = [{ id: 'ref-2' }];
+    const pagination = {
+      currentPage: 1,
+      perPage: 10,
+      totalResults: 1,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPrevPage: false,
+      nextPage: null,
+      prevPage: null,
+    };
+    const mockService: any = {
+      listReferralsByHealthWorker: vi.fn().mockResolvedValue({ referrals, pagination }),
+    };
+    const controller = new ReferralController(mockService);
+    const req = {
+      user: { id: 'hw-1' },
+      query: { status: 'completed', page: '1', limit: '10' },
+    } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.listMyReferrals(req, res);
+
+    expect(mockService.listReferralsByHealthWorker).toHaveBeenCalledWith('hw-1', 'COMPLETED', {
+      status: 'completed',
+      page: '1',
+      limit: '10',
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ status: 'success', data: { referrals, pagination } });
+  });
+
+  it('returns 400 when status query is invalid', async () => {
+    const mockService: any = {
+      listReferralsByHealthWorker: vi.fn(),
+    };
+    const controller = new ReferralController(mockService);
+    const req = {
+      user: { id: 'hw-1' },
+      query: { status: 'something-else' },
+    } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.listMyReferrals(req, res);
+
+    expect(mockService.listReferralsByHealthWorker).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({
+      status: 'fail',
+      message: 'Invalid status. Allowed values: PENDING, COMPLETED, CANCELLED',
+    });
   });
 
   it('returns 500 when service throws', async () => {

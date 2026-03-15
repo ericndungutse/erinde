@@ -1,6 +1,11 @@
 import type { ClientSession } from 'mongoose';
 import type { ReferralStatus } from '../../types/ReferralStatus.types.js';
-import type { IReferralDetails, IReferralStatusSummary, IReferralSummary } from '../../dto/referral.dto.js';
+import type {
+  GetHealthWorkerReferralsResult,
+  IReferralDetails,
+  IReferralStatusSummary,
+  IReferralSummary,
+} from '../../dto/referral.dto.js';
 import type { IReferral } from '../../domain/referral.js';
 export interface IReferralService {
   /**
@@ -26,7 +31,11 @@ export interface IReferralService {
    * @param healthWorkerId - Logged-in social health worker's user id
    * @returns Array of referrals for patients assigned to the given health worker
    */
-  listReferralsByHealthWorker(healthWorkerId: string, status: ReferralStatus): Promise<IReferralSummary[]>;
+  listReferralsByHealthWorker(
+    healthWorkerId: string,
+    status: ReferralStatus,
+    query?: Record<string, string | string[] | undefined>,
+  ): Promise<GetHealthWorkerReferralsResult>;
 
   /**
    * List referrals for a specific hospital.

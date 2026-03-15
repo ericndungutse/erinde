@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import type { IReferralService } from '../service/interface/ireferral.service.js';
+import type { ReferralStatus } from '../types/ReferralStatus.types.js';
 
 export default class ReferralController {
   private _referralService: IReferralService;
@@ -19,8 +20,24 @@ export default class ReferralController {
         return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
       }
 
-      const referrals = await this._referralService.listReferralsByHealthWorker(loggedInUserId, 'PENDING');
-      return res.status(200).json({ status: 'success', data: { referrals } });
+      const rawStatus = Array.isArray(req.query?.status) ? req.query.status[0] : req.query?.status;
+      const allowedStatuses: ReferralStatus[] = ['PENDING', 'COMPLETED', 'CANCELLED'];
+      const status: ReferralStatus =
+        typeof rawStatus === 'string' && rawStatus.length > 0 ? (rawStatus.toUpperCase() as ReferralStatus) : 'PENDING';
+
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Invalid status. Allowed values: PENDING, COMPLETED, CANCELLED',
+        });
+      }
+
+      const { referrals, pagination } = await this._referralService.listReferralsByHealthWorker(
+        loggedInUserId,
+        status,
+        (req.query ?? {}) as Record<string, string | string[] | undefined>,
+      );
+      return res.status(200).json({ status: 'success', data: { referrals, pagination } });
     } catch (error: any) {
       return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list referrals' });
     }

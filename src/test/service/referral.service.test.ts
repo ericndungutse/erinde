@@ -291,8 +291,9 @@ describe('ReferralService.listReferralsByHealthWorker', () => {
     vi.restoreAllMocks();
   });
 
-  it('maps aggregate results into referral summaries', async () => {
+  it('returns referral summaries with pagination metadata', async () => {
     const service = new ReferralService();
+    const countExec = vi.fn().mockResolvedValue([{ count: 11 }]);
     const aggregateResults = [
       {
         _id: { toString: () => 'ref-10' },
@@ -303,28 +304,52 @@ describe('ReferralService.listReferralsByHealthWorker', () => {
         assessmentCount: 2,
       },
     ];
-    const exec = vi.fn().mockResolvedValue(aggregateResults);
-    const aggregateSpy = vi.spyOn(Referral, 'aggregate').mockReturnValue({ exec } as any);
+    const resultsExec = vi.fn().mockResolvedValue(aggregateResults);
+    const aggregateSpy = vi
+      .spyOn(Referral, 'aggregate')
+      .mockReturnValueOnce({ exec: countExec } as any)
+      .mockReturnValueOnce({ exec: resultsExec } as any);
 
-    const result = await service.listReferralsByHealthWorker('507f1f77bcf86cd799439011', 'PENDING');
+    const result = await service.listReferralsByHealthWorker('507f1f77bcf86cd799439011', 'PENDING', {
+      page: '2',
+      limit: '10',
+    });
 
-    expect(aggregateSpy).toHaveBeenCalledTimes(1);
-    const [firstCall] = aggregateSpy.mock.calls;
-    const pipeline = firstCall![0] as any[];
-    expect(pipeline.some((stage) => stage.$lookup?.from === 'clinicalprofiles')).toBe(true);
-    expect(pipeline.some((stage) => stage.$sort?.createdAt === -1)).toBe(true);
+    expect(aggregateSpy).toHaveBeenCalledTimes(2);
+
+    const countPipeline = aggregateSpy.mock.calls[0]![0] as any[];
+    expect(countPipeline.some((stage) => stage.$lookup?.from === 'clinicalprofiles')).toBe(true);
+    expect(countPipeline.some((stage) => stage.$match?.status === 'PENDING')).toBe(true);
+    expect(countPipeline.some((stage) => stage.$count === 'count')).toBe(true);
+
+    const resultsPipeline = aggregateSpy.mock.calls[1]![0] as any[];
+    expect(resultsPipeline.some((stage) => stage.$sort?.createdAt === -1)).toBe(true);
+    expect(resultsPipeline.some((stage) => stage.$skip === 10)).toBe(true);
+    expect(resultsPipeline.some((stage) => stage.$limit === 10)).toBe(true);
 
     const [firstResult] = aggregateResults;
-    expect(result).toEqual([
-      {
-        id: 'ref-10',
-        patientNumber: 2001,
-        referralDate: firstResult!.referralDate,
-        scheduledVisitDate: firstResult!.scheduledVisitDate,
-        status: 'PENDING',
-        assessmentCount: 2,
+    expect(result).toEqual({
+      referrals: [
+        {
+          id: 'ref-10',
+          patientNumber: 2001,
+          referralDate: firstResult!.referralDate,
+          scheduledVisitDate: firstResult!.scheduledVisitDate,
+          status: 'PENDING',
+          assessmentCount: 2,
+        },
+      ],
+      pagination: {
+        currentPage: 2,
+        perPage: 10,
+        totalResults: 11,
+        totalPages: 2,
+        hasNextPage: false,
+        hasPrevPage: true,
+        nextPage: null,
+        prevPage: 1,
       },
-    ]);
+    });
   });
 });
 

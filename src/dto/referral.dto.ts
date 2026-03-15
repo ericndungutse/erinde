@@ -1,4 +1,5 @@
 import type { ReferralStatus } from '../types/ReferralStatus.types.js';
+import type { PaginationMeta } from '../types/api.types.js';
 
 export interface IReferralSummary {
   id: string;
@@ -29,4 +30,9 @@ export interface IReferralStatusSummary {
   pending: number;
   completed_this_month: number;
   overdue: number;
+}
+
+export interface GetHealthWorkerReferralsResult {
+  referrals: IReferralSummary[];
+  pagination: PaginationMeta;
 }

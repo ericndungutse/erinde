@@ -6,8 +6,15 @@ import type { IReferralService } from './interface/ireferral.service.js';
 
 import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
 import type { IReferral } from '../domain/referral.js';
-import type { IReferralDetails, IReferralStatusSummary, IReferralSummary } from '../dto/referral.dto.js';
+import type {
+  GetHealthWorkerReferralsResult,
+  IReferralDetails,
+  IReferralStatusSummary,
+  IReferralSummary,
+} from '../dto/referral.dto.js';
+import type { PaginationMeta } from '../types/api.types.js';
 import type { ReferralStatus } from '../types/ReferralStatus.types.js';
+import { parsePaginationParams } from '../utils/pagination.js';
 
 export class ReferralService implements IReferralService {
   getPendingReferralByPatientNumber(patientNumber: number, session: ClientSession): Promise<IReferral | null> {
@@ -136,10 +143,11 @@ export class ReferralService implements IReferralService {
   async listReferralsByHealthWorker(
     healthWorkerId: string,
     status: ReferralStatus = 'PENDING',
-  ): Promise<IReferralSummary[]> {
+    query: Record<string, string | string[] | undefined> = {},
+  ): Promise<GetHealthWorkerReferralsResult> {
     const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
-
-    const results = await Referral.aggregate([
+    const { page, limit } = parsePaginationParams(query);
+    const basePipeline = [
       {
         $lookup: {
           from: 'clinicalprofiles',
@@ -149,8 +157,20 @@ export class ReferralService implements IReferralService {
         },
       },
       { $unwind: '$cp' },
-      { $match: { 'cp.healthWorkerId': hwObjectId } },
+      { $match: { 'cp.healthWorkerId': hwObjectId, status } },
+    ];
+
+    const [countResult] = await Referral.aggregate([...basePipeline, { $count: 'count' }]).exec();
+    const totalResults = countResult?.count ?? 0;
+    const totalPages = Math.max(1, Math.ceil(totalResults / limit));
+    const currentPage = Math.min(page, totalPages);
+    const skip = (currentPage - 1) * limit;
+
+    const results = await Referral.aggregate([
+      ...basePipeline,
       { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
       {
         $project: {
           _id: 1,
@@ -173,7 +193,21 @@ export class ReferralService implements IReferralService {
       assessmentCount: r.assessmentCount,
     }));
 
-    return summaries;
+    const pagination: PaginationMeta = {
+      currentPage,
+      perPage: limit,
+      totalResults,
+      totalPages,
+      hasNextPage: currentPage < totalPages,
+      hasPrevPage: currentPage > 1,
+      nextPage: currentPage < totalPages ? currentPage + 1 : null,
+      prevPage: currentPage > 1 ? currentPage - 1 : null,
+    };
+
+    return {
+      referrals: summaries,
+      pagination,
+    };
   }
 
   /**
