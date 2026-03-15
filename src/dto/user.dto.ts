@@ -1,5 +1,6 @@
 import z from 'zod';
 import type { IUser } from '../domain/user.js';
+import type { PaginationMeta } from '../types/api.types.js';
 
 export type ILoggedInUser = Pick<IUser, 'roles'> & {
   id: string;
@@ -77,6 +78,11 @@ export const RegisterUserWithAccountSchema = RegisterUserSchema.extend({
 export type RegisterUserResponse = {
   patientNumber: number;
 };
+
+export interface GetAllUsersResult {
+  users: any[];
+  pagination: PaginationMeta;
+}
 
 // Infer the type from the schema to ensure they stay in sync
 export type RegisterUserWithAccountDTO = z.infer<typeof RegisterUserWithAccountSchema>;

@@ -8,6 +8,7 @@ import User, { Nurse, type INurseDocument, type IUserDocument } from '../models/
 
 import {
   RegisterUserWithAccountSchema,
+  type GetAllUsersResult,
   type IAdminUpdateUserPasswordPayload,
   type RegisterUserDTO,
   type RegisterUserResponse,
@@ -16,19 +17,39 @@ import {
 } from '../dto/user.dto.js';
 import HospitalNotFoundError from '../Errors/HospitalNotFoundError.js';
 import Hospital from '../models/hospital.model.js';
+import type { PaginationMeta } from '../types/api.types.js';
 import { UserRole } from '../types/roles.types.js';
+import { APIFeatures } from '../utils/apiFeatures.js';
+import { parsePaginationParams } from '../utils/pagination.js';
 import type { IUserService } from './interface/iuser.service.js';
-
 export class UserService implements IUserService {
-  async getAllUsers(): Promise<Array<{ id: string; name: string; roles: UserRole[] }>> {
-    const users = await User.find({}, { firstname: 1, lastname: 1, roles: 1 }).lean();
-    return users.map((u: any) => {
-      const name = `${u.firstname} ${u.lastname}`.trim();
-      const roles: UserRole[] = (
-        Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : [UserRole.USER]
-      ) as UserRole[];
-      return { id: u._id.toString(), name, roles };
-    });
+  async getAllUsers(queryString: Record<string, string | string[] | undefined>): Promise<GetAllUsersResult> {
+    const { page, limit } = parsePaginationParams(queryString);
+
+    const features = new APIFeatures(User.find(), queryString).filter().sort().limitFields().paginate();
+    const countFeatures = new APIFeatures(User.find(), queryString).filter();
+
+    const filteredQuery = countFeatures.query.getFilter() as any;
+    const [users, totalResults] = await Promise.all([features.query.lean(), User.countDocuments(filteredQuery as any)]);
+
+    const totalPages = Math.max(1, Math.ceil(totalResults / limit));
+    const currentPage = Math.min(page, totalPages);
+
+    const pagination: PaginationMeta = {
+      currentPage,
+      perPage: limit,
+      totalResults,
+      totalPages,
+      hasNextPage: currentPage < totalPages,
+      hasPrevPage: currentPage > 1,
+      nextPage: currentPage < totalPages ? currentPage + 1 : null,
+      prevPage: currentPage > 1 ? currentPage - 1 : null,
+    };
+
+    return {
+      users,
+      pagination,
+    };
   }
   async registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any> {
     const parsed = RegisterUserWithAccountSchema.parse(userData);

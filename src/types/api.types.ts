@@ -11,3 +11,14 @@ export interface IApiResponse<T = any> {
   data?: T;
   errors?: APIErrors[];
 }
+
+export interface PaginationMeta {
+  currentPage: number;
+  perPage: number;
+  totalResults: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  nextPage: number | null;
+  prevPage: number | null;
+}

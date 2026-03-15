@@ -96,11 +96,16 @@ export default class UserController {
     }
   }
 
-  async getAllUsersController(_req: Request, res: Response) {
+  async getAllUsersController(req: Request, res: Response) {
     try {
-      const users = await this._userService.getAllUsers();
+      const { users, pagination } = await this._userService.getAllUsers(
+        req.query as Record<string, string | string[] | undefined>,
+      );
+
       return res.status(200).json({
         status: 'success',
+        results: users.length,
+        pagination,
         data: { users },
       });
     } catch (error: any) {
