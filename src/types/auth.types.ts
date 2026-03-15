@@ -13,6 +13,7 @@ export const LoginSchema = z.object({
 
 export type ILoggedInUser = Pick<IUser, 'roles'> & {
   id: string;
+  hospitalId?: string | undefined;
 };
 
 export interface ILoginResponse {

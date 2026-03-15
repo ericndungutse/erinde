@@ -5,6 +5,8 @@ import { generateToken } from '../security/jwt.utils.js';
 import type { ILoginPayload, ILoginResponse } from '../types/auth.types.js';
 import type { UserProjection } from '../dto/user.dto.js';
 import type { IAuthService } from './interface/iauth.service.js';
+import { Nurse } from '../models/user.model.js';
+import { UserRole } from '../types/roles.types.js';
 
 export default class AuthService implements IAuthService {
   async login(credentials: ILoginPayload): Promise<ILoginResponse> {
@@ -25,6 +27,15 @@ export default class AuthService implements IAuthService {
 
     // Get User and Roles - assuming account has a reference to user
     const user: (UserProjection<'roles'> & { id: string }) | null = await account.getUser(['roles']);
+
+    let nurse;
+    // if iser is a nurse, get his hospital id and add to the payload
+    if (user?.roles.includes(UserRole.NURSE)) {
+      nurse = await Nurse.findById(user.id, { hospitalId: 1 }).lean();
+      if (!nurse) {
+        throw new InvalidCredentialsError();
+      }
+    }
 
     if (!user) {
       throw new Error('User roles not found');
@@ -47,6 +58,7 @@ export default class AuthService implements IAuthService {
       user: {
         id: user.id,
         roles: user.roles,
+        hospitalId: nurse?.hospitalId.toString() || undefined,
       },
     };
 
