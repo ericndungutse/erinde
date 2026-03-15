@@ -68,6 +68,57 @@ describe('ReferralController.listMyReferrals', () => {
   });
 });
 
+describe('ReferralController.listMyHospitalReferrals', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns 401 when nurse hospital context is missing', async () => {
+    const mockService: any = {
+      listReferralsByHospital: vi.fn(),
+    };
+    const controller = new ReferralController(mockService);
+    const req = { user: { id: 'nurse-1', roles: ['NURSE'] } } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.listMyHospitalReferrals(req, res);
+
+    expect(mockService.listReferralsByHospital).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ status: 'fail', message: 'Unauthorized: missing nurse hospital context' });
+  });
+
+  it('returns 200 with referrals for logged-in nurse hospital', async () => {
+    const referrals = [{ id: 'ref-hosp-1' }];
+    const mockService: any = {
+      listReferralsByHospital: vi.fn().mockResolvedValue(referrals),
+    };
+    const controller = new ReferralController(mockService);
+    const req = { user: { id: 'nurse-1', roles: ['NURSE'], hospitalId: 'hospital-1' } } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.listMyHospitalReferrals(req, res);
+
+    expect(mockService.listReferralsByHospital).toHaveBeenCalledWith('hospital-1');
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ status: 'success', data: { referrals } });
+  });
+
+  it('returns 500 when service throws', async () => {
+    const mockService: any = {
+      listReferralsByHospital: vi.fn().mockRejectedValue(new Error('list-hospital-referrals-failed')),
+    };
+    const controller = new ReferralController(mockService);
+    const req = { user: { id: 'nurse-1', roles: ['NURSE'], hospitalId: 'hospital-1' } } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.listMyHospitalReferrals(req, res);
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toEqual({ status: 'error', message: 'list-hospital-referrals-failed' });
+  });
+});
+
 describe('ReferralController.listMyUpcomingReferrals', () => {
   afterEach(() => {
     vi.restoreAllMocks();

@@ -27,6 +27,23 @@ export default class ReferralController {
   }
 
   /**
+   * List referrals scoped to the logged-in nurse hospital.
+   */
+  async listMyHospitalReferrals(req: Request, res: Response) {
+    try {
+      const hospitalId = req.user?.hospitalId;
+      if (!hospitalId) {
+        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing nurse hospital context' });
+      }
+
+      const referrals = await this._referralService.listReferralsByHospital(hospitalId);
+      return res.status(200).json({ status: 'success', data: { referrals } });
+    } catch (error: any) {
+      return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list hospital referrals' });
+    }
+  }
+
+  /**
    * List upcoming referrals (today and future) scoped to the logged-in
    * social health worker, ordered by scheduledVisitDate.
    */

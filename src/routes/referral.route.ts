@@ -5,6 +5,11 @@ import { UserRole } from '../types/roles.types.js';
 
 const router = Router();
 
+// GET /referrals - List referrals for logged-in nurse's hospital
+router.get('/', protect, authorize(UserRole.NURSE), (req, res) =>
+  container.referralController.listMyHospitalReferrals(req, res),
+);
+
 // GET /referrals/me - List referrals for patients under the logged-in health worker's follow-up
 router.get('/me', protect, authorize(UserRole.SOCIAL_HEALTH_WORKER), (req, res) =>
   container.referralController.listMyReferrals(req, res),

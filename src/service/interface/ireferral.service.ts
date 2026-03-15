@@ -29,6 +29,15 @@ export interface IReferralService {
   listReferralsByHealthWorker(healthWorkerId: string, status: ReferralStatus): Promise<IReferralSummary[]>;
 
   /**
+   * List referrals for a specific hospital.
+   * Intended for nurse views scoped to their assigned hospital.
+   *
+   * @param hospitalId - Hospital id of the logged-in nurse
+   * @returns Array of referrals for the specified hospital
+   */
+  listReferralsByHospital(hospitalId: string): Promise<IReferralSummary[]>;
+
+  /**
    * List upcoming referrals (future or today) for patients under a specific
    * social health worker's follow-up, ordered by scheduledVisitDate ascending.
    *

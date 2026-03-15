@@ -177,6 +177,38 @@ export class ReferralService implements IReferralService {
   }
 
   /**
+   * List referrals scoped to a specific hospital.
+   * Returns most recent first.
+   */
+  async listReferralsByHospital(hospitalId: string): Promise<IReferralSummary[]> {
+    const hospitalObjectId = new mongoose.Types.ObjectId(hospitalId);
+
+    const results = await Referral.find({ hospitalId: hospitalObjectId })
+      .sort({ createdAt: -1 })
+      .select({
+        _id: 1,
+        patientNumber: 1,
+        referralDate: 1,
+        scheduledVisitDate: 1,
+        status: 1,
+        assessments: 1,
+      })
+      .lean()
+      .exec();
+
+    const summaries: IReferralSummary[] = results.map((r: any) => ({
+      id: r._id.toString(),
+      patientNumber: r.patientNumber,
+      referralDate: r.referralDate,
+      scheduledVisitDate: r.scheduledVisitDate,
+      status: r.status,
+      assessmentCount: Array.isArray(r.assessments) ? r.assessments.length : 0,
+    }));
+
+    return summaries;
+  }
+
+  /**
    * List upcoming referrals (today and future) for patients under the given
    * social health worker's follow-up, ordered by scheduledVisitDate ascending.
    */
