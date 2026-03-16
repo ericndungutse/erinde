@@ -141,6 +141,11 @@ export default class ReferralController {
         return res.status(404).json({ status: 'fail', message: 'Referral not found' });
       }
 
+      const loggedInHospitalId = req.user?.hospitalId;
+      if (loggedInHospitalId && referral.hospitalId !== loggedInHospitalId) {
+        return res.status(404).json({ status: 'fail', message: 'Referral not found' });
+      }
+
       return res.status(200).json({ status: 'success', data: { referral } });
     } catch (error: any) {
       return res.status(500).json({ status: 'error', message: error?.message || 'Failed to fetch referral' });

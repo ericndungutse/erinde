@@ -400,19 +400,39 @@ describe('ReferralController.getReferralById', () => {
   it('returns 200 with referral when found', async () => {
     const referral = {
       id: 'ref-200',
+      hospitalId: 'hospital-1',
       status: 'PENDING',
     };
     const mockService: any = {
       getReferralById: vi.fn().mockResolvedValue(referral),
     };
     const controller = new ReferralController(mockService);
-    const req = { params: { id: 'ref-200' } } as unknown as Request;
+    const req = { params: { id: 'ref-200' }, user: { id: 'nurse-1', hospitalId: 'hospital-1' } } as unknown as Request;
     const res = createMockRes();
 
     await controller.getReferralById(req, res);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ status: 'success', data: { referral } });
+  });
+
+  it('returns 404 when logged-in hospitalId does not match referral hospitalId', async () => {
+    const referral = {
+      id: 'ref-201',
+      hospitalId: 'hospital-1',
+      status: 'PENDING',
+    };
+    const mockService: any = {
+      getReferralById: vi.fn().mockResolvedValue(referral),
+    };
+    const controller = new ReferralController(mockService);
+    const req = { params: { id: 'ref-201' }, user: { id: 'nurse-1', hospitalId: 'hospital-2' } } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.getReferralById(req, res);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toEqual({ status: 'fail', message: 'Referral not found' });
   });
 
   it('returns 500 when service throws', async () => {

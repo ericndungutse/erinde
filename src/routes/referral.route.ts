@@ -5,11 +5,6 @@ import { UserRole } from '../types/roles.types.js';
 
 const router = Router();
 
-// GET /referrals - List referrals for logged-in nurse's hospital
-router.get('/', protect, authorize(UserRole.NURSE), (req, res) =>
-  container.referralController.listMyHospitalReferrals(req, res),
-);
-
 // GET /referrals/me - List referrals for patients under the logged-in health worker's follow-up
 router.get('/me', protect, authorize(UserRole.SOCIAL_HEALTH_WORKER), (req, res) =>
   container.referralController.listMyReferrals(req, res),
@@ -28,16 +23,6 @@ router.get('/pending/count', protect, authorize(UserRole.SOCIAL_HEALTH_WORKER), 
 // GET /referrals/status/overview - Get referral status overview for the logged-in social health worker
 router.get('/status/overview', protect, authorize(UserRole.SOCIAL_HEALTH_WORKER), (req, res) =>
   container.referralController.getMyReferralStatusOverview(req, res),
-);
-
-// GET /referrals/:id - Get single referral details
-router.get('/:id', protect, authorize(UserRole.SOCIAL_HEALTH_WORKER), (req, res) =>
-  container.referralController.getReferralById(req, res),
-);
-
-// POST /referrals/complete/:patientNumber - Nurse completes latest pending referral by patient number
-router.patch('/complete/:patientNumber', protect, authorize(UserRole.NURSE), (req, res) =>
-  container.referralController.completeReferralByPatientNumber(req, res),
 );
 
 export default router;

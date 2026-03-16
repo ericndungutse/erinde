@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import assessmentRoutes from './routes/assessment.route.js';
 import referralRoutes from './routes/referral.route.js';
+import nurseRoutes from './routes/nurse.routes.js';
 import hospitalRoutes from './routes/hospital.route.js';
 import { UserService } from './service/user.service.js';
 import GlobalErrorHandler from './Errors/globalErrorHandler.js';
@@ -33,7 +34,7 @@ app.use('/api/v1/indicators', indicatorRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/assessments', assessmentRoutes);
 app.use('/api/v1/shw/referrals', referralRoutes);
-app.use('/api/v1/nurse/referrals', referralRoutes);
+app.use('/api/v1/nurse', nurseRoutes);
 app.use('/api/v1/hospitals', hospitalRoutes);
 
 app.all('/{*any}', (req, res) => {

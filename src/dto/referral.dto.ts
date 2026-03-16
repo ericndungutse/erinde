@@ -16,6 +16,7 @@ export interface IReferralDetails {
   patient: string; // ObjectId string
   patientNumber: number;
   clinicalProfile: string; // ObjectId string
+  hospitalId: string; // ObjectId string
   referralDate: Date | string;
   scheduledVisitDate: Date | string;
   status: ReferralStatus;
