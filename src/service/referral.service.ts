@@ -7,6 +7,7 @@ import type { IReferralService } from './interface/ireferral.service.js';
 import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
 import type { IReferral } from '../domain/referral.js';
 import type {
+  GetHospitalReferralsResult,
   GetHealthWorkerReferralsResult,
   IReferralDetails,
   IReferralStatusSummary,
@@ -214,11 +215,22 @@ export class ReferralService implements IReferralService {
    * List referrals scoped to a specific hospital.
    * Returns most recent first.
    */
-  async listReferralsByHospital(hospitalId: string): Promise<IReferralSummary[]> {
+  async listReferralsByHospital(
+    hospitalId: string,
+    query: Record<string, string | string[] | undefined> = {},
+  ): Promise<GetHospitalReferralsResult> {
     const hospitalObjectId = new mongoose.Types.ObjectId(hospitalId);
+    const { page, limit } = parsePaginationParams(query);
+
+    const totalResults = await Referral.countDocuments({ hospitalId: hospitalObjectId }).exec();
+    const totalPages = Math.max(1, Math.ceil(totalResults / limit));
+    const currentPage = Math.min(page, totalPages);
+    const skip = (currentPage - 1) * limit;
 
     const results = await Referral.find({ hospitalId: hospitalObjectId })
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .select({
         _id: 1,
         patientNumber: 1,
@@ -239,7 +251,21 @@ export class ReferralService implements IReferralService {
       assessmentCount: Array.isArray(r.assessments) ? r.assessments.length : 0,
     }));
 
-    return summaries;
+    const pagination: PaginationMeta = {
+      currentPage,
+      perPage: limit,
+      totalResults,
+      totalPages,
+      hasNextPage: currentPage < totalPages,
+      hasPrevPage: currentPage > 1,
+      nextPage: currentPage < totalPages ? currentPage + 1 : null,
+      prevPage: currentPage > 1 ? currentPage - 1 : null,
+    };
+
+    return {
+      referrals: summaries,
+      pagination,
+    };
   }
 
   /**

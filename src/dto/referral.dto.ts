@@ -36,3 +36,8 @@ export interface GetHealthWorkerReferralsResult {
   referrals: IReferralSummary[];
   pagination: PaginationMeta;
 }
+
+export interface GetHospitalReferralsResult {
+  referrals: IReferralSummary[];
+  pagination: PaginationMeta;
+}

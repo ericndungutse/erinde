@@ -1,6 +1,7 @@
 import type { ClientSession } from 'mongoose';
 import type { ReferralStatus } from '../../types/ReferralStatus.types.js';
 import type {
+  GetHospitalReferralsResult,
   GetHealthWorkerReferralsResult,
   IReferralDetails,
   IReferralStatusSummary,
@@ -42,9 +43,12 @@ export interface IReferralService {
    * Intended for nurse views scoped to their assigned hospital.
    *
    * @param hospitalId - Hospital id of the logged-in nurse
-   * @returns Array of referrals for the specified hospital
+   * @returns Paginated referrals for the specified hospital
    */
-  listReferralsByHospital(hospitalId: string): Promise<IReferralSummary[]>;
+  listReferralsByHospital(
+    hospitalId: string,
+    query?: Record<string, string | string[] | undefined>,
+  ): Promise<GetHospitalReferralsResult>;
 
   /**
    * List upcoming referrals (future or today) for patients under a specific

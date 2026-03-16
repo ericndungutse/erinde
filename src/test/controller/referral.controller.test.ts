@@ -157,18 +157,34 @@ describe('ReferralController.listMyHospitalReferrals', () => {
 
   it('returns 200 with referrals for logged-in nurse hospital', async () => {
     const referrals = [{ id: 'ref-hosp-1' }];
+    const pagination = {
+      currentPage: 2,
+      perPage: 5,
+      totalResults: 7,
+      totalPages: 2,
+      hasNextPage: false,
+      hasPrevPage: true,
+      nextPage: null,
+      prevPage: 1,
+    };
     const mockService: any = {
-      listReferralsByHospital: vi.fn().mockResolvedValue(referrals),
+      listReferralsByHospital: vi.fn().mockResolvedValue({ referrals, pagination }),
     };
     const controller = new ReferralController(mockService);
-    const req = { user: { id: 'nurse-1', roles: ['NURSE'], hospitalId: 'hospital-1' } } as unknown as Request;
+    const req = {
+      user: { id: 'nurse-1', roles: ['NURSE'], hospitalId: 'hospital-1' },
+      query: { page: '2', limit: '5' },
+    } as unknown as Request;
     const res = createMockRes();
 
     await controller.listMyHospitalReferrals(req, res);
 
-    expect(mockService.listReferralsByHospital).toHaveBeenCalledWith('hospital-1');
+    expect(mockService.listReferralsByHospital).toHaveBeenCalledWith('hospital-1', {
+      page: '2',
+      limit: '5',
+    });
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({ status: 'success', data: { referrals } });
+    expect(res.body).toEqual({ status: 'success', data: { referrals, pagination } });
   });
 
   it('returns 500 when service throws', async () => {

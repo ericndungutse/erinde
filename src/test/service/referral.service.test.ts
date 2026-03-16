@@ -353,6 +353,78 @@ describe('ReferralService.listReferralsByHealthWorker', () => {
   });
 });
 
+describe('ReferralService.listReferralsByHospital', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns referral summaries with pagination metadata for nurse hospital view', async () => {
+    const service = new ReferralService();
+    const countExec = vi.fn().mockResolvedValue(11);
+    const countDocumentsSpy = vi.spyOn(Referral, 'countDocuments').mockReturnValue({ exec: countExec } as any);
+
+    const findResults = [
+      {
+        _id: { toString: () => 'ref-hosp-10' },
+        patientNumber: 4001,
+        referralDate: new Date('2026-03-10T00:00:00.000Z'),
+        scheduledVisitDate: new Date('2026-04-09T00:00:00.000Z'),
+        status: 'PENDING',
+        assessments: ['assessment-1', 'assessment-2'],
+      },
+    ];
+    const findExec = vi.fn().mockResolvedValue(findResults);
+    const findQuery = {
+      sort: vi.fn().mockReturnThis(),
+      skip: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      lean: vi.fn().mockReturnThis(),
+      exec: findExec,
+    };
+    const findSpy = vi.spyOn(Referral, 'find').mockReturnValue(findQuery as any);
+
+    const result = await service.listReferralsByHospital('507f1f77bcf86cd799439017', {
+      page: '2',
+      limit: '10',
+    });
+
+    expect(countDocumentsSpy).toHaveBeenCalledTimes(1);
+    const countFilter = countDocumentsSpy.mock.calls[0]![0] as { hospitalId: { toString: () => string } };
+    expect(countFilter.hospitalId.toString()).toBe('507f1f77bcf86cd799439017');
+
+    expect(findSpy).toHaveBeenCalledTimes(1);
+    const findFilter = findSpy.mock.calls[0]![0] as { hospitalId: { toString: () => string } };
+    expect(findFilter.hospitalId.toString()).toBe('507f1f77bcf86cd799439017');
+    expect(findQuery.skip).toHaveBeenCalledWith(10);
+    expect(findQuery.limit).toHaveBeenCalledWith(10);
+
+    const [firstResult] = findResults;
+    expect(result).toEqual({
+      referrals: [
+        {
+          id: 'ref-hosp-10',
+          patientNumber: 4001,
+          referralDate: firstResult!.referralDate,
+          scheduledVisitDate: firstResult!.scheduledVisitDate,
+          status: 'PENDING',
+          assessmentCount: 2,
+        },
+      ],
+      pagination: {
+        currentPage: 2,
+        perPage: 10,
+        totalResults: 11,
+        totalPages: 2,
+        hasNextPage: false,
+        hasPrevPage: true,
+        nextPage: null,
+        prevPage: 1,
+      },
+    });
+  });
+});
+
 describe('ReferralService.listUpcomingReferralsByHealthWorker', () => {
   afterEach(() => {
     vi.useRealTimers();

@@ -53,8 +53,11 @@ export default class ReferralController {
         return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing nurse hospital context' });
       }
 
-      const referrals = await this._referralService.listReferralsByHospital(hospitalId);
-      return res.status(200).json({ status: 'success', data: { referrals } });
+      const { referrals, pagination } = await this._referralService.listReferralsByHospital(
+        hospitalId,
+        (req.query ?? {}) as Record<string, string | string[] | undefined>,
+      );
+      return res.status(200).json({ status: 'success', data: { referrals, pagination } });
     } catch (error: any) {
       return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list hospital referrals' });
     }
