@@ -7,6 +7,10 @@ import { validateBody } from '../validation/validator.js';
 
 const router = Router();
 
+router.get('/', protect, authorize(UserRole.ADMIN), (req, res, next) =>
+  container.communitHealthUnitController.getAllCommunityHealthUnits(req, res, next),
+);
+
 router.post(
   '/',
   protect,

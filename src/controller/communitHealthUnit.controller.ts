@@ -24,4 +24,19 @@ export default class CommunitHealthUnitController {
       next(error);
     }
   }
+
+  async getAllCommunityHealthUnits(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this._communitHealthUnitService.getAllCommunityHealthUnits(
+        req.query as Record<string, string | string[] | undefined>,
+      );
+
+      return ResponseFactory.getResponseFactory(res).ok({
+        message: 'Community health units retrieved successfully',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
