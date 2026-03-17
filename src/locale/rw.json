@@ -13,6 +13,8 @@
    "hospital_id_required": "Ibitaro akoreraho birakenewe.",
   "social_health_worker_is_required": "Umujyanama w'ubuzima arakenewe.",
   "health_center_is_required": "Ikigo nderabuzima kirakenewe.",
+  "community_health_unit_not_found": "Community health unit ntibibashije kuboneka.",
+  "community_health_unit_is_required": "Community health unit irakenewe.",
   "hospital_not_found": "Ibitaro ntibibashije kuboneka.",
    "password_required": "Ijambobanga rirakenewe.",
    "indicator_not_found": "Ikigereranyo ntibibashije kuboneka.",

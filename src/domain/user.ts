@@ -1,3 +1,4 @@
+import type { Types } from 'mongoose';
 import type { IAddress } from '../types/address.type.js';
 import type { Contact } from '../types/contact.type.js';
 import type { UserRole } from '../types/roles.types.js';
@@ -10,6 +11,7 @@ export interface IUser {
   birthdate: Date;
   firstname: string;
   lastname: string;
+  communitHealthUnit: Types.ObjectId | string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -37,7 +37,7 @@ export default class GlobalErrorHandler {
 
     switch (err.statusCode) {
       case 400:
-        return rf.badRequest(err.locale_key ? i18next.t(err.locale_key, { lng: req.language }) : err.message);
+        return rf.badRequest(err.message);
       case 401:
         return rf.unauthenticated(i18next.t(err.locale_key, { lng: req.language }));
       case 403:

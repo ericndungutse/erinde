@@ -53,7 +53,7 @@ export default class ResponseFactory {
   badRequest(message = 'Bad Request', errors?: any) {
     return this.res.status(400).json({
       status: 'fail',
-      message,
+      message: i18next.t(message, { lng: this.res.req?.language || ConstantValues.DEFAULT_LANGUAGE, defaultValue: message }),
       errors: errors ? errors : undefined,
     });
   }
@@ -73,6 +73,7 @@ export default class ResponseFactory {
   }
 
   notFound(message = 'Resource not found') {
+    console.log(message);
     return this.res.status(404).json({
       status: 'fail',
       message: i18next.t(message, { lng: this.res.req?.language || ConstantValues.DEFAULT_LANGUAGE, defaultValue: message }),

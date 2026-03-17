@@ -55,6 +55,9 @@ export const RegisterUserSchema = z.object({
     .string({ message: 'National Identification Number is required' })
     .length(16, { message: 'National Identification Number must be exactly 16 characters' })
     .regex(/^[0-9]+$/, { message: 'National Identification Number must contain only numbers' }),
+  communitHealthUnit: z
+    .string({ message: 'community_health_unit_is_required' })
+    .min(1, { message: 'community_health_unit_is_required' }),
 });
 
 // ZOD Schema

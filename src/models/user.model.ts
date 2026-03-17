@@ -1,3 +1,4 @@
+
 import mongoose, { Document, Schema, Types } from 'mongoose';
 import type { IUser } from '../domain/user.js';
 import { UserRole } from '../types/roles.types.js';
@@ -33,6 +34,11 @@ export const userSchema = new Schema<IUserDocument>(
       enum: Object.values(UserRole),
       default: [UserRole.USER],
     },
+    communitHealthUnit: {
+      type: Types.ObjectId,
+      ref: 'CommunityHealthUnit',
+      required: true,
+    },
   },
   { timestamps: true, ...option },
 );
@@ -56,6 +62,12 @@ userSchema.set('toJSON', {
     return rest;
   },
 });
+
+// user and CHU should be unique
+userSchema.index(
+  { communitHealthUnit: 1 },
+  { unique: true },
+);
 
 // Create and export the model
 const User = mongoose.model<IUserDocument>('User', userSchema);

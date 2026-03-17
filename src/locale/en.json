@@ -13,6 +13,8 @@
   "hospital_id_required": "Hospital ID is required.",
   "social_health_worker_is_required": "Social health worker is required.",
   "health_center_is_required": "Health center is required.",
+  "community_health_unit_not_found": "Community health unit not found.",
+  "community_health_unit_is_required": "Community health unit is required.",
   "hospital_not_found": "Hospital not found.",
   "password_required": "Password is required.",
   "indicator_not_found": "Indicator not found.",

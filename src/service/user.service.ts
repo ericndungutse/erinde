@@ -15,7 +15,9 @@ import {
   type RegisterUserWithAccountDTO,
   type UserRoles,
 } from '../dto/user.dto.js';
+import CommunityHealthUnitNotFoundError from '../Errors/CommunityHealthUnitNotFoundError.js';
 import HospitalNotFoundError from '../Errors/HospitalNotFoundError.js';
+import CommunityHealthUnit from '../models/communitHealthUnit.model.js';
 import Hospital from '../models/hospital.model.js';
 import type { PaginationMeta } from '../types/api.types.js';
 import { UserRole } from '../types/roles.types.js';
@@ -128,6 +130,18 @@ export class UserService implements IUserService {
   }
 
   async registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponse> {
+    if (!mongoose.isValidObjectId(userData.communitHealthUnit)) {
+      throw new CommunityHealthUnitNotFoundError();
+    }
+
+    const communityHealthUnitExists = await CommunityHealthUnit.exists({
+      _id: new mongoose.Types.ObjectId(userData.communitHealthUnit),
+    });
+
+    if (!communityHealthUnitExists) {
+      throw new CommunityHealthUnitNotFoundError();
+    }
+
     const session = await mongoose.startSession();
     let patientNumber: number | undefined;
 
