@@ -11,6 +11,8 @@
   "user_details": "Amakuru y'umukoresha yabonetse neza.",
   "password_updated_successfully": "Ijambobanga ry'umukoresha ryahinduwe neza.",
    "hospital_id_required": "Ibitaro akoreraho birakenewe.",
+  "social_health_worker_is_required": "Umujyanama w'ubuzima arakenewe.",
+  "health_center_is_required": "Ikigo nderabuzima kirakenewe.",
   "hospital_not_found": "Ibitaro ntibibashije kuboneka.",
    "password_required": "Ijambobanga rirakenewe.",
    "indicator_not_found": "Ikigereranyo ntibibashije kuboneka.",

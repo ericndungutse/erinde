@@ -11,6 +11,8 @@
   "user_details": "User details retrieved successfully.",
   "password_updated_successfully": "User password updated successfully.",
   "hospital_id_required": "Hospital ID is required.",
+  "social_health_worker_is_required": "Social health worker is required.",
+  "health_center_is_required": "Health center is required.",
   "hospital_not_found": "Hospital not found.",
   "password_required": "Password is required.",
   "indicator_not_found": "Indicator not found.",

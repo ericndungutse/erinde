@@ -1,14 +1,17 @@
 import AssessmentController from './controller/assessment.controller.js';
 import AuthController from './controller/auth.controller.js';
+import CommunitHealthUnitController from './controller/communitHealthUnit.controller.js';
 import IndicatorController from './controller/indicator.controller.js';
 import UserController from './controller/user.controller.js';
 import HospitalController from './controller/hospital.controller.js';
 import ReferralController from './controller/referral.controller.js';
 import AssessmentService from './service/assessment.service.js';
 import AuthService from './service/auth.service.js';
+import CommunitHealthUnitService from './service/communitHealthUnit.service.js';
 import { IndicatorService } from './service/indicator.service.js';
 import type { IAssessmentService } from './service/interface/iassessment.service.js';
 import type { IAuthService } from './service/interface/iauth.service.js';
+import type { ICommunitHealthUnitService } from './service/interface/icommunitHealthUnit.service.js';
 import type { IIndicatorService } from './service/interface/iindicators.service.js';
 import type { IHospitalService } from './service/interface/ihospital.service.js';
 import type { IReferralService } from './service/interface/ireferral.service.js';
@@ -33,6 +36,10 @@ class Container {
   private _referralService: IReferralService;
   private _referralController: ReferralController;
 
+  // Community Health Unit
+  private _communitHealthUnitService: ICommunitHealthUnitService;
+  private _communitHealthUnitController: CommunitHealthUnitController;
+
   // Assessement
   private _assessmentService: IAssessmentService;
   private _assessmentController: AssessmentController;
@@ -46,6 +53,8 @@ class Container {
     this._hospitalController = new HospitalController(this._hospitalService);
     this._referralService = new ReferralService();
     this._referralController = new ReferralController(this._referralService);
+    this._communitHealthUnitService = new CommunitHealthUnitService();
+    this._communitHealthUnitController = new CommunitHealthUnitController(this._communitHealthUnitService);
 
     // User Injections
     this._userService = new UserService();
@@ -83,6 +92,10 @@ class Container {
 
   get referralController() {
     return this._referralController;
+  }
+
+  get communitHealthUnitController() {
+    return this._communitHealthUnitController;
   }
 }
 // Export a single instance of the container
