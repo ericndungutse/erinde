@@ -1,0 +1,35 @@
+{
+  "COMMUNIT_HEALTH_UNIT_NYIRANUMA": {
+    "socialHealthWorkerSetupKey": "SOCIAL_HEALTH_WORKER_NYIRANUMA",
+    "healthCenterSetupKey": "NYIRANUMA_HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyarugenge",
+      "cell": "biryogo",
+      "village": "nyiranuma"
+    }
+  },
+  "COMMUNIT_HEALTH_UNIT_ISOKO": {
+    "socialHealthWorkerSetupKey": "SOCIAL_HEALTH_WORKER_ISOKO",
+    "healthCenterSetupKey": "ISOKO_HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyarugenge",
+      "cell": "biryogo",
+      "village": "isoko"
+    }
+  },
+  "COMMUNIT_HEALTH_UNIT_BYIMANA": {
+    "socialHealthWorkerSetupKey": "SOCIAL_HEALTH_WORKER_BYIMANA",
+    "healthCenterSetupKey": "GATARE_HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "kicukiro",
+      "sector": "niboye",
+      "cell": "gatare",
+      "village": "byimana"
+    }
+  }
+}

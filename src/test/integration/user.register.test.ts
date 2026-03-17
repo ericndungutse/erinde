@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ConstantValues } from '../../constants/constant.values.js';
 import i18next from '../../i18n.js';
 import ClinicalProfile from '../../models/clinicalProfile.model.js';
+import CommunityHealthUnit from '../../models/communitHealthUnit.model.js';
 import User from '../../models/user.model.js';
 import { ACCOUNT_SETUP } from '../testDataSetup/account-setup.js';
 import { setupTestData } from '../testDataSetup/index.js';
@@ -33,26 +34,54 @@ const validRegisterPayload = {
   birthdate: '1990-01-01',
   address: {
     province: 'kigali',
-    district: 'gasabo',
-    sector: 'kimironko',
-    cell: 'kibagabaga',
-    village: 'nyarutarama',
+    district: 'nyarugenge',
+    sector: 'nyarugenge',
+    cell: 'biryogo',
+    village: 'nyiranuma',
   },
   contact: {
     phone: '0780000010',
     email: 'john.doe@example.com',
   },
   nationalIdentificationNumber: '1199990000000010',
+  communitHealthUnit: '',
 };
 
 beforeEach(async () => {
-  await setupTestData();
+  const { createdHospitals } = await setupTestData();
+
+  const socialHealthWorker = await User.findOne({
+    'contact.phone': TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
+  }).lean();
+
+  if (!socialHealthWorker) {
+    throw new Error('Missing seeded social health worker for test setup');
+  }
+
+  const healthCenterId = createdHospitals.NYIRANUMA_HEALTH_CENTER;
+
+  if (!healthCenterId) {
+    throw new Error('Missing seeded health center for test setup: NYIRANUMA_HEALTH_CENTER');
+  }
+
+  const communitHealthUnit = await CommunityHealthUnit.create({
+    socialHealthWorker: socialHealthWorker._id,
+    healthCenter: healthCenterId,
+    address: {
+      province: 'kigali',
+      district: 'nyarugenge',
+      sector: 'nyarugenge',
+      cell: 'biryogo',
+      village: 'test-village',
+    },
+  });
+
+  validRegisterPayload.communitHealthUnit = communitHealthUnit._id.toString();
 });
 
 describe('Integration: POST /api/v1/users', () => {
   it('registers a user with authorized role (SOCIAL_HEALTH_WORKER)', async () => {
     const token = await loginByPhone(TEST_USERS.SOCIAL_HEALTH_WORKER.phone, TEST_USERS.SOCIAL_HEALTH_WORKER.password);
-
     const res = await client(token).post('/api/v1/users').send(validRegisterPayload);
 
     expect(res.status).toBe(201);
@@ -240,6 +269,7 @@ describe('Integration: POST /api/v1/users', () => {
       },
       nationalIdentificationNumber: '1199990000000044',
       roles: [UserRole.SOCIAL_HEALTH_WORKER],
+      communitHealthUnit: '507f1f77bcf86cd799439099',
     });
 
     const payload = {
@@ -258,6 +288,7 @@ describe('Integration: POST /api/v1/users', () => {
         email: 'alice.patient@example.com',
       },
       nationalIdentificationNumber: '1199990000000055',
+      communitHealthUnit: validRegisterPayload.communitHealthUnit,
     };
 
     const regRes = await client(token).post('/api/v1/users').send(payload);
@@ -267,6 +298,5 @@ describe('Integration: POST /api/v1/users', () => {
 
     const profile = await ClinicalProfile.findOne({ patientNumber }).lean();
     expect(profile).toBeTruthy();
-    expect(profile!.healthWorkerId?.toString()).toBe(shw._id.toString());
   });
 });

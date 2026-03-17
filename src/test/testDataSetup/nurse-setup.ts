@@ -5,8 +5,13 @@ import { UserService } from '../../service/user.service.js';
 import {
   type CreatedHospitalIdsMap,
 } from './hospital-setup.js';
+import {
+  type CreatedCommunitHealthUnitIdsMap,
+  findCommunitHealthUnitSetupKeyByAddress,
+  resolveCommunitHealthUnitIdBySetupKey,
+} from './communit-health-unit-setup.js';
 
-type NurseSetupPayload = Omit<RegisterUserWithAccountDTO, 'hospitalId'>;
+type NurseSetupPayload = Omit<RegisterUserWithAccountDTO, 'hospitalId' | 'communitHealthUnit'>;
 type NurseSetupMap = Record<string, NurseSetupPayload>;
 
 const nurseSetupPath = new URL('../fixtures/nurse-setup.json', import.meta.url);
@@ -25,8 +30,36 @@ function resolveHospitalSetupKey(nurseSetupKey: string): string {
   return hospitalSetupKey;
 }
 
+function resolveCommunitHealthUnitIdForNurse(
+  nurseSetupKey: string,
+  nursePayload: NurseSetupPayload,
+  createdCommunitHealthUnits: CreatedCommunitHealthUnitIdsMap,
+): string {
+  const communitHealthUnitSetupKeyByAddress = findCommunitHealthUnitSetupKeyByAddress(
+    nursePayload.address,
+  );
+
+  if (communitHealthUnitSetupKeyByAddress) {
+    return resolveCommunitHealthUnitIdBySetupKey(
+      communitHealthUnitSetupKeyByAddress,
+      createdCommunitHealthUnits,
+    );
+  }
+
+  const fallbackCommunitHealthUnitSetupKey = Object.keys(createdCommunitHealthUnits)[0];
+
+  if (!fallbackCommunitHealthUnitSetupKey) {
+    throw new Error(
+      `No created community health units available for nurse key: ${nurseSetupKey}`,
+    );
+  }
+
+  return createdCommunitHealthUnits[fallbackCommunitHealthUnitSetupKey]!;
+}
+
 export async function createNursesFromSetup(
   createdHospitals: CreatedHospitalIdsMap,
+  createdCommunitHealthUnits: CreatedCommunitHealthUnitIdsMap,
 ): Promise<void> {
   const userService = new UserService();
 
@@ -40,9 +73,16 @@ export async function createNursesFromSetup(
       );
     }
 
+    const communitHealthUnit = resolveCommunitHealthUnitIdForNurse(
+      nurseSetupKey,
+      nursePayload,
+      createdCommunitHealthUnits,
+    );
+
     await userService.registerUserWithAccount({
       ...nursePayload,
       hospitalId,
+      communitHealthUnit,
     });
   }
 }

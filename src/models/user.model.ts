@@ -63,11 +63,6 @@ userSchema.set('toJSON', {
   },
 });
 
-// user and CHU should be unique
-userSchema.index(
-  { communitHealthUnit: 1 },
-  { unique: true },
-);
 
 // Create and export the model
 const User = mongoose.model<IUserDocument>('User', userSchema);

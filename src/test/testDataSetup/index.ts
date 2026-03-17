@@ -5,17 +5,22 @@ import {
 } from './hospital-setup.js';
 import { seedIndicatorsFromSetup } from './indicator-setup.js';
 import { createNursesFromSetup } from './nurse-setup.js';
+import { createCommunitHealthUnitsFromSetup } from './communit-health-unit-setup.js';
 
 export type OrchestratedTestDataSetup = {
   createdHospitals: CreatedHospitalIdsMap;
 };
 
 export async function setupTestData(): Promise<OrchestratedTestDataSetup> {
-  await registerAccountsFromSetup();
-
   const createdHospitals = await createHospitalsFromSetup();
 
-  await createNursesFromSetup(createdHospitals);
+  const createdCommunitHealthUnits = await createCommunitHealthUnitsFromSetup(
+    createdHospitals,
+  );
+
+  await registerAccountsFromSetup(createdCommunitHealthUnits);
+
+  await createNursesFromSetup(createdHospitals, createdCommunitHealthUnits);
 
   await seedIndicatorsFromSetup();
 

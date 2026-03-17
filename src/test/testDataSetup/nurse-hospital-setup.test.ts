@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import Hospital from '../../models/hospital.model.js';
 import { createHospitalsFromSetup, HOSPITAL_SETUP } from './hospital-setup.js';
 import { createNursesFromSetup, NURSE_SETUP } from './nurse-setup.js';
+import { createCommunitHealthUnitsFromSetup } from './communit-health-unit-setup.js';
 import { setupTestDB } from '../utils/mongo-memory.js';
 import { Nurse } from '../../models/user.model.js';
 
@@ -12,8 +13,11 @@ setupTestDB();
 describe('Test Data Setup: nurses are attached to expected hospitals', () => {
   it('creates nurses linked to hospitals defined by fixture keys', async () => {
     const createdHospitalsKeys = await createHospitalsFromSetup();
+    const createdCommunitHealthUnits = await createCommunitHealthUnitsFromSetup(
+      createdHospitalsKeys,
+    );
 
-    await createNursesFromSetup(createdHospitalsKeys);
+    await createNursesFromSetup(createdHospitalsKeys, createdCommunitHealthUnits);
 
     const createdNurses = await Nurse.find({})
       .populate('hospitalId')

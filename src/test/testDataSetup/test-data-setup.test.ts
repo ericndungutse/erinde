@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import Account from '../../models/account.model.js';
+import CommunityHealthUnit from '../../models/communitHealthUnit.model.js';
 import Hospital from '../../models/hospital.model.js';
 import User, { Nurse } from '../../models/user.model.js';
 import { ACCOUNT_SETUP } from './account-setup.js';
+import { COMMUNIT_HEALTH_UNIT_SETUP } from './communit-health-unit-setup.js';
 import { HOSPITAL_SETUP } from './hospital-setup.js';
 import { NURSE_SETUP } from './nurse-setup.js';
 import { setupTestData } from './index.js';
@@ -47,6 +49,26 @@ describe('Test Data Setup Orchestrator: setupTestData()', () => {
 
       expect(user).toBeTruthy();
       expect(user!.roles).toContain(UserRole.USER);
+
+      expect(user!.communitHealthUnit).toBeDefined();
+      const linkedCommunitHealthUnit = await CommunityHealthUnit.findById(
+        user!.communitHealthUnit,
+      ).lean();
+      expect(linkedCommunitHealthUnit).toBeTruthy();
+
+      const expectedCommunitHealthUnitSetup = Object.entries(
+        COMMUNIT_HEALTH_UNIT_SETUP,
+      ).find(([, communitHealthUnitPayload]) => (
+        communitHealthUnitPayload.socialHealthWorkerSetupKey === accountSetupKey
+      ));
+
+      if (expectedCommunitHealthUnitSetup) {
+        const [, communitHealthUnitPayload] = expectedCommunitHealthUnitSetup;
+        expect(linkedCommunitHealthUnit!.address.village).toBe(
+          communitHealthUnitPayload.address.village.toLowerCase(),
+        );
+      }
+
       for (const role of accountPayload.roles) {
         expect(user!.roles).toContain(role);
       }
@@ -67,6 +89,39 @@ describe('Test Data Setup Orchestrator: setupTestData()', () => {
       expect(result.createdHospitals[hospitalSetupKey]).toBe(
         createdHospital!._id.toString(),
       );
+    }
+
+    // Verify community health units created and linked to expected health centers
+    const createdCommunitHealthUnits = await CommunityHealthUnit.find({}).lean();
+    const communitHealthUnitCount = Object.keys(COMMUNIT_HEALTH_UNIT_SETUP).length;
+    expect(createdCommunitHealthUnits).toHaveLength(communitHealthUnitCount);
+
+    for (const [communitHealthUnitSetupKey, communitHealthUnitPayload] of Object.entries(COMMUNIT_HEALTH_UNIT_SETUP)) {
+      const createdCommunitHealthUnit = await CommunityHealthUnit.findOne({
+        'address.province': communitHealthUnitPayload.address.province.toLowerCase(),
+        'address.district': communitHealthUnitPayload.address.district.toLowerCase(),
+        'address.sector': communitHealthUnitPayload.address.sector.toLowerCase(),
+        'address.cell': communitHealthUnitPayload.address.cell.toLowerCase(),
+        'address.village': communitHealthUnitPayload.address.village.toLowerCase(),
+      }).lean();
+
+      expect(createdCommunitHealthUnit).toBeTruthy();
+
+      const expectedHealthCenterId = result.createdHospitals[
+        communitHealthUnitPayload.healthCenterSetupKey
+      ];
+      expect(expectedHealthCenterId).toBeDefined();
+      expect(createdCommunitHealthUnit!.healthCenter.toString()).toBe(expectedHealthCenterId);
+      if (createdCommunitHealthUnit!.name) {
+        expect(createdCommunitHealthUnit!.name).toBe(
+          `${communitHealthUnitPayload.address.village}-${communitHealthUnitPayload.address.cell}`.toLowerCase(),
+        );
+      }
+
+      const linkedHealthCenter = await Hospital.findById(
+        createdCommunitHealthUnit!.healthCenter,
+      ).lean();
+      expect(linkedHealthCenter).toBeTruthy();
     }
 
     // Verify nurses created and linked to hospitals
@@ -90,12 +145,18 @@ describe('Test Data Setup Orchestrator: setupTestData()', () => {
       const expectedHospitalId = result.createdHospitals[hospitalSetupKey];
 
       expect(createdNurse!.hospitalId).toBeDefined();
+      expect(createdNurse!.communitHealthUnit).toBeDefined();
       const populatedHospital = createdNurse!.hospitalId as unknown as {
         _id: { toString(): string };
         name: string;
       };
       expect(populatedHospital._id.toString()).toBe(expectedHospitalId);
       expect(populatedHospital.name).toBe(HOSPITAL_SETUP[hospitalSetupKey]?.name);
+
+      const nurseCommunitHealthUnit = await CommunityHealthUnit.findById(
+        createdNurse!.communitHealthUnit,
+      ).lean();
+      expect(nurseCommunitHealthUnit).toBeTruthy();
     }
   });
 });
