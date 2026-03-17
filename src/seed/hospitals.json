@@ -11,6 +11,18 @@
     }
   },
 
+   {
+    "name": "ISOKO Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "Nyarugenge",
+      "sector": "Nyarugenge",
+      "cell": "Biryogo",
+      "village": "Isoko"
+    }
+  },
+
   {
     "name": "Nyarugenge District Hospital",
     "type": "DISTRICT_HOSPITAL",

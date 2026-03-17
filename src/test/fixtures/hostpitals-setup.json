@@ -10,6 +10,17 @@
       "village": "nyiranuma"
     }
   },
+  "ISOKO_HEALTH_CENTER": {
+    "name": "ISOKO Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "kigali",
+      "district": "Nyarugenge",
+      "sector": "Nyarugenge",
+      "cell": "Biryogo",
+      "village": "Isoko"
+    }
+  },
 
     "NYARUGENGE_DISTRICT_HOSPITAL": {
     "name": "Nyarugenge District Hospital",

@@ -9,6 +9,17 @@ import type { PaginationMeta } from '../types/api.types.js';
 import { parsePaginationParams } from '../utils/pagination.js';
 import type { ICommunitHealthUnitService } from './interface/icommunitHealthUnit.service.js';
 
+function toSingleValue(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+  return value;
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export class CommunitHealthUnitService implements ICommunitHealthUnitService {
   async createCommunityHealthUnit(payload: CreateCommunityHealthUnitDTO): Promise<ICommunityHealthUnit> {
     const parsed = CreateCommunityHealthUnitSchema.parse(payload);
@@ -27,13 +38,25 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
     query: Record<string, string | string[] | undefined>,
   ): Promise<GetAllCommunityHealthUnitsResult> {
     const { page, limit } = parsePaginationParams(query);
+    const rawName = toSingleValue(query.name);
+    const name = rawName?.trim();
 
-    const totalResults = await CommunityHealthUnit.countDocuments().exec();
+    const filter =
+      name && name.length > 0
+        ? {
+            name: {
+              $regex: escapeRegex(name),
+              $options: 'i',
+            },
+          }
+        : {};
+
+    const totalResults = await CommunityHealthUnit.countDocuments(filter).exec();
     const totalPages = Math.max(1, Math.ceil(totalResults / limit));
     const currentPage = Math.min(page, totalPages);
     const skip = (currentPage - 1) * limit;
 
-    const results = await CommunityHealthUnit.find()
+    const results = await CommunityHealthUnit.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
