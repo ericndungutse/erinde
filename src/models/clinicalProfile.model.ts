@@ -1,7 +1,10 @@
-import mongoose, { Schema } from 'mongoose';
-import type { IClinicalProfile } from '../types/clinical-profile.types.js';
+import mongoose, { Document, Model, Schema } from 'mongoose';
+import type { IClinicalProfile } from '../domain/clinical-profile.types.js';
 
-const clinicalProfileSchema = new Schema<IClinicalProfile>(
+export interface IClinicalProfileDocument extends IClinicalProfile, Document {}
+export interface IClinicalProfileModel extends Model<IClinicalProfileDocument> {}
+
+const clinicalProfileSchema = new Schema<IClinicalProfileDocument>(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -18,19 +21,9 @@ const clinicalProfileSchema = new Schema<IClinicalProfile>(
       trim: true,
       index: true,
     },
-    healthWorkerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: false,
-    },
-    status: {
-      type: String,
-      enum: ['ACTIVE', 'INACTIVE'],
-      default: 'ACTIVE',
-    },
   },
   { timestamps: true }
 );
 
-const ClinicalProfile = mongoose.model<IClinicalProfile>('ClinicalProfile', clinicalProfileSchema);
+const ClinicalProfile = mongoose.model<IClinicalProfileDocument, IClinicalProfileModel>('ClinicalProfile', clinicalProfileSchema);
 export default ClinicalProfile;
