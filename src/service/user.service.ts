@@ -56,6 +56,19 @@ export class UserService implements IUserService {
   async registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any> {
     const parsed = RegisterUserWithAccountSchema.parse(userData);
     const roles = [UserRole.USER, ...(parsed.roles as UserRole[])];
+
+    if (!mongoose.isValidObjectId(parsed.communitHealthUnit)) {
+      throw new CommunityHealthUnitNotFoundError();
+    }
+
+    const communityHealthUnitExists = await CommunityHealthUnit.exists({
+      _id: new mongoose.Types.ObjectId(parsed.communitHealthUnit),
+    });
+
+    if (!communityHealthUnitExists) {
+      throw new CommunityHealthUnitNotFoundError();
+    }
+
     const session = await mongoose.startSession();
     let user: IUserDocument | INurseDocument | undefined;
     let account;
