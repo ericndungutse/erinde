@@ -9,6 +9,7 @@ import { createCommunitHealthUnitsFromSetup } from './communit-health-unit-setup
 
 export type OrchestratedTestDataSetup = {
   createdHospitals: CreatedHospitalIdsMap;
+  createdCommunitHealthUnits: any; // Replace 'any' with the actual type if available
 };
 
 export async function setupTestData(): Promise<OrchestratedTestDataSetup> {
@@ -25,6 +26,6 @@ export async function setupTestData(): Promise<OrchestratedTestDataSetup> {
   await seedIndicatorsFromSetup();
 
   return {
-    createdHospitals,
+    createdHospitals, createdCommunitHealthUnits
   };
 }

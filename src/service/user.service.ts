@@ -73,12 +73,12 @@ export class UserService implements IUserService {
     const parsed = RegisterUserWithAccountSchema.parse(userData);
     const roles = [UserRole.USER, ...(parsed.roles as UserRole[])];
 
-    if (!mongoose.isValidObjectId(parsed.communitHealthUnit)) {
+    if (!mongoose.isValidObjectId(parsed.communityHealthUnit)) {
       throw new CommunityHealthUnitNotFoundError();
     }
 
     const communityHealthUnitExists = await CommunityHealthUnit.exists({
-      _id: new mongoose.Types.ObjectId(parsed.communitHealthUnit),
+      _id: new mongoose.Types.ObjectId(parsed.communityHealthUnit),
     });
 
     if (!communityHealthUnitExists) {
@@ -164,12 +164,12 @@ export class UserService implements IUserService {
   }
 
   async registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponse> {
-    if (!mongoose.isValidObjectId(userData.communitHealthUnit)) {
+    if (!mongoose.isValidObjectId(userData.communityHealthUnit)) {
       throw new CommunityHealthUnitNotFoundError();
     }
 
     const communityHealthUnitExists = await CommunityHealthUnit.exists({
-      _id: new mongoose.Types.ObjectId(userData.communitHealthUnit),
+      _id: new mongoose.Types.ObjectId(userData.communityHealthUnit),
     });
 
     if (!communityHealthUnitExists) {

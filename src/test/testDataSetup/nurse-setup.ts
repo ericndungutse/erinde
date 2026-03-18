@@ -11,7 +11,7 @@ import {
   resolveCommunitHealthUnitIdBySetupKey,
 } from './communit-health-unit-setup.js';
 
-type NurseSetupPayload = Omit<RegisterUserWithAccountDTO, 'hospitalId' | 'communitHealthUnit'>;
+type NurseSetupPayload = Omit<RegisterUserWithAccountDTO, 'hospitalId' | 'communityHealthUnit'>;
 type NurseSetupMap = Record<string, NurseSetupPayload>;
 
 const nurseSetupPath = new URL('../fixtures/nurse-setup.json', import.meta.url);
@@ -73,7 +73,7 @@ export async function createNursesFromSetup(
       );
     }
 
-    const communitHealthUnit = resolveCommunitHealthUnitIdForNurse(
+    const communityHealthUnit = resolveCommunitHealthUnitIdForNurse(
       nurseSetupKey,
       nursePayload,
       createdCommunitHealthUnits,
@@ -82,7 +82,7 @@ export async function createNursesFromSetup(
     await userService.registerUserWithAccount({
       ...nursePayload,
       hospitalId,
-      communitHealthUnit,
+      communityHealthUnit,
     });
   }
 }

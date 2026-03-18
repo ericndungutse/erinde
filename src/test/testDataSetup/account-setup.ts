@@ -9,7 +9,7 @@ import {
 	resolveCommunitHealthUnitIdBySetupKey,
 } from './communit-health-unit-setup.js';
 
-type AccountSetupPayload = Omit<RegisterUserWithAccountDTO, 'communitHealthUnit'>;
+type AccountSetupPayload = Omit<RegisterUserWithAccountDTO, 'communityHealthUnit'>;
 type AccountSetupMap = Record<string, AccountSetupPayload>;
 
 const accountSetupPath = new URL('../fixtures/acounts-setup.json', import.meta.url);
@@ -61,7 +61,7 @@ export async function registerAccountsFromSetup(
 	const userService = new UserService();
 
 	for (const [accountSetupKey, userPayload] of Object.entries(ACCOUNT_SETUP)) {
-		const communitHealthUnit = resolveCommunitHealthUnitIdForAccount(
+		const communityHealthUnit = resolveCommunitHealthUnitIdForAccount(
 			accountSetupKey,
 			userPayload,
 			createdCommunitHealthUnits,
@@ -69,7 +69,7 @@ export async function registerAccountsFromSetup(
 
 		await userService.registerUserWithAccount({
 			...userPayload,
-			communitHealthUnit,
+			communityHealthUnit,
 		});
 	}
 }

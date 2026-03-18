@@ -34,7 +34,7 @@ export const userSchema = new Schema<IUserDocument>(
       enum: Object.values(UserRole),
       default: [UserRole.USER],
     },
-    communitHealthUnit: {
+    communityHealthUnit: {
       type: Types.ObjectId,
       ref: 'CommunityHealthUnit',
       required: true,

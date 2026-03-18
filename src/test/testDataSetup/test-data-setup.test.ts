@@ -50,9 +50,9 @@ describe('Test Data Setup Orchestrator: setupTestData()', () => {
       expect(user).toBeTruthy();
       expect(user!.roles).toContain(UserRole.USER);
 
-      expect(user!.communitHealthUnit).toBeDefined();
+      expect(user!.communityHealthUnit).toBeDefined();
       const linkedCommunitHealthUnit = await CommunityHealthUnit.findById(
-        user!.communitHealthUnit,
+        user!.communityHealthUnit,
       ).lean();
       expect(linkedCommunitHealthUnit).toBeTruthy();
 
@@ -145,7 +145,7 @@ describe('Test Data Setup Orchestrator: setupTestData()', () => {
       const expectedHospitalId = result.createdHospitals[hospitalSetupKey];
 
       expect(createdNurse!.hospitalId).toBeDefined();
-      expect(createdNurse!.communitHealthUnit).toBeDefined();
+      expect(createdNurse!.communityHealthUnit).toBeDefined();
       const populatedHospital = createdNurse!.hospitalId as unknown as {
         _id: { toString(): string };
         name: string;
@@ -153,10 +153,10 @@ describe('Test Data Setup Orchestrator: setupTestData()', () => {
       expect(populatedHospital._id.toString()).toBe(expectedHospitalId);
       expect(populatedHospital.name).toBe(HOSPITAL_SETUP[hospitalSetupKey]?.name);
 
-      const nurseCommunitHealthUnit = await CommunityHealthUnit.findById(
-        createdNurse!.communitHealthUnit,
+      const nurseCommunityHealthUnit = await CommunityHealthUnit.findById(
+        createdNurse!.communityHealthUnit,
       ).lean();
-      expect(nurseCommunitHealthUnit).toBeTruthy();
+      expect(nurseCommunityHealthUnit).toBeTruthy();
     }
   });
 });

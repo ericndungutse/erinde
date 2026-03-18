@@ -11,7 +11,7 @@ export interface IUser {
   birthdate: Date;
   firstname: string;
   lastname: string;
-  communitHealthUnit: Types.ObjectId | string;
+  communityHealthUnit: Types.ObjectId | string;
   createdAt: Date;
   updatedAt: Date;
 }

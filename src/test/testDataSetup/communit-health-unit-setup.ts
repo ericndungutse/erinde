@@ -107,6 +107,7 @@ export async function createCommunitHealthUnitsFromSetup(
       },
       {
         $set: {
+          name: `${communitHealthUnitPayload.address.village}-${communitHealthUnitPayload.address.cell}`,
           socialHealthWorker: placeholderSocialHealthWorkerId,
           healthCenter: healthCenterId,
           address: communitHealthUnitPayload.address,
