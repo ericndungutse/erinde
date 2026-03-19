@@ -1,6 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it } from "vitest";
+import type { Types } from "mongoose";
 import { ConstantValues } from "../../constants/constant.values.js";
+import ClinicalProfile from "../../models/clinicalProfile.model.js";
+import User from "../../models/user.model.js";
 import i18next from "../../i18n.js";
 import {
   runtimePatients,
@@ -70,6 +73,26 @@ describe("Integration: POST /api/v1/users", () => {
         }),
       }),
     );
+
+    const savedUser = (await User.findOne({
+      nationalIdentificationNumber:
+        validRegisterPayload.nationalIdentificationNumber,
+    }).lean()) as {
+      _id: Types.ObjectId;
+      roles: string[];
+    } | null;
+
+    expect(savedUser).toBeTruthy();
+
+    const savedClinicalProfile = await ClinicalProfile.findOne({
+      userId: savedUser!._id,
+    }).lean();
+
+    expect(savedUser?.roles).toEqual(expect.arrayContaining(["USER"]));
+    expect(savedClinicalProfile).toBeTruthy();
+    expect(savedClinicalProfile?.patientNumber).toBe(
+      res.body.data.patientNumber.patientNumber,
+    );
   });
 
   it("registers a user without email provided (SOCIAL_HEALTH_WORKER)", async () => {
@@ -106,6 +129,22 @@ describe("Integration: POST /api/v1/users", () => {
         }),
       }),
     );
+
+    const savedUser = (await User.findOne({
+      nationalIdentificationNumber: validRegisterPayload.nationalIdentificationNumber,
+    }).lean()) as {
+      _id: Types.ObjectId;
+      roles: string[];
+    } | null;
+
+    expect(savedUser).toBeTruthy();
+
+    const savedClinicalProfile = await ClinicalProfile.findOne({
+      userId: savedUser!._id,
+    }).lean();
+
+    expect(savedUser?.roles).toEqual(expect.arrayContaining(["USER"]));
+    expect(savedClinicalProfile).toBeTruthy();
   });
 
   it("rejects registration if role is not authorized (ADMIN)", async () => {
@@ -139,6 +178,12 @@ describe("Integration: POST /api/v1/users", () => {
         message: "You do not have permission to perform this action.",
       }),
     );
+
+    const savedUser = await User.findOne({
+      nationalIdentificationNumber: validRegisterPayload.nationalIdentificationNumber,
+    }).lean();
+
+    expect(savedUser).toBeNull();
   });
 
   it("rejects registration with invalid body (validation fails) and returns detailed errors", async () => {
@@ -174,6 +219,12 @@ describe("Integration: POST /api/v1/users", () => {
         }),
       }),
     );
+
+    const savedUser = await User.findOne({
+      nationalIdentificationNumber: invalidPayload.nationalIdentificationNumber,
+    }).lean();
+
+    expect(savedUser).toBeNull();
   });
 
   it("rejects registration when unauthenticated (no token)", async () => {
@@ -187,6 +238,12 @@ describe("Integration: POST /api/v1/users", () => {
         status: "fail",
       }),
     );
+
+    const savedUser = await User.findOne({
+      nationalIdentificationNumber: invalidPayload.nationalIdentificationNumber,
+    }).lean();
+
+    expect(savedUser).toBeNull();
   });
 
   it("returns 400 when email already exists", async () => {
@@ -208,7 +265,7 @@ describe("Integration: POST /api/v1/users", () => {
       ...runtimePatients["nyiranuma-biryogo-valid"],
     };
 
-    await client(token)
+    const firstRequest = await client(token)
       .post("/api/v1/users")
       .send({
         ...validateBody,
@@ -217,6 +274,8 @@ describe("Integration: POST /api/v1/users", () => {
           phone: runTimeRandomPhoneNumbers.one,
         },
       });
+
+    expect(firstRequest.status).toBe(201);
 
     const duplicateRequest = await client(token)
       .post("/api/v1/users")
@@ -232,6 +291,21 @@ describe("Integration: POST /api/v1/users", () => {
         }),
       }),
     );
+
+    const persistedUsers = await User.find({
+      nationalIdentificationNumber: validateBody.nationalIdentificationNumber,
+    }).lean();
+
+    expect(persistedUsers).toHaveLength(1);
+
+    const persistedUser = persistedUsers[0];
+    expect(persistedUser).toBeTruthy();
+
+    const persistedClinicalProfiles = await ClinicalProfile.find({
+      userId: persistedUser!._id,
+    }).lean();
+
+    expect(persistedClinicalProfiles).toHaveLength(1);
   });
 
   it("returns 400 when phone number already exists", async () => {
@@ -253,7 +327,7 @@ describe("Integration: POST /api/v1/users", () => {
       ...runtimePatients["nyiranuma-biryogo-valid"],
     };
 
-    await client(token)
+    const firstRequest = await client(token)
       .post("/api/v1/users")
       .send({
         ...validateBody,
@@ -262,6 +336,8 @@ describe("Integration: POST /api/v1/users", () => {
           email: faker.internet.email(),
         },
       });
+
+    expect(firstRequest.status).toBe(201);
 
     const duplicateRequest = await client(token)
       .post("/api/v1/users")
@@ -277,6 +353,21 @@ describe("Integration: POST /api/v1/users", () => {
         }),
       }),
     );
+
+    const persistedUsers = await User.find({
+      nationalIdentificationNumber: validateBody.nationalIdentificationNumber,
+    }).lean();
+
+    expect(persistedUsers).toHaveLength(1);
+
+    const persistedUser = persistedUsers[0];
+    expect(persistedUser).toBeTruthy();
+
+    const persistedClinicalProfiles = await ClinicalProfile.find({
+      userId: persistedUser!._id,
+    }).lean();
+
+    expect(persistedClinicalProfiles).toHaveLength(1);
   });
 
   it("returns 400 when national identification number already exists", async () => {
@@ -298,7 +389,7 @@ describe("Integration: POST /api/v1/users", () => {
       ...runtimePatients["nyiranuma-biryogo-valid"],
     };
 
-    await client(token)
+    const firstRequest = await client(token)
       .post("/api/v1/users")
       .send({
         ...validateBody,
@@ -307,6 +398,8 @@ describe("Integration: POST /api/v1/users", () => {
           email: faker.internet.email(),
         },
       });
+
+    expect(firstRequest.status).toBe(201);
 
     const duplicateRequest = await client(token)
       .post("/api/v1/users")
@@ -323,5 +416,20 @@ describe("Integration: POST /api/v1/users", () => {
         }),
       }),
     );
+
+    const persistedUsers = await User.find({
+      nationalIdentificationNumber: validateBody.nationalIdentificationNumber,
+    }).lean();
+
+    expect(persistedUsers).toHaveLength(1);
+
+    const persistedUser = persistedUsers[0];
+    expect(persistedUser).toBeTruthy();
+
+    const persistedClinicalProfiles = await ClinicalProfile.find({
+      userId: persistedUser!._id,
+    }).lean();
+
+    expect(persistedClinicalProfiles).toHaveLength(1);
   });
 });
