@@ -1,17 +1,16 @@
+import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it } from "vitest";
-
 import { ConstantValues } from "../../constants/constant.values.js";
 import i18next from "../../i18n.js";
-import ClinicalProfile from "../../models/clinicalProfile.model.js";
-import CommunityHealthUnit from "../../models/communitHealthUnit.model.js";
-import User from "../../models/user.model.js";
+import {
+  runtimePatients,
+  runTimeRandomPhoneNumbers,
+} from "../fixtures/runtime-test-data.js";
 import { ACCOUNT_SETUP } from "../testDataSetup/account-setup.js";
 import { setupTestData } from "../testDataSetup/index.js";
 import { loginByEmail, loginByPhone } from "../utils/auth-helpers.js";
 import { setupTestDB } from "../utils/mongo-memory.js";
 import { client, TEST_LANG } from "../utils/request-factory.js";
-import { UserRole } from "../../types/roles.types.js";
-import { runtimePatients } from "../fixtures/runtime-test-data.js";
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
@@ -148,11 +147,17 @@ describe("Integration: POST /api/v1/users", () => {
       TEST_USERS.SOCIAL_HEALTH_WORKER.password,
     );
 
+    // User Searches for a CHU of the village-cell of new user
+    const chu = await client(token).get(
+      `/api/v1/community-health-units?name=nyiranuma-biryogo`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
     const invalidPayload = {
-      ...validRegisterPayload,
-      firstname: "", // invalid: triggers "First name is required"
-      // phone: keep 10 chars but include non-digit to trigger regex-only error
-      contact: { phone: "078000001a", email: "not-an-email" },
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimePatients["nyiranuma-biryogo-invalid-body"],
     };
 
     const res = await client(token).post("/api/v1/users").send(invalidPayload);
@@ -171,163 +176,152 @@ describe("Integration: POST /api/v1/users", () => {
     );
   });
 
-  // it("rejects registration when unauthenticated (no token)", async () => {
-  //   const res = await client().post("/api/v1/users").send(validRegisterPayload);
+  it("rejects registration when unauthenticated (no token)", async () => {
+    const invalidPayload = {
+      ...runtimePatients["nyiranuma-biryogo-valid"],
+    };
+    const res = await client().post("/api/v1/users").send(invalidPayload);
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        status: "fail",
+      }),
+    );
+  });
 
-  //   expect(res.status).toBe(401);
-  //   expect(res.body).toEqual(
-  //     expect.objectContaining({
-  //       status: "fail",
-  //     }),
-  //   );
-  // });
+  it("returns 400 when email already exists", async () => {
+    const token = await loginByPhone(
+      TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
+      TEST_USERS.SOCIAL_HEALTH_WORKER.password,
+    );
 
-  // it("returns 400 when email already exists", async () => {
-  //   const token = await loginByPhone(
-  //     TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
-  //     TEST_USERS.SOCIAL_HEALTH_WORKER.password,
-  //   );
+    // User Searches for a CHU of the village-cell of new user
+    const chu = await client(token).get(
+      `/api/v1/community-health-units?name=nyiranuma-biryogo`,
+    );
 
-  //   const duplicateEmailPayload = {
-  //     ...validRegisterPayload,
-  //     contact: {
-  //       phone: "0780000099", // unique phone
-  //       email: TEST_USERS.ADMIN.email, // duplicate email
-  //     },
-  //     nationalIdentificationNumber: "1199990000000099", // unique NIN
-  //   };
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
-  //   const res = await client(token)
-  //     .post("/api/v1/users")
-  //     .send(duplicateEmailPayload);
+    const validateBody = {
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimePatients["nyiranuma-biryogo-valid"],
+    };
 
-  //   expect(res.status).toBe(400);
-  //   expect(res.body).toEqual(
-  //     expect.objectContaining({
-  //       status: "fail",
-  //       message: i18next.t("email_exists", {
-  //         email: duplicateEmailPayload.contact.email,
-  //         lng: TEST_LANG,
-  //       }),
-  //     }),
-  //   );
-  // });
+    await client(token)
+      .post("/api/v1/users")
+      .send({
+        ...validateBody,
+        contact: {
+          ...runtimePatients["nyiranuma-biryogo-valid"].contact,
+          phone: runTimeRandomPhoneNumbers.one,
+        },
+      });
 
-  // it("returns 400 when phone number already exists", async () => {
-  //   const token = await loginByPhone(
-  //     TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
-  //     TEST_USERS.SOCIAL_HEALTH_WORKER.password,
-  //   );
+    const duplicateRequest = await client(token)
+      .post("/api/v1/users")
+      .send(validateBody);
 
-  //   const duplicatePhonePayload = {
-  //     ...validRegisterPayload,
-  //     contact: {
-  //       phone: TEST_USERS.ADMIN.phone, // duplicate phone
-  //       email: "unique.email@example.com", // unique email
-  //     },
-  //     nationalIdentificationNumber: "1199990000000088", // unique NIN
-  //   };
+    expect(duplicateRequest.status).toBe(400);
+    expect(duplicateRequest.body).toEqual(
+      expect.objectContaining({
+        status: "fail",
+        message: i18next.t("email_exists", {
+          email: validateBody.contact.email,
+          lng: TEST_LANG,
+        }),
+      }),
+    );
+  });
 
-  //   const res = await client(token)
-  //     .post("/api/v1/users")
-  //     .send(duplicatePhonePayload);
+  it("returns 400 when phone number already exists", async () => {
+    const token = await loginByPhone(
+      TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
+      TEST_USERS.SOCIAL_HEALTH_WORKER.password,
+    );
 
-  //   expect(res.status).toBe(400);
-  //   expect(res.body).toEqual(
-  //     expect.objectContaining({
-  //       message: i18next.t("phone_number_exists", {
-  //         phone_number: duplicatePhonePayload.contact.phone,
-  //         lng: TEST_LANG,
-  //       }),
-  //     }),
-  //   );
-  // });
+    // User Searches for a CHU of the village-cell of new user
+    const chu = await client(token).get(
+      `/api/v1/community-health-units?name=nyiranuma-biryogo`,
+    );
 
-  // it("returns 400 when national identification number already exists", async () => {
-  //   const token = await loginByPhone(
-  //     TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
-  //     TEST_USERS.SOCIAL_HEALTH_WORKER.password,
-  //   );
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
-  //   const duplicateNinPayload = {
-  //     ...validRegisterPayload,
-  //     contact: {
-  //       phone: "0780000022", // unique phone
-  //       email: "unique2.email@example.com", // unique email
-  //     },
-  //     nationalIdentificationNumber: TEST_USERS.ADMIN.nationalId, // duplicate NIN
-  //   };
+    const validateBody = {
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimePatients["nyiranuma-biryogo-valid"],
+    };
 
-  //   const res = await client(token)
-  //     .post("/api/v1/users")
-  //     .send(duplicateNinPayload);
+    await client(token)
+      .post("/api/v1/users")
+      .send({
+        ...validateBody,
+        contact: {
+          ...runtimePatients["nyiranuma-biryogo-valid"].contact,
+          email: faker.internet.email(),
+        },
+      });
 
-  //   expect(res.status).toBe(400);
-  //   expect(res.body).toEqual(
-  //     expect.objectContaining({
-  //       status: "fail",
-  //       message: i18next.t("national_identification_number_exists", {
-  //         national_identification_number:
-  //           duplicateNinPayload.nationalIdentificationNumber,
-  //         lng: TEST_LANG,
-  //       }),
-  //     }),
-  //   );
-  // });
+    const duplicateRequest = await client(token)
+      .post("/api/v1/users")
+      .send(validateBody);
 
-  // it("sets healthWorkerId in clinical profile when SHW exists in same village (ruvumera)", async () => {
-  //   const token = await loginByPhone(
-  //     TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
-  //     TEST_USERS.SOCIAL_HEALTH_WORKER.password,
-  //   );
+    expect(duplicateRequest.status).toBe(400);
+    expect(duplicateRequest.body).toEqual(
+      expect.objectContaining({
+        status: "fail",
+        message: i18next.t("phone_number_exists", {
+          phone_number: validateBody.contact.phone,
+          lng: TEST_LANG,
+        }),
+      }),
+    );
+  });
 
-  //   // Create a Social Health Worker in target village
-  //   const shw = await User.create({
-  //     firstname: "Village",
-  //     lastname: "Worker",
-  //     birthdate: new Date("1985-05-05"),
-  //     address: {
-  //       province: "kigali",
-  //       district: "gasabo",
-  //       sector: "kimironko",
-  //       cell: "kibagabaga",
-  //       village: "ruvumera",
-  //     },
-  //     contact: {
-  //       phone: "0780000044",
-  //       email: "shw.ruvumera@example.com",
-  //     },
-  //     nationalIdentificationNumber: "1199990000000044",
-  //     roles: [UserRole.SOCIAL_HEALTH_WORKER],
-  //     communityHealthUnit: "507f1f77bcf86cd799439099",
-  //   });
+  it("returns 400 when national identification number already exists", async () => {
+    const token = await loginByPhone(
+      TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
+      TEST_USERS.SOCIAL_HEALTH_WORKER.password,
+    );
 
-  //   const payload = {
-  //     firstname: "Alice",
-  //     lastname: "Patient",
-  //     birthdate: "1993-03-03",
-  //     address: {
-  //       province: "kigali",
-  //       district: "gasabo",
-  //       sector: "kimironko",
-  //       cell: "kibagabaga",
-  //       village: "ruvumera", // matches SHW village
-  //     },
-  //     contact: {
-  //       phone: "0780000055",
-  //       email: "alice.patient@example.com",
-  //     },
-  //     nationalIdentificationNumber: "1199990000000055",
-  //     communityHealthUnit: validRegisterPayload.communityHealthUnit,
-  //   };
+    // User Searches for a CHU of the village-cell of new user
+    const chu = await client(token).get(
+      `/api/v1/community-health-units?name=nyiranuma-biryogo`,
+    );
 
-  //   const regRes = await client(token).post("/api/v1/users").send(payload);
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
-  //   expect(regRes.status).toBe(201);
-  //   const patientNumber: number = regRes.body.data.patientNumber
-  //     .patientNumber as number;
+    const validateBody = {
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimePatients["nyiranuma-biryogo-valid"],
+    };
 
-  //   const profile = await ClinicalProfile.findOne({ patientNumber }).lean();
-  //   expect(profile).toBeTruthy();
-  // });
+    await client(token)
+      .post("/api/v1/users")
+      .send({
+        ...validateBody,
+        contact: {
+          phone: runTimeRandomPhoneNumbers.one,
+          email: faker.internet.email(),
+        },
+      });
+
+    const duplicateRequest = await client(token)
+      .post("/api/v1/users")
+      .send(validateBody);
+
+    expect(duplicateRequest.status).toBe(400);
+    expect(duplicateRequest.body).toEqual(
+      expect.objectContaining({
+        status: "fail",
+        message: i18next.t("national_identification_number_exists", {
+          national_identification_number:
+            validateBody.nationalIdentificationNumber,
+          lng: TEST_LANG,
+        }),
+      }),
+    );
+  });
 });
