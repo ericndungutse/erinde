@@ -1,41 +1,27 @@
+import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ConstantValues } from "../../constants/constant.values.js";
-import { setupTestDB } from "../utils/mongo-memory.js";
-import { ACCOUNT_SETUP } from "../testDataSetup/account-setup.js";
-import { setupTestData } from "../testDataSetup/index.js";
-import { loginByEmail, loginByPhone } from "../utils/auth-helpers.js";
-import { client, TEST_LANG } from "../utils/request-factory.js";
-import i18next from "i18next";
 import Account from "../../models/account.model.js";
 import ClinicalProfile from "../../models/clinicalProfile.model.js";
 import Counter from "../../models/counter.model.js";
 import Hospital from "../../models/hospital.model.js";
 import User, { Nurse } from "../../models/user.model.js";
+import i18next from "i18next";
 import { HospitalType } from "../../types/hospital.types.js";
 import { UserRole } from "../../types/roles.types.js";
+import {
+  runtimeUserAccounts,
+  runtimePatients,
+} from "../fixtures/runtime-test-data.js";
+import { ACCOUNT_SETUP } from "../testDataSetup/account-setup.js";
+import { setupTestData } from "../testDataSetup/index.js";
+import { loginByEmail, loginByPhone } from "../utils/auth-helpers.js";
+import { setupTestDB } from "../utils/mongo-memory.js";
+import { client, TEST_LANG } from "../utils/request-factory.js";
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
-
-const validRegisterWithAccountPayload = {
-  firstname: "Regina",
-  lastname: "AdminCase",
-  birthdate: "1991-04-04",
-  address: {
-    province: "kigali",
-    district: "gasabo",
-    sector: "kimironko",
-    cell: "kibagabaga",
-    village: "ruvumera",
-  },
-  contact: {
-    phone: "0780001010",
-    email: "regina.admincase@example.com",
-  },
-  nationalIdentificationNumber: "1199990000001010",
-  roles: [UserRole.ADMIN],
-};
 
 const validHospitalPayload = {
   name: "Kimironko District Hospital",
@@ -49,24 +35,7 @@ const validHospitalPayload = {
   },
 };
 
-const validNurseRegisterPayload = {
-  firstname: "Nadine",
-  lastname: "NurseCase",
-  birthdate: "1992-06-06",
-  address: {
-    province: "kigali",
-    district: "gasabo",
-    sector: "kimironko",
-    cell: "kibagabaga",
-    village: "nyagatovu",
-  },
-  contact: {
-    phone: "0780004040",
-    email: "nadine.nursecase@example.com",
-  },
-  nationalIdentificationNumber: "1199990000004040",
-  roles: [UserRole.NURSE],
-};
+const COMMUNITY_HEALTH_UNIT_QUERY = "nyiranuma-biryogo";
 
 const TEST_USERS = {
   ADMIN: {
@@ -91,6 +60,18 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.email,
       TEST_USERS.ADMIN.password,
     );
+
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
+    const validRegisterWithAccountPayload = {
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["admin-role-valid"],
+    };
 
     const res = await client(adminToken)
       .post("/api/v1/users/admin/register")
@@ -118,6 +99,24 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
         }),
       }),
     );
+
+    const savedUser = (await User.findOne({
+      nationalIdentificationNumber:
+        validRegisterWithAccountPayload.nationalIdentificationNumber,
+    }).lean()) as {
+      roles: UserRole[];
+    } | null;
+
+    const savedAccount = await Account.findOne({
+      phoneNumber: validRegisterWithAccountPayload.contact.phone,
+    }).lean();
+
+    expect(savedUser).toBeTruthy();
+    expect(savedUser?.roles).toEqual(
+      expect.arrayContaining([UserRole.USER, UserRole.ADMIN]),
+    );
+    expect(savedAccount).toBeTruthy();
+    expect(savedAccount?.mustChangePassword).toBe(true);
   });
 
   it("registers a user without email successfully (ADMIN)", async () => {
@@ -126,12 +125,16 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.password,
     );
 
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
     const payload = {
-      ...validRegisterWithAccountPayload,
-      contact: {
-        phone: "0780001011",
-      },
-      nationalIdentificationNumber: "1199990000001011",
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["admin-role-without-email"],
     };
 
     const res = await client(adminToken)
@@ -159,6 +162,23 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
         }),
       }),
     );
+
+    const savedUser = (await User.findOne({
+      nationalIdentificationNumber: payload.nationalIdentificationNumber,
+    }).lean()) as {
+      roles: UserRole[];
+    } | null;
+
+    const savedAccount = await Account.findOne({
+      phoneNumber: payload.contact.phone,
+    }).lean();
+
+    expect(savedUser).toBeTruthy();
+    expect(savedUser?.roles).toEqual(
+      expect.arrayContaining([UserRole.USER, UserRole.ADMIN]),
+    );
+    expect(savedAccount).toBeTruthy();
+    expect(savedAccount?.email).toBeUndefined();
   });
 
   it("rolls back user and account creation when clinical profile setup fails", async () => {
@@ -166,13 +186,17 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.email,
       TEST_USERS.ADMIN.password,
     );
+
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
     const payload = {
-      ...validRegisterWithAccountPayload,
-      contact: {
-        phone: "0780003030",
-        email: "rollback.admin.register@example.com",
-      },
-      nationalIdentificationNumber: "1199990000003030",
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["admin-role-rollback-test"],
     };
 
     const counterSpy = vi
@@ -211,15 +235,30 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
   });
 
   it("rejects when unauthenticated (no token)", async () => {
+    const payload = {
+      ...runtimeUserAccounts["admin-role-valid"],
+    };
+
     const res = await client()
       .post("/api/v1/users/admin/register")
-      .send(validRegisterWithAccountPayload);
+      .send(payload);
+
     expect(res.status).toBe(401);
     expect(res.body).toEqual(
       expect.objectContaining({
         status: "fail",
       }),
     );
+
+    const [savedUser, savedAccount] = await Promise.all([
+      User.findOne({
+        nationalIdentificationNumber: payload.nationalIdentificationNumber,
+      }).lean(),
+      Account.findOne({ phoneNumber: payload.contact.phone }).lean(),
+    ]);
+
+    expect(savedUser).toBeNull();
+    expect(savedAccount).toBeNull();
   });
 
   it("rejects when unauthorized (non-ADMIN)", async () => {
@@ -228,9 +267,21 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.SOCIAL_HEALTH_WORKER.password,
     );
 
+    const chu = await client(shwToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
+    const payload = {
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["admin-role-valid"],
+    };
+
     const res = await client(shwToken)
       .post("/api/v1/users/admin/register")
-      .send(validRegisterWithAccountPayload);
+      .send(payload);
 
     expect(res.status).toBe(403);
     expect(res.body).toEqual(
@@ -239,6 +290,16 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
         message: "You do not have permission to perform this action.",
       }),
     );
+
+    const [savedUser, savedAccount] = await Promise.all([
+      User.findOne({
+        nationalIdentificationNumber: payload.nationalIdentificationNumber,
+      }).lean(),
+      Account.findOne({ phoneNumber: payload.contact.phone }).lean(),
+    ]);
+
+    expect(savedUser).toBeNull();
+    expect(savedAccount).toBeNull();
   });
 
   it("returns 400 with detailed validation errors", async () => {
@@ -247,11 +308,16 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.password,
     );
 
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
     const invalidPayload = {
-      ...validRegisterWithAccountPayload,
-      firstname: "",
-      contact: { phone: "07800010ab", email: "not-an-email" },
-      roles: [],
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["invalid-admin-validation"],
     };
 
     const res = await client(adminToken)
@@ -271,6 +337,16 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
         }),
       }),
     );
+
+    const [savedUser, savedAccount] = await Promise.all([
+      User.findOne({
+        nationalIdentificationNumber: invalidPayload.nationalIdentificationNumber,
+      }).lean(),
+      Account.findOne({ phoneNumber: invalidPayload.contact.phone }).lean(),
+    ]);
+
+    expect(savedUser).toBeNull();
+    expect(savedAccount).toBeNull();
   });
 
   it("returns 400 when email already exists", async () => {
@@ -279,13 +355,20 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.password,
     );
 
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
     const payload = {
-      ...validRegisterWithAccountPayload,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["admin-role-duplicate-email-test"],
       contact: {
-        phone: "0780001099", // unique phone
-        email: TEST_USERS.ADMIN.email, // duplicate email
+        ...runtimeUserAccounts["admin-role-duplicate-email-test"].contact,
+        email: TEST_USERS.ADMIN.email,
       },
-      nationalIdentificationNumber: "1199990000001099", // unique NIN
     };
 
     const res = await client(adminToken)
@@ -298,6 +381,16 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
         status: "fail",
       }),
     );
+
+    const [savedUser, savedAccount] = await Promise.all([
+      User.findOne({
+        nationalIdentificationNumber: payload.nationalIdentificationNumber,
+      }).lean(),
+      Account.findOne({ phoneNumber: payload.contact.phone }).lean(),
+    ]);
+
+    expect(savedUser).toBeNull();
+    expect(savedAccount).toBeNull();
   });
 
   it("returns 400 when phone number already exists", async () => {
@@ -306,13 +399,20 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.password,
     );
 
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
     const payload = {
-      ...validRegisterWithAccountPayload,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["admin-role-duplicate-phone-test"],
       contact: {
-        phone: TEST_USERS.ADMIN.phone, // duplicate phone
-        email: "unique.email.admin.register@example.com", // unique email
+        ...runtimeUserAccounts["admin-role-duplicate-phone-test"].contact,
+        phone: TEST_USERS.ADMIN.phone,
       },
-      nationalIdentificationNumber: "1199990000001088", // unique NIN
     };
 
     const res = await client(adminToken)
@@ -329,6 +429,16 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
         }),
       }),
     );
+
+    const [savedUser, savedAccount] = await Promise.all([
+      User.findOne({
+        nationalIdentificationNumber: payload.nationalIdentificationNumber,
+      }).lean(),
+      Account.findOne({ email: payload.contact.email }).lean(),
+    ]);
+
+    expect(savedUser).toBeNull();
+    expect(savedAccount).toBeNull();
   });
 
   it("returns 400 when national identification number already exists", async () => {
@@ -337,13 +447,17 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.password,
     );
 
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
     const payload = {
-      ...validRegisterWithAccountPayload,
-      contact: {
-        phone: "0780001022", // unique phone
-        email: "unique2.email.admin.register@example.com", // unique email
-      },
-      nationalIdentificationNumber: TEST_USERS.ADMIN.nationalId, // duplicate NIN
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["admin-role-duplicate-nin-test"],
+      nationalIdentificationNumber: TEST_USERS.ADMIN.nationalId,
     };
 
     const res = await client(adminToken)
@@ -356,6 +470,12 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
         status: "fail",
       }),
     );
+
+    const savedAccount = await Account.findOne({
+      phoneNumber: payload.contact.phone,
+    }).lean();
+
+    expect(savedAccount).toBeNull();
   });
 
   it("merges provided roles with USER (SCREENING_VOLUNTEER, SOCIAL_HEALTH_WORKER)", async () => {
@@ -364,16 +484,17 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.password,
     );
 
-    const payload = {
-      ...validRegisterWithAccountPayload,
-      contact: {
-        phone: "0780002020",
-        email: "multi.roles@example.com",
-      },
-      nationalIdentificationNumber: "1199990000002020",
-      roles: [UserRole.SCREENING_VOLUNTEER, UserRole.SOCIAL_HEALTH_WORKER],
-    };
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
 
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
+    const payload = {
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["multi-role-screening-social-health"],
+    };
     const res = await client(adminToken)
       .post("/api/v1/users/admin/register")
       .send(payload);
@@ -393,6 +514,26 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
         }),
       }),
     );
+
+    const savedUser = (await User.findOne({
+      nationalIdentificationNumber: payload.nationalIdentificationNumber,
+    }).lean()) as {
+      roles: UserRole[];
+    } | null;
+
+    const savedAccount = await Account.findOne({
+      phoneNumber: payload.contact.phone,
+    }).lean();
+
+    expect(savedUser).toBeTruthy();
+    expect(savedUser?.roles).toEqual(
+      expect.arrayContaining([
+        UserRole.USER,
+        UserRole.SCREENING_VOLUNTEER,
+        UserRole.SOCIAL_HEALTH_WORKER,
+      ]),
+    );
+    expect(savedAccount).toBeTruthy();
   });
 
   it("rejects nurse registration when hospitalId is missing", async () => {
@@ -400,6 +541,18 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.email,
       TEST_USERS.ADMIN.password,
     );
+
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
+    const validNurseRegisterPayload = {
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["nurse-role-valid"],
+    };
 
     const res = await client(adminToken)
       .post("/api/v1/users/admin/register")
@@ -413,6 +566,19 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
         hospitalId: i18next.t("hospital_id_required", { lng: TEST_LANG }),
       },
     });
+
+    const [savedNurse, savedAccount] = await Promise.all([
+      Nurse.findOne({
+        nationalIdentificationNumber:
+          validNurseRegisterPayload.nationalIdentificationNumber,
+      }).lean(),
+      Account.findOne({
+        phoneNumber: validNurseRegisterPayload.contact.phone,
+      }).lean(),
+    ]);
+
+    expect(savedNurse).toBeNull();
+    expect(savedAccount).toBeNull();
   });
 
   it("registers a nurse with an assigned hospital (ADMIN)", async () => {
@@ -420,16 +586,34 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       TEST_USERS.ADMIN.email,
       TEST_USERS.ADMIN.password,
     );
-    const hospital = await Hospital.create(validHospitalPayload);
+
+    const chu = await client(adminToken).get(
+      `/api/v1/community-health-units?name=${COMMUNITY_HEALTH_UNIT_QUERY}`,
+    );
+
+    expect(chu.status).toBe(200);
+    expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
+
+    const hospitalsRes = await client(adminToken).get(`/api/v1/hospitals`);
+
+    expect(hospitalsRes.status).toBe(200);
+    expect(hospitalsRes.body.data.hospitals).toBeInstanceOf(Array);
+    expect(hospitalsRes.body.data.hospitals.length).toBeGreaterThan(0);
+
+    const hospital = hospitalsRes.body.data.hospitals[0];
+    const hospitalId = hospital._id.toString();
+
     const payload = {
-      ...validNurseRegisterPayload,
-      hospitalId: hospital._id.toString(),
+      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      ...runtimeUserAccounts["nurse-role-with-hospital"],
+      hospitalId: hospitalId,
     };
 
     const res = await client(adminToken)
       .post("/api/v1/users/admin/register")
       .send(payload);
 
+    // API response assertions
     expect(res.status).toBe(201);
     expect(res.body).toEqual(
       expect.objectContaining({
@@ -440,7 +624,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
             firstname: payload.firstname,
             lastname: payload.lastname,
             roles: expect.arrayContaining([UserRole.USER, UserRole.NURSE]),
-            hospitalId: hospital._id.toString(),
+            hospitalId: hospitalId,
           }),
           account: expect.objectContaining({
             email: payload.contact.email,
@@ -454,6 +638,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       }),
     );
 
+    // Persistence assertion (also commonly: database state assertion).
     const savedUser = (await Nurse.findOne({
       nationalIdentificationNumber: payload.nationalIdentificationNumber,
     }).lean()) as {
@@ -465,6 +650,13 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(savedUser?.roles).toEqual(
       expect.arrayContaining([UserRole.USER, UserRole.NURSE]),
     );
-    expect(savedUser?.hospitalId?.toString()).toBe(hospital._id.toString());
+    expect(savedUser?.hospitalId?.toString()).toBe(hospitalId);
+
+    const savedAccount = await Account.findOne({
+      phoneNumber: payload.contact.phone,
+    }).lean();
+
+    expect(savedAccount).toBeTruthy();
+    expect(savedAccount?.mustChangePassword).toBe(true);
   });
 });
