@@ -1,6 +1,6 @@
 import type { IIndicatorData } from '../types/indicator.types.js';
-import type { IAssessmentReadings, IAssessmentClassification } from '../types/assessment.types.js';
 import InvalidBmiReadingsFormat from '../Errors/InvalidBmiReadingsFormat.js';
+import type { IAssessmentClassification, IAssessmentReadings } from '../domain/assessment.js';
 
 /**
  * Encapsulates classification logic for assessments.

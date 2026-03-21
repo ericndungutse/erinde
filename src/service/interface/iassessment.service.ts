@@ -3,7 +3,7 @@ import type {
   AssessmentDetailsDTO,
   CreateAssessmentDTO,
   RecentAssessmentSummaryDTO,
-} from '../../types/assessment.types.js';
+} from '../../dto/assessmentDto.js';
 
 export interface IAssessmentService {
   /**

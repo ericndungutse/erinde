@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Nyiranuma-Biryogo",
+    "socialHealthWorker": "",
+    "healthCenter": "",
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyarugenge",
+      "cell": "biryogo",
+      "village": "nyiranuma"
+    }
+  },
+  {
+    "name": "Isoko-Biryogo",
+    "socialHealthWorker": "",
+    "healthCenter": "r",
+    "address": {
+      "province": "kigali",
+      "district": "Nyarugenge",
+      "sector": "Nyarugenge",
+      "cell": "Biryogo",
+      "village": "Isoko"
+    }
+  },
+  {
+    "name": "Gatare-Byimana",
+    "socialHealthWorker": "",
+    "healthCenter": "",
+    "address": {
+      "province": "kigali",
+      "district": "Kicukiro",
+      "sector": "Niboye",
+      "cell": "Gatare",
+      "village": "Byimana"
+    }
+  }
+]

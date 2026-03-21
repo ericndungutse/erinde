@@ -1,10 +1,10 @@
 import mongoose, { Schema } from 'mongoose';
-import {
-  type IAssessmentClassification,
-  type IAssessmentReading,
-  type IAssessment,
-} from '../types/assessment.types.js';
 import type { Model } from 'mongoose';
+import type { IAssessment, IAssessmentClassification, IAssessmentReading } from '../domain/assessment.js';
+import { ModelNames } from '../constants/constant.values.js';
+
+export interface IAssessmentDocument extends IAssessment, Document {}
+export interface IAssessmentModel extends Model<IAssessmentDocument> {}
 
 /**
  * Subdocument: single reading
@@ -45,7 +45,7 @@ const AssessmentClassificationSchema = new Schema<IAssessmentClassification>(
 /**
  * Main Assessment Result Schema
  */
-const AssessmentResultSchema = new Schema<IAssessment>(
+const AssessmentResultSchema = new Schema<IAssessmentDocument>(
   {
     patient: {
       type: Schema.Types.ObjectId,
@@ -92,6 +92,18 @@ const AssessmentResultSchema = new Schema<IAssessment>(
       default: Date.now,
     },
 
+    takenFrom: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      refPath: 'takenFromType',
+    },
+
+    takenFromType: {
+      type: String,
+      required: true,
+      enum: [ModelNames.Hospital, ModelNames.CommunityHealthUnit],
+    },
+
     evaluatedDate: {
       type: Date,
       required: true,
@@ -123,4 +135,7 @@ AssessmentResultSchema.index({ patient: 1, evaluatedAt: -1 });
 
 AssessmentResultSchema.index({ patient: 1, indicator: 1, evaluatedDate: 1 }, { unique: true });
 
-export const Assessment: Model<IAssessment> = mongoose.model<IAssessment>('Assessment', AssessmentResultSchema);
+export const Assessment = mongoose.model<IAssessmentDocument, IAssessmentModel>(
+  ModelNames.Assessment,
+  AssessmentResultSchema,
+);

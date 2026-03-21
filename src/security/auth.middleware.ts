@@ -46,6 +46,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       id: user.id,
       roles: user.roles,
       hospitalId: user.roles.includes(UserRoleEnum.NURSE) ? decoded.hospitalId : undefined,
+      communityHealthUnit: user.communityHealthUnit,
     };
     next();
   } catch (error) {

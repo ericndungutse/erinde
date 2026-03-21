@@ -1,18 +1,27 @@
 import type { Types } from 'mongoose';
 import type { ReferralStatus } from '../types/ReferralStatus.types.js';
+import type { ModelNames } from '../constants/constant.values.js';
+
+type ReferralFromType = ModelNames.Hospital | ModelNames.CommunityHealthUnit;
 
 export interface IReferral {
-  patient: Types.ObjectId | string;
-  patientNumber: number;
+  // Internal system linkage
+  userId: Types.ObjectId | string;
 
-  // Link to the patient's clinical profile (source of truth for health worker)
-  clinicalProfile: Types.ObjectId | string;
+  // Domain Linkage
+  patientNumber: number;
 
   // Date on which the referral was created (day precision)
   referralDate: Date | string;
 
-  // referral hospital (destination)
-  hospitalId: Types.ObjectId | string;
+  // Destination hospital
+  to: Types.ObjectId | string;
+
+  // Source of referral (hospital, chu or screening campaign)
+  from: Types.ObjectId | string;
+
+  // Would help in
+  fromType: ReferralFromType;
 
   // Date when the patient is expected to go to hospital (referralDate + 3 days)
   scheduledVisitDate: Date | string;
@@ -26,6 +35,8 @@ export interface IReferral {
   referredBy: Types.ObjectId | string;
 
   visitDate?: Date | string;
+
+  // Denormilized CHU
 
   createdAt: Date;
   updatedAt: Date;

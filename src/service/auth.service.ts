@@ -26,7 +26,10 @@ export default class AuthService implements IAuthService {
     }
 
     // Get User and Roles - assuming account has a reference to user
-    const user: (UserProjection<'roles'> & { id: string }) | null = await account.getUser(['roles']);
+    const user: (UserProjection<'roles' | 'communityHealthUnit'> & { id: string }) | null = await account.getUser([
+      'roles',
+      'communityHealthUnit',
+    ]);
 
     let nurse;
     // if iser is a nurse, get his hospital id and add to the payload
@@ -61,6 +64,7 @@ export default class AuthService implements IAuthService {
         id: user.id,
         roles: user.roles,
         hospitalId: nurse?.hospitalId.toString() || undefined,
+        communityHealthUnit: user.communityHealthUnit,
       },
     };
 

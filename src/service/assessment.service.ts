@@ -3,14 +3,7 @@ import Indicator from '../models/indicator.model.js';
 import type { ClientSession } from 'mongoose';
 
 import AssessmentClassifier from './assessment-classifier.service.js';
-import type {
-  CreateAssessmentDTO,
-  AssessmentCreatedResponseDTO,
-  IAssessmentClassification,
-  AssessmentDetailsDTO,
-  IAssessment,
-  RecentAssessmentSummaryDTO,
-} from '../types/assessment.types.js';
+
 import type { IAssessmentService } from './interface/iassessment.service.js';
 import type { IIndicatorData } from '../types/indicator.types.js';
 import type { IReferralService } from './interface/ireferral.service.js';
@@ -23,6 +16,13 @@ import { Assessment } from '../models/assessment.model.js';
 import { AssessmentCreationError } from '../Errors/AssessmentCreationError.js';
 import type { IUserService } from './interface/iuser.service.js';
 import Hospital from '../models/hospital.model.js';
+import type {
+  AssessmentCreatedResponseDTO,
+  AssessmentDetailsDTO,
+  CreateAssessmentDTO,
+  RecentAssessmentSummaryDTO,
+} from '../dto/assessmentDto.js';
+import type { IAssessment, IAssessmentClassification } from '../domain/assessment.js';
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
@@ -71,6 +71,8 @@ export default class AssessmentService implements IAssessmentService {
         readings: created.readings,
         classification: created.classification,
         recommendations: created.recommendations,
+        takenFrom: created.takenFrom,
+        takenFromType: created.takenFromType,
       };
     } catch (error) {
       await session.abortTransaction();
@@ -106,6 +108,8 @@ export default class AssessmentService implements IAssessmentService {
       evaluatedBy: doc.evaluatedBy?.toString() ?? '',
       readings: doc.readings,
       classification: doc.classification,
+      takenFrom: doc.takenFrom,
+      takenFromType: doc.takenFromType,
       recommendations: doc.recommendations ?? [],
       evaluatedAt: doc.evaluatedAt as any,
     };
@@ -290,6 +294,8 @@ export default class AssessmentService implements IAssessmentService {
       readings: dto.readings,
       classification,
       recommendations,
+      takenFrom: dto.takenFrom,
+      takenFromType: dto.takenFromType,
       evaluatedAt: new Date(),
       evaluatedDate: new Date(new Date().setHours(0, 0, 0, 0)),
     } as IAssessment;

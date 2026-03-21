@@ -1,12 +1,13 @@
-import mongoose, { type AnyArray, type Model, Schema } from 'mongoose';
+import mongoose, { type Model, Schema } from 'mongoose';
 import type { IReferral } from '../domain/referral.js';
+import { ModelNames } from '../constants/constant.values.js';
 
 export interface IReferralDocument extends IReferral, Document {}
 export interface IReferralModel extends Model<IReferralDocument> {}
 
 const referralSchema = new Schema<IReferralDocument>(
   {
-    patient: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -19,20 +20,13 @@ const referralSchema = new Schema<IReferralDocument>(
       index: true,
     },
 
-    clinicalProfile: {
-      type: Schema.Types.ObjectId,
-      ref: 'ClinicalProfile',
-      required: true,
-      index: true,
-    },
-
     referralDate: {
       type: Date,
       required: true,
       index: true,
     },
 
-    hospitalId: {
+    to: {
       type: Schema.Types.ObjectId,
       ref: 'Hospital',
       required: true,
@@ -49,7 +43,7 @@ const referralSchema = new Schema<IReferralDocument>(
 
     status: {
       type: String,
-      enum: ['PENDING', 'COMPLETED', 'CANCELLED'],
+      enum: ['PENDING', 'COMPLETED', 'CANCELLED', 'ESCALATED'],
       default: 'PENDING',
       index: true,
     },
@@ -67,6 +61,20 @@ const referralSchema = new Schema<IReferralDocument>(
       ref: 'User',
       required: true,
     },
+
+    // Dynamic reference
+    from: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      refPath: 'fromType',
+    },
+
+    // Tells mongoose which model to use
+    fromType: {
+      type: String,
+      required: true,
+      enum: [ModelNames.Hospital, ModelNames.CommunityHealthUnit],
+    },
   },
   {
     timestamps: true,
@@ -82,6 +90,6 @@ referralSchema.set('toJSON', {
   },
 });
 
-const Referral = mongoose.model<IReferralDocument, IReferralModel>('Referral', referralSchema);
+const Referral = mongoose.model<IReferralDocument, IReferralModel>(ModelNames.Referral, referralSchema);
 
 export default Referral;

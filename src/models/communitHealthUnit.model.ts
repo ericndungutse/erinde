@@ -7,7 +7,7 @@ export interface ICommunityHealthUnitModel extends mongoose.Model<ICommunityHeal
 const CommunityHealthUnitSchema = new Schema<ICommunityHealthUnitDocument>(
   {
     name: { type: String, trim: true, lowercase: true },
-    socialHealthWorker: { type: Types.ObjectId, ref: 'User', required: true },
+    socialHealthWorker: { type: Types.ObjectId, ref: 'User', required: false, default: null },
     healthCenter: { type: Types.ObjectId, ref: 'Hospital', required: true },
     address: {
       province: { type: String, required: true, trim: true, lowercase: true },
@@ -39,14 +39,20 @@ CommunityHealthUnitSchema.set('toJSON', {
 });
 
 // Prevent duplicate villages within the same cell
-CommunityHealthUnitSchema.index({ 
-  'address.province': 1, 
-  'address.district': 1, 
-  'address.sector': 1, 
-  'address.cell': 1, 
-  'address.village': 1 
-}, { unique: true });
+CommunityHealthUnitSchema.index(
+  {
+    'address.province': 1,
+    'address.district': 1,
+    'address.sector': 1,
+    'address.cell': 1,
+    'address.village': 1,
+  },
+  { unique: true },
+);
 
-const CommunityHealthUnit = mongoose.model<ICommunityHealthUnitDocument, ICommunityHealthUnitModel>('CommunityHealthUnit', CommunityHealthUnitSchema);
+const CommunityHealthUnit = mongoose.model<ICommunityHealthUnitDocument, ICommunityHealthUnitModel>(
+  'CommunityHealthUnit',
+  CommunityHealthUnitSchema,
+);
 
 export default CommunityHealthUnit;

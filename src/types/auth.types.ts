@@ -12,7 +12,7 @@ export const LoginSchema = z.object({
   password: z.string({ message: 'password_required' }).min(6, 'Password must be at least 6 characters long'),
 }) satisfies z.ZodType<ILoginPayload>;
 
-export type ILoggedInUser = Pick<IUser, 'roles'> & {
+export type ILoggedInUser = Pick<IUser, 'roles' | 'communityHealthUnit'> & {
   id: string;
   hospitalId?: string | undefined;
 };

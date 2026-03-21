@@ -1,15 +1,12 @@
-import mongoose, { Schema } from "mongoose";
-import {
-  HospitalType,
-  type IHospitalDocument,
-} from "../types/hospital.types.js";
-import type { Model, Types } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
+import { HospitalType, type IHospitalDocument } from '../types/hospital.types.js';
+import type { Model, Types } from 'mongoose';
 export interface IHospitalModel extends Model<IHospitalDocument> {
   existsById(id: Types.ObjectId): Promise<boolean>;
 }
 const hospitalSchema = new Schema<IHospitalDocument>(
   {
-    name: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true, lowercase: true },
     type: {
       type: String,
       required: true,
@@ -41,9 +38,6 @@ hospitalSchema.statics.existsById = async function (id: Types.ObjectId) {
   return this.exists({ _id: id }).then(Boolean);
 };
 
-const Hospital = mongoose.model<IHospitalDocument, IHospitalModel>(
-  "Hospital",
-  hospitalSchema,
-);
+const Hospital = mongoose.model<IHospitalDocument, IHospitalModel>('Hospital', hospitalSchema);
 
 export default Hospital;
