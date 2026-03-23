@@ -6,6 +6,7 @@ import type {
   RegisterUserWithAccountDTO,
   UserRoles,
 } from '../../dto/user.dto.js';
+import type mongoose from 'mongoose';
 
 export interface IUserService {
   findRolesByAccountId(accountId: string): Promise<UserRoles | null>;
@@ -36,6 +37,13 @@ export interface IUserService {
 
   // RegisterUserWithAccount
   registerUserWithAccount(userData: RegisterUserWithAccountDTO): Promise<any>;
+
+  // Create a social health worker user+account and attach to a community health unit
+  registerSocialHealthWorkerWithAccountForCommunityHealthUnit(
+    userData: Omit<RegisterUserDTO, 'communityHealthUnit'>,
+    communityHealthUnitId: string,
+    session?: mongoose.ClientSession,
+  ): Promise<any>;
 
   // Admin: update account password for a given user
   updateUserPasswordByAdmin(userId: string, payload: IAdminUpdateUserPasswordPayload): Promise<void>;

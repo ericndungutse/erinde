@@ -30,6 +30,65 @@ import { parsePaginationParams } from "../utils/pagination.js";
 import type { IUserService } from "./interface/iuser.service.js";
 import type { IClinicalProfile } from "../domain/clinical-profile.types.js";
 export class UserService implements IUserService {
+  private async registerUserWithAccountInSession(
+    parsed: RegisterUserWithAccountDTO,
+    session: mongoose.ClientSession,
+  ): Promise<any> {
+    const roles = [UserRole.USER, ...(parsed.roles as UserRole[])];
+
+    if (!mongoose.isValidObjectId(parsed.communityHealthUnit)) {
+      throw new CommunityHealthUnitNotFoundError();
+    }
+
+    const communityHealthUnitExists = await CommunityHealthUnit.exists({
+      _id: new mongoose.Types.ObjectId(parsed.communityHealthUnit),
+    }).session(session);
+
+    if (!communityHealthUnitExists) {
+      throw new CommunityHealthUnitNotFoundError();
+    }
+
+    const hasNurseRole = roles.includes(UserRole.NURSE);
+    if (hasNurseRole) {
+      if (!parsed.hospitalId) throw new Error("hospital_id_required");
+
+      const exists = await Hospital.existsById(
+        new mongoose.Types.ObjectId(parsed.hospitalId),
+      );
+      if (!exists) throw new HospitalNotFoundError();
+    }
+
+    const user = this.createUserByRole(parsed, roles);
+    await user.save({ session });
+
+    const account = new Account({
+      email: parsed?.contact?.email ?? undefined,
+      phoneNumber: parsed.contact.phone,
+      password: ConstantValues.DEFAULT_PASSWORD,
+      userId: user._id,
+      mustChangePassword: true,
+    });
+    await account.save({ session });
+
+    const counter = await Counter.findByIdAndUpdate(
+      "patientNumber",
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true, session },
+    );
+
+    if (!counter) {
+      throw new Error("Failed to generate patient number");
+    }
+
+    const clinicalProfile = new ClinicalProfile({
+      userId: user._id,
+      patientNumber: counter.seq,
+    });
+    await clinicalProfile.save({ session });
+
+    return { user, account, clinicalProfile };
+  }
+
   async getAllUsers(
     queryString: Record<string, string | string[] | undefined>,
   ): Promise<GetAllUsersResult> {
@@ -71,76 +130,57 @@ export class UserService implements IUserService {
     userData: RegisterUserWithAccountDTO,
   ): Promise<any> {
     const parsed = RegisterUserWithAccountSchema.parse(userData);
-    const roles = [UserRole.USER, ...(parsed.roles as UserRole[])];
-
-    if (!mongoose.isValidObjectId(parsed.communityHealthUnit)) {
-      throw new CommunityHealthUnitNotFoundError();
-    }
-
-    const communityHealthUnitExists = await CommunityHealthUnit.exists({
-      _id: new mongoose.Types.ObjectId(parsed.communityHealthUnit),
-    });
-
-    if (!communityHealthUnitExists) {
-      throw new CommunityHealthUnitNotFoundError();
-    }
 
     const session = await mongoose.startSession();
-    let user: IUserDocument | INurseDocument | undefined;
-    let account;
-    let clinicalProfile;
-
-    // -------------------------
-    // Role-specific validation
-    // -------------------------
-    const hasNurseRole = roles.includes(UserRole.NURSE);
-    if (hasNurseRole) {
-      if (!parsed.hospitalId) throw new Error("hospital_id_required");
-
-      const exists = await Hospital.existsById(
-        new mongoose.Types.ObjectId(parsed.hospitalId),
-      );
-      if (!exists) throw new HospitalNotFoundError();
-    }
+    let result: any;
 
     try {
       await session.withTransaction(async () => {
-        user = this.createUserByRole(parsed, roles);
-        await user.save({ session });
-
-        account = new Account({
-          email: parsed?.contact?.email ?? undefined,
-          phoneNumber: parsed.contact.phone,
-          password: ConstantValues.DEFAULT_PASSWORD,
-          userId: user._id,
-          mustChangePassword: true,
-        });
-        await account.save({ session });
-
-        const counter = await Counter.findByIdAndUpdate(
-          "patientNumber",
-          { $inc: { seq: 1 } },
-          { new: true, upsert: true, session },
-        );
-
-        if (!counter) {
-          throw new Error("Failed to generate patient number");
-        }
-
-        clinicalProfile = new ClinicalProfile({
-          userId: user._id,
-          patientNumber: counter.seq,
-        });
-        await clinicalProfile.save({ session });
+        result = await this.registerUserWithAccountInSession(parsed, session);
       });
 
-      if (!user || !account || !clinicalProfile) {
+      if (!result?.user || !result?.account || !result?.clinicalProfile) {
         throw new Error("Failed to register user with account");
       }
 
-      return { user, account, clinicalProfile };
+      return result;
     } finally {
       await session.endSession();
+    }
+  }
+
+  async registerSocialHealthWorkerWithAccountForCommunityHealthUnit(
+    userData: Omit<RegisterUserDTO, 'communityHealthUnit'>,
+    communityHealthUnitId: string,
+    session?: mongoose.ClientSession,
+  ): Promise<any> {
+    const payload = {
+      ...userData,
+      communityHealthUnit: communityHealthUnitId,
+      roles: [UserRole.SOCIAL_HEALTH_WORKER],
+    };
+
+    const parsed = RegisterUserWithAccountSchema.parse(payload);
+
+    if (session) {
+      return this.registerUserWithAccountInSession(parsed, session);
+    }
+
+    const createdSession = await mongoose.startSession();
+    let result: any;
+
+    try {
+      await createdSession.withTransaction(async () => {
+        result = await this.registerUserWithAccountInSession(parsed, createdSession);
+      });
+
+      if (!result?.user || !result?.account || !result?.clinicalProfile) {
+        throw new Error("Failed to register social health worker with account");
+      }
+
+      return result;
+    } finally {
+      await createdSession.endSession();
     }
   }
 

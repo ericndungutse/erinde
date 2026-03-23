@@ -12,7 +12,7 @@
     "seed:indicators": "tsx --env-file=.env src/seed/seedIndicators.ts",
     "seed:hospitals": "tsx --env-file=.env src/seed/seedHospitals.ts",
     "seed:community-health-units": "tsx --env-file=.env src/seed/seedCommunityHealthUnits.ts",
-    "seed:core": "npm run seed:indicators && npm run seed:hospitals && npm run seed:community-health-units && npm run seed:accounts",
+    "seed:core": "npm run seed:indicators && npm run seed:hospitals && npm run seed:accounts",
     "test": "vitest",
     "test:coverage": "vitest run --coverage"
   },

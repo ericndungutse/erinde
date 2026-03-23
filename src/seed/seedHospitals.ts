@@ -11,15 +11,38 @@ async function seedHospitals() {
   await mongoose.connect(MONGO_URI);
 
   const raw = fs.readFileSync("./src/seed/hospitals.json", "utf8");
-  const seedData = JSON.parse(raw);
+  const seedData = JSON.parse(raw) as Array<{ name?: string; [key: string]: any }>;
 
-  // Clear existing hospitals
-  await Hospital.deleteMany({});
+  const normalizedSeedNames = seedData
+    .map((hospital) => hospital.name?.trim().toLowerCase())
+    .filter((name): name is string => Boolean(name));
 
-  // Insert new hospitals
-  await Hospital.insertMany(seedData);
+  const existingHospitals = await Hospital.find(
+    {
+      name: { $in: normalizedSeedNames },
+    },
+    { name: 1 },
+  ).lean();
 
-  console.log("Hospitals seeded successfully!");
+  const existingNames = new Set(
+    existingHospitals.map((hospital) => hospital.name?.trim().toLowerCase()).filter(Boolean),
+  );
+
+  const hospitalsToInsert = seedData.filter((hospital) => {
+    const normalizedName = hospital.name?.trim().toLowerCase();
+    if (!normalizedName) {
+      return false;
+    }
+    return !existingNames.has(normalizedName);
+  });
+
+  if (hospitalsToInsert.length > 0) {
+    await Hospital.insertMany(hospitalsToInsert);
+  }
+
+  console.log(
+    `Hospitals seeding completed. Inserted: ${hospitalsToInsert.length}, skipped existing: ${seedData.length - hospitalsToInsert.length}`,
+  );
   await mongoose.disconnect();
 }
 
