@@ -13,10 +13,9 @@ export interface IReferralSummary {
 // Details DTO for a single referral (no population)
 export interface IReferralDetails {
   id: string;
-  patient: string; // ObjectId string
+  userId: string;
   patientNumber: number;
-  clinicalProfile: string; // ObjectId string
-  hospitalId: string; // ObjectId string
+  to: string;
   referralDate: Date | string;
   scheduledVisitDate: Date | string;
   status: ReferralStatus;

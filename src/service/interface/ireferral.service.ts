@@ -19,9 +19,11 @@ export interface IReferralService {
    */
   createReferral(
     assessmentId: string,
-    patientId: string,
-    hospitalId: String,
+    userId: string,
     referredBy: string,
+    from: string,
+    fromType: string,
+    to: string,
     session?: ClientSession,
   ): Promise<void>;
 

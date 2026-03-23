@@ -240,7 +240,7 @@ export class UserService implements IUserService {
       .populate({
         path: "userId",
         select:
-          "firstname lastname nationalIdentificationNumber contact.phone address.district",
+          "firstname lastname nationalIdentificationNumber contact.phone address.district communityHealthUnit",
       })
       .lean();
 
@@ -257,6 +257,7 @@ export class UserService implements IUserService {
       lastname: user.lastname,
       phone: user.contact?.phone,
       district: user.address?.district,
+      communityHealthUnit: user.communityHealthUnit,
     };
   }
 

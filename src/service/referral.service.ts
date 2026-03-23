@@ -65,9 +65,11 @@ export class ReferralService implements IReferralService {
 
   async createReferral(
     assessmentId: string,
-    patientId: string,
-    hospitalId: String,
+    userId: string,
     referredBy: string,
+    from: string,
+    fromType: string,
+    to: string,
     session?: ClientSession,
   ): Promise<void> {
     const today = new Date();
@@ -76,7 +78,7 @@ export class ReferralService implements IReferralService {
     // 1. Check for existing PENDING referral (transaction-aware)
     // Check if there is a pending referral for the patient
     const existingReferral = await Referral.findOne({
-      patient: patientId,
+      patient: userId,
       status: 'PENDING',
     })
       .session(session ?? null)
@@ -102,7 +104,7 @@ export class ReferralService implements IReferralService {
         .session(session ?? null)
         .lean()
         .exec(),
-      ClinicalProfile.findOne({ userId: patientId })
+      ClinicalProfile.findOne({ userId: userId })
         .session(session ?? null)
         .lean()
         .exec(),
@@ -121,15 +123,16 @@ export class ReferralService implements IReferralService {
     await Referral.create(
       [
         {
-          patient: patientId,
+          userId,
           patientNumber: clinicalProfile.patientNumber,
-          clinicalProfile: clinicalProfile._id,
           referralDate: today,
-          hospitalId: hospitalId as string,
           scheduledVisitDate,
           status: 'PENDING',
           assessments: [assessmentId],
+          from,
+          fromType,
           referredBy,
+          to,
         },
       ],
       { session: session ?? null },
@@ -424,7 +427,6 @@ export class ReferralService implements IReferralService {
       .select({
         patient: 1,
         patientNumber: 1,
-        clinicalProfile: 1,
         hospitalId: 1,
         referralDate: 1,
         scheduledVisitDate: 1,
@@ -442,10 +444,9 @@ export class ReferralService implements IReferralService {
 
     const details: IReferralDetails = {
       id: doc._id.toString(),
-      patient: doc.patient.toString(),
+      userId: doc.userId.toString(),
       patientNumber: doc.patientNumber,
-      clinicalProfile: doc.clinicalProfile.toString(),
-      hospitalId: doc.hospitalId.toString(),
+      to: doc.to.toString(),
       referralDate: doc.referralDate as any,
       scheduledVisitDate: doc.scheduledVisitDate as any,
       status: doc.status,
