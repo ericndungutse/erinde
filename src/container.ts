@@ -49,16 +49,17 @@ class Container {
     this._authController = new AuthController(this._authService);
     this._indicatorService = new IndicatorService();
     this._indicatorController = new IndicatorController(this._indicatorService);
-    this._hospitalService = new HospitalService();
-    this._hospitalController = new HospitalController(this._hospitalService);
-    this._referralService = new ReferralService();
-    this._referralController = new ReferralController(this._referralService);
-    this._communitHealthUnitService = new CommunitHealthUnitService();
-    this._communitHealthUnitController = new CommunitHealthUnitController(this._communitHealthUnitService);
 
     // User Injections
     this._userService = new UserService();
     this._userController = new UserController(this._userService);
+
+    this._hospitalService = new HospitalService();
+    this._hospitalController = new HospitalController(this._hospitalService);
+    this._referralService = new ReferralService();
+    this._referralController = new ReferralController(this._referralService);
+    this._communitHealthUnitService = new CommunitHealthUnitService(this._userService);
+    this._communitHealthUnitController = new CommunitHealthUnitController(this._communitHealthUnitService);
 
     // Assessment Injections
     this._assessmentService = new AssessmentService(this._referralService, this._userService);
