@@ -1,61 +1,4798 @@
 [
   {
-    "name": "Nyiranuma Health Center",
-    "type": "HEALTH_CENTER",
-    "address": {
-      "province": "kigali",
-      "district": "nyarugenge",
-      "sector": "nyarugenge",
-      "cell": "biryogo",
-      "village": "nyiranuma"
-    }
-  },
-
-   {
-    "name": "ISOKO Health Center",
-    "type": "HEALTH_CENTER",
-    "address": {
-      "province": "kigali",
-      "district": "Nyarugenge",
-      "sector": "Nyarugenge",
-      "cell": "Biryogo",
-      "village": "Isoko"
-    }
-  },
-
-  {
     "name": "Nyarugenge District Hospital",
     "type": "DISTRICT_HOSPITAL",
     "address": {
-      "province": "kigali",
-      "district": "nyarugenge",
-      "sector": "nyamirambo",
-      "cell": "mumena",
-      "village": "itaba"
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Gitega",
+      "cell": "Akabahizi",
+      "village": "Gihanga"
     }
   },
-
   {
-    "name": "Gatare Health Center",
+    "name": "Gitega Health Center",
     "type": "HEALTH_CENTER",
     "address": {
-      "province": "kigali",
-      "district": "Kicukiro",
-      "sector": "Niboye",
-      "cell": "Gatare",
-      "village": "Byimana"
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Gitega",
+      "cell": "Akabahizi",
+      "village": "Gihanga"
     }
   },
-
+  {
+    "name": "Kanyinya Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Kanyinya",
+      "cell": "Nyamweru",
+      "village": "Bwimo"
+    }
+  },
+  {
+    "name": "Kigali Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Kigali",
+      "cell": "Kigali",
+      "village": "Akirwanda"
+    }
+  },
+  {
+    "name": "Kimisagara Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Kimisagara",
+      "cell": "Kamuhoza",
+      "village": "Buhoro"
+    }
+  },
+  {
+    "name": "Mageragere Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Mageragere",
+      "cell": "Mwendo",
+      "village": "Karambi"
+    }
+  },
+  {
+    "name": "Muhima Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Muhima",
+      "cell": "Amahoro",
+      "village": "Amahoro"
+    }
+  },
+  {
+    "name": "Nyakabanda Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Nyakabanda",
+      "cell": "Munanira",
+      "village": "Kabusunzu"
+    }
+  },
+  {
+    "name": "Nyamirambo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Nyamirambo",
+      "cell": "Mumena",
+      "village": "Itaba"
+    }
+  },
+  {
+    "name": "Nyarugenge Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Nyarugenge",
+      "cell": "Agatare",
+      "village": "Agatare"
+    }
+  },
+  {
+    "name": "Rwezamenyo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Rwezamenyo",
+      "cell": "Muhoza",
+      "village": "Muhoza"
+    }
+  },
+  {
+    "name": "Biryogo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Nyarugenge",
+      "sector": "Biryogo",
+      "cell": "Biryogo",
+      "village": "Nyiranuma"
+    }
+  },
+  {
+    "name": "Gasabo District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Bumbogo",
+      "cell": "Kinyaga",
+      "village": "Akakaza"
+    }
+  },
+  {
+    "name": "Bumbogo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Bumbogo",
+      "cell": "Kinyaga",
+      "village": "Akakaza"
+    }
+  },
+  {
+    "name": "Gatsata Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Gatsata",
+      "cell": "Karuruma",
+      "village": "Akamamana"
+    }
+  },
+  {
+    "name": "Gikomero Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Gikomero",
+      "cell": "Gasagara",
+      "village": "Bwimiyange"
+    }
+  },
+  {
+    "name": "Gisozi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Gisozi",
+      "cell": "Musezero",
+      "village": "Amajyambere"
+    }
+  },
+  {
+    "name": "Jabana Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Jabana",
+      "cell": "Akamatamu",
+      "village": "Akamatamu"
+    }
+  },
+  {
+    "name": "Jali Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Jali",
+      "cell": "Agateko",
+      "village": "Bugarama"
+    }
+  },
+  {
+    "name": "Kacyiru Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Kacyiru",
+      "cell": "Kamatamu",
+      "village": "Amajyambere"
+    }
+  },
+  {
+    "name": "Kimihurura Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Kimihurura",
+      "cell": "Kamukina",
+      "village": "Inyamibwa"
+    }
+  },
+  {
+    "name": "Kimironko Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Kimironko",
+      "cell": "Bibare",
+      "village": "Abatuje"
+    }
+  },
+  {
+    "name": "Kinyinya Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Kinyinya",
+      "cell": "Gacuriro",
+      "village": "Akarambo"
+    }
+  },
+  {
+    "name": "Ndera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Ndera",
+      "cell": "Bwiza",
+      "village": "Akarwasa"
+    }
+  },
+  {
+    "name": "Nduba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Nduba",
+      "cell": "Butare",
+      "village": "Kanani"
+    }
+  },
+  {
+    "name": "Remera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Remera",
+      "cell": "Nyabisindu",
+      "village": "Amarembo"
+    }
+  },
+  {
+    "name": "Rusororo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Rusororo",
+      "cell": "Bisenga",
+      "village": "Bisenga"
+    }
+  },
+  {
+    "name": "Rutunga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Gasabo",
+      "sector": "Rutunga",
+      "cell": "Gasabo",
+      "village": "Gasharu"
+    }
+  },
   {
     "name": "Kicukiro District Hospital",
     "type": "DISTRICT_HOSPITAL",
     "address": {
-      "province": "kigali",
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Gahanga",
+      "cell": "Gahanga",
+      "village": "Gahanga"
+    }
+  },
+  {
+    "name": "Gahanga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Gahanga",
+      "cell": "Gahanga",
+      "village": "Gahanga"
+    }
+  },
+  {
+    "name": "Gatenga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Gatenga",
+      "cell": "Gatenga",
+      "village": "Amahoro"
+    }
+  },
+  {
+    "name": "Gikondo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Gikondo",
+      "cell": "Kagunga",
+      "village": "Gatare"
+    }
+  },
+  {
+    "name": "Kagarama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Kagarama",
+      "cell": "Kanserege",
+      "village": "Bwiza"
+    }
+  },
+  {
+    "name": "Kanombe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Kanombe",
+      "cell": "Busanza",
+      "village": "Amahoro"
+    }
+  },
+  {
+    "name": "Kicukiro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Kicukiro",
+      "cell": "Gasharu",
+      "village": "Amajyambere"
+    }
+  },
+  {
+    "name": "Kigarama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Kigarama",
+      "cell": "Bwerankori",
+      "village": "Gakokobe"
+    }
+  },
+  {
+    "name": "Masaka Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Masaka",
+      "cell": "Ayabaraya",
+      "village": "Kababyeyi"
+    }
+  },
+  {
+    "name": "Niboye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
       "district": "Kicukiro",
       "sector": "Niboye",
       "cell": "Gatare",
       "village": "Byimana"
+    }
+  },
+  {
+    "name": "Nyarugunga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "Kigali",
+      "district": "Kicukiro",
+      "sector": "Nyarugunga",
+      "cell": "Kamashashi",
+      "village": "Akindege"
+    }
+  },
+  {
+    "name": "Nyanza District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Busasamana",
+      "cell": "Gahondo",
+      "village": "Bigega"
+    }
+  },
+  {
+    "name": "Busasamana Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Busasamana",
+      "cell": "Gahondo",
+      "village": "Bigega"
+    }
+  },
+  {
+    "name": "Busoro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Busoro",
+      "cell": "Gitovu",
+      "village": "Gitega"
+    }
+  },
+  {
+    "name": "Cyabakamyi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Cyabakamyi",
+      "cell": "Kadaho",
+      "village": "Kabeza"
+    }
+  },
+  {
+    "name": "Kibilizi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Kibilizi",
+      "cell": "Cyeru",
+      "village": "Kamatamu"
+    }
+  },
+  {
+    "name": "Kigoma Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Kigoma",
+      "cell": "Butansinda",
+      "village": "Shusho"
+    }
+  },
+  {
+    "name": "Mukingo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Mukingo",
+      "cell": "Cyerezo",
+      "village": "Birambo"
+    }
+  },
+  {
+    "name": "Muyira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Muyira",
+      "cell": "Gati",
+      "village": "Buhaza"
+    }
+  },
+  {
+    "name": "Ntyazo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Ntyazo",
+      "cell": "Bugali",
+      "village": "Gisayura"
+    }
+  },
+  {
+    "name": "Nyagisozi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Nyagisozi",
+      "cell": "Gahunga",
+      "village": "Kigohe"
+    }
+  },
+  {
+    "name": "Rwabicuma Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyanza",
+      "sector": "Rwabicuma",
+      "cell": "Gacu",
+      "village": "Bisambu"
+    }
+  },
+  {
+    "name": "Gisagara District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Gikonko",
+      "cell": "Cyiri",
+      "village": "Katiro"
+    }
+  },
+  {
+    "name": "Gikonko Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Gikonko",
+      "cell": "Cyiri",
+      "village": "Katiro"
+    }
+  },
+  {
+    "name": "Gishubi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Gishubi",
+      "cell": "Gabiro",
+      "village": "Busave"
+    }
+  },
+  {
+    "name": "Kansi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Kansi",
+      "cell": "Akaboti",
+      "village": "Agacyamu"
+    }
+  },
+  {
+    "name": "Kibirizi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Kibirizi",
+      "cell": "Duwani",
+      "village": "Buhoro"
+    }
+  },
+  {
+    "name": "Kigembe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Kigembe",
+      "cell": "Agahabwa",
+      "village": "Ruhuha"
+    }
+  },
+  {
+    "name": "Mamba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Mamba",
+      "cell": "Gakoma",
+      "village": "Gakomeye"
+    }
+  },
+  {
+    "name": "Muganza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Muganza",
+      "cell": "Cyumba",
+      "village": "Musatsi"
+    }
+  },
+  {
+    "name": "Mugombwa Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Mugombwa",
+      "cell": "Baziro",
+      "village": "Nyabinyenga"
+    }
+  },
+  {
+    "name": "Mukindo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Mukindo",
+      "cell": "Gitega",
+      "village": "Gatunda"
+    }
+  },
+  {
+    "name": "Musha Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Musha",
+      "cell": "Bukinanyana",
+      "village": "Akagarama"
+    }
+  },
+  {
+    "name": "Ndora Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Ndora",
+      "cell": "Bweya",
+      "village": "Akiminazi"
+    }
+  },
+  {
+    "name": "Nyanza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Nyanza",
+      "cell": "Higiro",
+      "village": "Amashya"
+    }
+  },
+  {
+    "name": "Save Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Gisagara",
+      "sector": "Save",
+      "cell": "Gatoki",
+      "village": "Gasambu"
+    }
+  },
+  {
+    "name": "Nyaruguru District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Busanze",
+      "cell": "Kirarangombe",
+      "village": "Bukinanyana"
+    }
+  },
+  {
+    "name": "Busanze Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Busanze",
+      "cell": "Kirarangombe",
+      "village": "Bukinanyana"
+    }
+  },
+  {
+    "name": "Cyahinda Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Cyahinda",
+      "cell": "Coko",
+      "village": "Coko"
+    }
+  },
+  {
+    "name": "Kibeho Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Kibeho",
+      "cell": "Gakoma",
+      "village": "Viro"
+    }
+  },
+  {
+    "name": "Kivu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Kivu",
+      "cell": "Gahurizo",
+      "village": "Gasezo"
+    }
+  },
+  {
+    "name": "Mata Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Mata",
+      "cell": "Gorwe",
+      "village": "Mataba"
+    }
+  },
+  {
+    "name": "Muganza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Muganza",
+      "cell": "Muganza",
+      "village": "Mubazi"
+    }
+  },
+  {
+    "name": "Munini Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Munini",
+      "cell": "Ngarurira",
+      "village": "Agatare"
+    }
+  },
+  {
+    "name": "Ngera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Ngera",
+      "cell": "Bitare",
+      "village": "Sheke"
+    }
+  },
+  {
+    "name": "Ngoma Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Ngoma",
+      "cell": "Fugi",
+      "village": "Gasha"
+    }
+  },
+  {
+    "name": "Nyabimata Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Nyabimata",
+      "cell": "Gihemvu",
+      "village": "Bihembe"
+    }
+  },
+  {
+    "name": "Nyagisozi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Nyagisozi",
+      "cell": "Maraba",
+      "village": "Maraba"
+    }
+  },
+  {
+    "name": "Ruheru Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Ruheru",
+      "cell": "Gitita",
+      "village": "Nyacyonga"
+    }
+  },
+  {
+    "name": "Ruramba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Ruramba",
+      "cell": "Gabiro",
+      "village": "Bukoro"
+    }
+  },
+  {
+    "name": "Rusenge Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyaruguru",
+      "sector": "Rusenge",
+      "cell": "Bunge",
+      "village": "Jali"
+    }
+  },
+  {
+    "name": "Huye District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Gishamvu",
+      "cell": "Nyakibanda",
+      "village": "Byimana"
+    }
+  },
+  {
+    "name": "Gishamvu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Gishamvu",
+      "cell": "Nyakibanda",
+      "village": "Byimana"
+    }
+  },
+  {
+    "name": "Huye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Huye",
+      "cell": "Muyogoro",
+      "village": "Agacyamu"
+    }
+  },
+  {
+    "name": "Karama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Karama",
+      "cell": "Buhoro",
+      "village": "Kibingo"
+    }
+  },
+  {
+    "name": "Kigoma Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Kigoma",
+      "cell": "Gishihe",
+      "village": "Karambi"
+    }
+  },
+  {
+    "name": "Kinazi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Kinazi",
+      "cell": "Byinza",
+      "village": "Gakoni"
+    }
+  },
+  {
+    "name": "Maraba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Maraba",
+      "cell": "Shanga",
+      "village": "Nyamiyaga"
+    }
+  },
+  {
+    "name": "Mbazi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Mbazi",
+      "cell": "Gatobotobo",
+      "village": "Agasharu"
+    }
+  },
+  {
+    "name": "Mukura Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Mukura",
+      "cell": "Bukomeye",
+      "village": "Bweramana"
+    }
+  },
+  {
+    "name": "Ngoma Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Ngoma",
+      "cell": "Butare",
+      "village": "Akabuye"
+    }
+  },
+  {
+    "name": "Ruhashya Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Ruhashya",
+      "cell": "Gatovu",
+      "village": "Dutare"
+    }
+  },
+  {
+    "name": "Rusatira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Rusatira",
+      "cell": "Buhimba",
+      "village": "Impinga"
+    }
+  },
+  {
+    "name": "Rwaniro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Rwaniro",
+      "cell": "Gatwaro",
+      "village": "Amarongi"
+    }
+  },
+  {
+    "name": "Simbi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Simbi",
+      "cell": "Cyendajuru",
+      "village": "Bisambu"
+    }
+  },
+  {
+    "name": "Tumba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Huye",
+      "sector": "Tumba",
+      "cell": "Cyarwa",
+      "village": "Agahora"
+    }
+  },
+  {
+    "name": "Nyamagabe District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Buruhukiro",
+      "cell": "Bushigishigi",
+      "village": "Mugote"
+    }
+  },
+  {
+    "name": "Buruhukiro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Buruhukiro",
+      "cell": "Bushigishigi",
+      "village": "Mugote"
+    }
+  },
+  {
+    "name": "Cyanika Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Cyanika",
+      "cell": "Gitega",
+      "village": "Gitega"
+    }
+  },
+  {
+    "name": "Gasaka Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Gasaka",
+      "cell": "Kigeme",
+      "village": "Gakoma"
+    }
+  },
+  {
+    "name": "Gatare Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Gatare",
+      "cell": "Gatare",
+      "village": "Gashasha"
+    }
+  },
+  {
+    "name": "Kaduha Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Kaduha",
+      "cell": "Kavumu",
+      "village": "Bamba"
+    }
+  },
+  {
+    "name": "Kamegeri Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Kamegeri",
+      "cell": "Bwama",
+      "village": "Gitwa"
+    }
+  },
+  {
+    "name": "Kibirizi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Kibirizi",
+      "cell": "Bugarama",
+      "village": "Kamina"
+    }
+  },
+  {
+    "name": "Kibumbwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Kibumbwe",
+      "cell": "Bwenda",
+      "village": "Murwa"
+    }
+  },
+  {
+    "name": "Kitabi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Kitabi",
+      "cell": "Kagano",
+      "village": "Bususuruke"
+    }
+  },
+  {
+    "name": "Mbazi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Mbazi",
+      "cell": "Mutiwingoma",
+      "village": "Gatwa"
+    }
+  },
+  {
+    "name": "Mugano Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Mugano",
+      "cell": "Gitwa",
+      "village": "Kabuhoro"
+    }
+  },
+  {
+    "name": "Musange Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Musange",
+      "cell": "Gasave",
+      "village": "Gasura"
+    }
+  },
+  {
+    "name": "Musebeya Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Musebeya",
+      "cell": "Gatovu",
+      "village": "Kanyiranzoga"
+    }
+  },
+  {
+    "name": "Mushubi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Mushubi",
+      "cell": "Buteteri",
+      "village": "Kizanganya"
+    }
+  },
+  {
+    "name": "Nkomane Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Nkomane",
+      "cell": "Bitandara",
+      "village": "Buhanzi"
+    }
+  },
+  {
+    "name": "Tare Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Tare",
+      "cell": "Gasarenda",
+      "village": "Kagarama"
+    }
+  },
+  {
+    "name": "Uwinkingi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Nyamagabe",
+      "sector": "Uwinkingi",
+      "cell": "Bigumira",
+      "village": "Bigumira"
+    }
+  },
+  {
+    "name": "Ruhango District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Bweramana",
+      "cell": "Buhanda",
+      "village": "Gakongoro"
+    }
+  },
+  {
+    "name": "Bweramana Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Bweramana",
+      "cell": "Buhanda",
+      "village": "Gakongoro"
+    }
+  },
+  {
+    "name": "Byimana Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Byimana",
+      "cell": "Kamusenyi",
+      "village": "Gakomeye"
+    }
+  },
+  {
+    "name": "Kabagali Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Kabagali",
+      "cell": "Bihembe",
+      "village": "Bihembe"
+    }
+  },
+  {
+    "name": "Kinazi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Kinazi",
+      "cell": "Burima",
+      "village": "Burima"
+    }
+  },
+  {
+    "name": "Kinihira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Kinihira",
+      "cell": "Bweramvura",
+      "village": "Gahororo"
+    }
+  },
+  {
+    "name": "Mbuye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Mbuye",
+      "cell": "Cyanza",
+      "village": "Kabungo"
+    }
+  },
+  {
+    "name": "Mwendo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Mwendo",
+      "cell": "Gafunzo",
+      "village": "Kimburu"
+    }
+  },
+  {
+    "name": "Ntongwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Ntongwe",
+      "cell": "Gako",
+      "village": "Gikoma"
+    }
+  },
+  {
+    "name": "Ruhango Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Ruhango",
+      "sector": "Ruhango",
+      "cell": "Buhoro",
+      "village": "Buhoro"
+    }
+  },
+  {
+    "name": "Muhanga District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Cyeza",
+      "cell": "Kigarama",
+      "village": "Mbirizi"
+    }
+  },
+  {
+    "name": "Cyeza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Cyeza",
+      "cell": "Kigarama",
+      "village": "Mbirizi"
+    }
+  },
+  {
+    "name": "Kabacuzi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Kabacuzi",
+      "cell": "Buramba",
+      "village": "Gahembe"
+    }
+  },
+  {
+    "name": "Kibangu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Kibangu",
+      "cell": "Gisharu",
+      "village": "Buhoro"
+    }
+  },
+  {
+    "name": "Kiyumba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Kiyumba",
+      "cell": "Budende",
+      "village": "Karambi"
+    }
+  },
+  {
+    "name": "Muhanga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Muhanga",
+      "cell": "Kanyinya",
+      "village": "Mataba"
+    }
+  },
+  {
+    "name": "Mushishiro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Mushishiro",
+      "cell": "Matyazo",
+      "village": "Cyarubambire"
+    }
+  },
+  {
+    "name": "Nyabinoni Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Nyabinoni",
+      "cell": "Nyarusozi",
+      "village": "Gitwa"
+    }
+  },
+  {
+    "name": "Nyamabuye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Nyamabuye",
+      "cell": "Gahogo",
+      "village": "Gihuma"
+    }
+  },
+  {
+    "name": "Nyarusange Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Nyarusange",
+      "cell": "Mbiriri",
+      "village": "Gasave"
+    }
+  },
+  {
+    "name": "Rongi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Rongi",
+      "cell": "Gasagara",
+      "village": "Fumbwe"
+    }
+  },
+  {
+    "name": "Rugendabari Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Rugendabari",
+      "cell": "Gasave",
+      "village": "Gasharu"
+    }
+  },
+  {
+    "name": "Shyogwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Muhanga",
+      "sector": "Shyogwe",
+      "cell": "Kinini",
+      "village": "Gatare"
+    }
+  },
+  {
+    "name": "Kamonyi District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Karama",
+      "cell": "Bitare",
+      "village": "Kajevuba"
+    }
+  },
+  {
+    "name": "Karama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Karama",
+      "cell": "Bitare",
+      "village": "Kajevuba"
+    }
+  },
+  {
+    "name": "Kayenzi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Kayenzi",
+      "cell": "Bugarama",
+      "village": "Remera"
+    }
+  },
+  {
+    "name": "Kayumbu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Kayumbu",
+      "cell": "Gaseke",
+      "village": "Nyarunyinya"
+    }
+  },
+  {
+    "name": "Mugina Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Mugina",
+      "cell": "Jenda",
+      "village": "Munini"
+    }
+  },
+  {
+    "name": "Musambira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Musambira",
+      "cell": "Buhoro",
+      "village": "Busasamana"
+    }
+  },
+  {
+    "name": "Ngamba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Ngamba",
+      "cell": "Kabuga",
+      "village": "Cyimigenge"
+    }
+  },
+  {
+    "name": "Nyamiyaga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Nyamiyaga",
+      "cell": "Bibungo",
+      "village": "Byenene"
+    }
+  },
+  {
+    "name": "Nyarubaka Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Nyarubaka",
+      "cell": "Gitare",
+      "village": "Mugereke"
+    }
+  },
+  {
+    "name": "Rugarika Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Rugarika",
+      "cell": "Kigese",
+      "village": "Bikamba"
+    }
+  },
+  {
+    "name": "Rukoma Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Rukoma",
+      "cell": "Bugoba",
+      "village": "Bugoba"
+    }
+  },
+  {
+    "name": "Runda Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "South",
+      "district": "Kamonyi",
+      "sector": "Runda",
+      "cell": "Gihara",
+      "village": "Bikimba"
+    }
+  },
+  {
+    "name": "Karongi District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Bwishyura",
+      "cell": "Burunga",
+      "village": "Majuri"
+    }
+  },
+  {
+    "name": "Bwishyura Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Bwishyura",
+      "cell": "Burunga",
+      "village": "Majuri"
+    }
+  },
+  {
+    "name": "Gashari Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Gashari",
+      "cell": "Birambo",
+      "village": "Birambo"
+    }
+  },
+  {
+    "name": "Gishyita Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Gishyita",
+      "cell": "Buhoro",
+      "village": "Mboneko"
+    }
+  },
+  {
+    "name": "Gitesi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Gitesi",
+      "cell": "Kanunga",
+      "village": "Giticyuma"
+    }
+  },
+  {
+    "name": "Mubuga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Mubuga",
+      "cell": "Kagabiro",
+      "village": "Bitaba"
+    }
+  },
+  {
+    "name": "Murambi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Murambi",
+      "cell": "Mubuga",
+      "village": "Gasebeya"
+    }
+  },
+  {
+    "name": "Murundi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Murundi",
+      "cell": "Kamina",
+      "village": "Nyakarambi"
+    }
+  },
+  {
+    "name": "Mutuntu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Mutuntu",
+      "cell": "Byogo",
+      "village": "Gititi"
+    }
+  },
+  {
+    "name": "Rubengera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Rubengera",
+      "cell": "Bubazi",
+      "village": "Gakomeye"
+    }
+  },
+  {
+    "name": "Rugabano Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Rugabano",
+      "cell": "Gisiza",
+      "village": "Rugabano"
+    }
+  },
+  {
+    "name": "Ruganda Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Ruganda",
+      "cell": "Kinyovu",
+      "village": "Kanyegenyege"
+    }
+  },
+  {
+    "name": "Rwankuba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Rwankuba",
+      "cell": "Bigugu",
+      "village": "Ruhuha"
+    }
+  },
+  {
+    "name": "Twumba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Karongi",
+      "sector": "Twumba",
+      "cell": "Bihumbe",
+      "village": "Rushishi"
+    }
+  },
+  {
+    "name": "Rutsiro District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Boneza",
+      "cell": "Bushaka",
+      "village": "Bugarura"
+    }
+  },
+  {
+    "name": "Boneza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Boneza",
+      "cell": "Bushaka",
+      "village": "Bugarura"
+    }
+  },
+  {
+    "name": "Gihango Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Gihango",
+      "cell": "Bugina",
+      "village": "Gishushu"
+    }
+  },
+  {
+    "name": "Kigeyo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Kigeyo",
+      "cell": "Buhindure",
+      "village": "Gisiza"
+    }
+  },
+  {
+    "name": "Kivumu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Kivumu",
+      "cell": "Bunyoni",
+      "village": "Bureke"
+    }
+  },
+  {
+    "name": "Manihira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Manihira",
+      "cell": "Haniro",
+      "village": "Bitabaro"
+    }
+  },
+  {
+    "name": "Mukura Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Mukura",
+      "cell": "Kagano",
+      "village": "Kabacuzi"
+    }
+  },
+  {
+    "name": "Murunda Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Murunda",
+      "cell": "Kirwa",
+      "village": "Gasasa"
+    }
+  },
+  {
+    "name": "Musasa Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Musasa",
+      "cell": "Gabiro",
+      "village": "Gabiro"
+    }
+  },
+  {
+    "name": "Mushonyi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Mushonyi",
+      "cell": "Biruyi",
+      "village": "Buhunde"
+    }
+  },
+  {
+    "name": "Mushubati Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Mushubati",
+      "cell": "Bumba",
+      "village": "Bisyo"
+    }
+  },
+  {
+    "name": "Nyabirasi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Nyabirasi",
+      "cell": "Busuku",
+      "village": "Busuku"
+    }
+  },
+  {
+    "name": "Ruhango Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Ruhango",
+      "cell": "Gatare",
+      "village": "Gasovu"
+    }
+  },
+  {
+    "name": "Rusebeya Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rutsiro",
+      "sector": "Rusebeya",
+      "cell": "Kabona",
+      "village": "Byiniro"
+    }
+  },
+  {
+    "name": "Rubavu District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Bugeshi",
+      "cell": "Buringo",
+      "village": "Bugeshi"
+    }
+  },
+  {
+    "name": "Bugeshi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Bugeshi",
+      "cell": "Buringo",
+      "village": "Bugeshi"
+    }
+  },
+  {
+    "name": "Busasamana Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Busasamana",
+      "cell": "Gasiza",
+      "village": "Gisura"
+    }
+  },
+  {
+    "name": "Cyanzarwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Cyanzarwe",
+      "cell": "Busigari",
+      "village": "Bugu"
+    }
+  },
+  {
+    "name": "Gisenyi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Gisenyi",
+      "cell": "Amahoro",
+      "village": "Amahoro"
+    }
+  },
+  {
+    "name": "Kanama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Kanama",
+      "cell": "Kamuhoza",
+      "village": "Bambiro"
+    }
+  },
+  {
+    "name": "Kanzenze Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Kanzenze",
+      "cell": "Kirerema",
+      "village": "Kirerema"
+    }
+  },
+  {
+    "name": "Mudende Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Mudende",
+      "cell": "Bihungwe",
+      "village": "Bivumu"
+    }
+  },
+  {
+    "name": "Nyakiriba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Nyakiriba",
+      "cell": "Bisizi",
+      "village": "Bweza"
+    }
+  },
+  {
+    "name": "Nyamyumba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Nyamyumba",
+      "cell": "Burushya",
+      "village": "Kaberamo"
+    }
+  },
+  {
+    "name": "Nyundo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Nyundo",
+      "cell": "Bahimba",
+      "village": "Buhozi"
+    }
+  },
+  {
+    "name": "Rubavu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Rubavu",
+      "cell": "Buhaza",
+      "village": "Gabiro"
+    }
+  },
+  {
+    "name": "Rugerero Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rubavu",
+      "sector": "Rugerero",
+      "cell": "Basa",
+      "village": "Buranga"
+    }
+  },
+  {
+    "name": "Nyabihu District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Bigogwe",
+      "cell": "Arusha",
+      "village": "Arusha"
+    }
+  },
+  {
+    "name": "Bigogwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Bigogwe",
+      "cell": "Arusha",
+      "village": "Arusha"
+    }
+  },
+  {
+    "name": "Jenda Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Jenda",
+      "cell": "Bukinanyana",
+      "village": "Bibanza"
+    }
+  },
+  {
+    "name": "Jomba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Jomba",
+      "cell": "Gasiza",
+      "village": "Kanama"
+    }
+  },
+  {
+    "name": "Kabatwa Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Kabatwa",
+      "cell": "Batikoti",
+      "village": "Batikoti"
+    }
+  },
+  {
+    "name": "Karago Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Karago",
+      "cell": "Cyamabuye",
+      "village": "Nanga"
+    }
+  },
+  {
+    "name": "Kintobo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Kintobo",
+      "cell": "Gatovu",
+      "village": "Gatovu Centre"
+    }
+  },
+  {
+    "name": "Mukamira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Mukamira",
+      "cell": "Gasizi",
+      "village": "Sasangabo"
+    }
+  },
+  {
+    "name": "Muringa Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Muringa",
+      "cell": "Gisizi",
+      "village": "Kinihira"
+    }
+  },
+  {
+    "name": "Rambura Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Rambura",
+      "cell": "Birembo",
+      "village": "Birembo"
+    }
+  },
+  {
+    "name": "Rugera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Rugera",
+      "cell": "Gakoro",
+      "village": "Mubuga"
+    }
+  },
+  {
+    "name": "Rurembo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Rurembo",
+      "cell": "Gitega",
+      "village": "Cyanika"
+    }
+  },
+  {
+    "name": "Shyira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyabihu",
+      "sector": "Shyira",
+      "cell": "Cyimanzovu",
+      "village": "Bihembe"
+    }
+  },
+  {
+    "name": "Ngororero District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Bwira",
+      "cell": "Bungwe",
+      "village": "Kirwa"
+    }
+  },
+  {
+    "name": "Bwira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Bwira",
+      "cell": "Bungwe",
+      "village": "Kirwa"
+    }
+  },
+  {
+    "name": "Gatumba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Gatumba",
+      "cell": "Cyome",
+      "village": "Birambo"
+    }
+  },
+  {
+    "name": "Hindiro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Hindiro",
+      "cell": "Gatare",
+      "village": "Buyungu"
+    }
+  },
+  {
+    "name": "Kabaya Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Kabaya",
+      "cell": "Busunzu",
+      "village": "Gitaba"
+    }
+  },
+  {
+    "name": "Kageyo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Kageyo",
+      "cell": "Kageshi",
+      "village": "Kariha"
+    }
+  },
+  {
+    "name": "Kavumu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Kavumu",
+      "cell": "Birembo",
+      "village": "Buhuma"
+    }
+  },
+  {
+    "name": "Matyazo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Matyazo",
+      "cell": "Binana",
+      "village": "Busoro"
+    }
+  },
+  {
+    "name": "Muhororo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Muhororo",
+      "cell": "Mubuga",
+      "village": "Murambi"
+    }
+  },
+  {
+    "name": "Ndaro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Ndaro",
+      "cell": "Bijyojyo",
+      "village": "Kavumu"
+    }
+  },
+  {
+    "name": "Nyange Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Nyange",
+      "cell": "Bambiro",
+      "village": "Gakoma"
+    }
+  },
+  {
+    "name": "Sovu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Ngororero",
+      "sector": "Sovu",
+      "cell": "Birembo",
+      "village": "Kabayengo"
+    }
+  },
+  {
+    "name": "Rusizi District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Bugarama",
+      "cell": "Nyange",
+      "village": "Cité"
+    }
+  },
+  {
+    "name": "Bugarama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Bugarama",
+      "cell": "Nyange",
+      "village": "Cité"
+    }
+  },
+  {
+    "name": "Butare Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Butare",
+      "cell": "Butanda",
+      "village": "Buganzo"
+    }
+  },
+  {
+    "name": "Bweyeye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Bweyeye",
+      "cell": "Gikungu",
+      "village": "Kibonajoro"
+    }
+  },
+  {
+    "name": "Gashonga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Gashonga",
+      "cell": "Birembo",
+      "village": "Mariba"
+    }
+  },
+  {
+    "name": "Giheke Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Giheke",
+      "cell": "Cyendajuru",
+      "village": "Burembo"
+    }
+  },
+  {
+    "name": "Gihundwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Gihundwe",
+      "cell": "Burunga",
+      "village": "Cyapa"
+    }
+  },
+  {
+    "name": "Gitambi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Gitambi",
+      "cell": "Cyingwa",
+      "village": "Kabugarama"
+    }
+  },
+  {
+    "name": "Kamembe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Kamembe",
+      "cell": "Cyangugu",
+      "village": "Gatovu"
+    }
+  },
+  {
+    "name": "Muganza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Muganza",
+      "cell": "Cyarukara",
+      "village": "Gashisha"
+    }
+  },
+  {
+    "name": "Mururu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Mururu",
+      "cell": "Gahinga",
+      "village": "Buremera"
+    }
+  },
+  {
+    "name": "Nkanka Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Nkanka",
+      "cell": "Gitwa",
+      "village": "Burege"
+    }
+  },
+  {
+    "name": "Nkombo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Nkombo",
+      "cell": "Bigoga",
+      "village": "Gisunyu"
+    }
+  },
+  {
+    "name": "Nkungu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Nkungu",
+      "cell": "Gatare",
+      "village": "Cyandarama"
+    }
+  },
+  {
+    "name": "Nyakabuye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Nyakabuye",
+      "cell": "Gasebeya",
+      "village": "Gacyamo"
+    }
+  },
+  {
+    "name": "Nyakarenzo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Nyakarenzo",
+      "cell": "Gatare",
+      "village": "Bigando"
+    }
+  },
+  {
+    "name": "Nzahaha Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Nzahaha",
+      "cell": "Butambamo",
+      "village": "Karunyerera"
+    }
+  },
+  {
+    "name": "Rwimbogo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Rusizi",
+      "sector": "Rwimbogo",
+      "cell": "Karenge",
+      "village": "Gatanga"
+    }
+  },
+  {
+    "name": "Nyamasheke District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Bushekeri",
+      "cell": "Buvungira",
+      "village": "Buhinga"
+    }
+  },
+  {
+    "name": "Bushekeri Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Bushekeri",
+      "cell": "Buvungira",
+      "village": "Buhinga"
+    }
+  },
+  {
+    "name": "Bushenge Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Bushenge",
+      "cell": "Gasheke",
+      "village": "Kamucyamo"
+    }
+  },
+  {
+    "name": "Cyato Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Cyato",
+      "cell": "Murambi",
+      "village": "Cyato"
+    }
+  },
+  {
+    "name": "Gihombo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Gihombo",
+      "cell": "Butare",
+      "village": "Mbogo"
+    }
+  },
+  {
+    "name": "Kagano Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Kagano",
+      "cell": "Gako",
+      "village": "Gitwa"
+    }
+  },
+  {
+    "name": "Kanjongo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Kanjongo",
+      "cell": "Kibogora",
+      "village": "Bizenga"
+    }
+  },
+  {
+    "name": "Karambi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Karambi",
+      "cell": "Gasovu",
+      "village": "Bitare"
+    }
+  },
+  {
+    "name": "Karengera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Karengera",
+      "cell": "Gasayo",
+      "village": "Gitwa"
+    }
+  },
+  {
+    "name": "Kirimbi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Kirimbi",
+      "cell": "Cyimpindu",
+      "village": "Katabaro"
+    }
+  },
+  {
+    "name": "Macuba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Macuba",
+      "cell": "Gatare",
+      "village": "Gaseke"
+    }
+  },
+  {
+    "name": "Mahembe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Mahembe",
+      "cell": "Gisoke",
+      "village": "Fumba"
+    }
+  },
+  {
+    "name": "Nyabitekeri Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Nyabitekeri",
+      "cell": "Kigabiro",
+      "village": "Bunyenga"
+    }
+  },
+  {
+    "name": "Rangiro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Rangiro",
+      "cell": "Jurwe",
+      "village": "Kaneke"
+    }
+  },
+  {
+    "name": "Shangi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "West",
+      "district": "Nyamasheke",
+      "sector": "Shangi",
+      "cell": "Burimba",
+      "village": "Rubayi"
+    }
+  },
+  {
+    "name": "Rulindo District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Base",
+      "cell": "Cyohoha",
+      "village": "Gihemba"
+    }
+  },
+  {
+    "name": "Base Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Base",
+      "cell": "Cyohoha",
+      "village": "Gihemba"
+    }
+  },
+  {
+    "name": "Burega Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Burega",
+      "cell": "Butangampundu",
+      "village": "Gacyamo"
+    }
+  },
+  {
+    "name": "Bushoki Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Bushoki",
+      "cell": "Gasiza",
+      "village": "Remera"
+    }
+  },
+  {
+    "name": "Buyoga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Buyoga",
+      "cell": "Busoro",
+      "village": "Rugarama"
+    }
+  },
+  {
+    "name": "Cyinzuzi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Cyinzuzi",
+      "cell": "Budakiranya",
+      "village": "Kamatongo"
+    }
+  },
+  {
+    "name": "Cyungo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Cyungo",
+      "cell": "Burehe",
+      "village": "Kibogora"
+    }
+  },
+  {
+    "name": "Kinihira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Kinihira",
+      "cell": "Butunzi",
+      "village": "Akamiyove"
+    }
+  },
+  {
+    "name": "Kisaro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Kisaro",
+      "cell": "Kamushenyi",
+      "village": "Gakenke"
+    }
+  },
+  {
+    "name": "Masoro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Masoro",
+      "cell": "Kabuga",
+      "village": "Gisiza"
+    }
+  },
+  {
+    "name": "Mbogo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Mbogo",
+      "cell": "Bukoro",
+      "village": "Buhira"
+    }
+  },
+  {
+    "name": "Murambi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Murambi",
+      "cell": "Bubangu",
+      "village": "Karambo"
+    }
+  },
+  {
+    "name": "Ngoma Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Ngoma",
+      "cell": "Kabuga",
+      "village": "Nyabuko"
+    }
+  },
+  {
+    "name": "Rukozo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Rukozo",
+      "cell": "Buraro",
+      "village": "Rukingu"
+    }
+  },
+  {
+    "name": "Rusiga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Rusiga",
+      "cell": "Gako",
+      "village": "Kabunigu"
+    }
+  },
+  {
+    "name": "Tumba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Tumba",
+      "cell": "Barari",
+      "village": "Gaseke"
+    }
+  },
+  {
+    "name": "Shyorongi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Rulindo",
+      "sector": "Shyorongi",
+      "cell": "Bukamba",
+      "village": "Gakenke"
+    }
+  },
+  {
+    "name": "Gakenke District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Busengo",
+      "cell": "Birambo",
+      "village": "Birambo"
+    }
+  },
+  {
+    "name": "Busengo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Busengo",
+      "cell": "Birambo",
+      "village": "Birambo"
+    }
+  },
+  {
+    "name": "Coko Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Coko",
+      "cell": "Kiruku",
+      "village": "Bukamba"
+    }
+  },
+  {
+    "name": "Cyabingo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Cyabingo",
+      "cell": "Muhaza",
+      "village": "Busoga"
+    }
+  },
+  {
+    "name": "Gakenke Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Gakenke",
+      "cell": "Buheta",
+      "village": "Karorero"
+    }
+  },
+  {
+    "name": "Gashenyi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Gashenyi",
+      "cell": "Nyacyina",
+      "village": "Mukira"
+    }
+  },
+  {
+    "name": "Janja Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Janja",
+      "cell": "Gakindo",
+      "village": "Bukerera"
+    }
+  },
+  {
+    "name": "Kamubuga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Kamubuga",
+      "cell": "Kamubuga",
+      "village": "Gitwe"
+    }
+  },
+  {
+    "name": "Karambo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Karambo",
+      "cell": "Kanyanza",
+      "village": "Kabutare"
+    }
+  },
+  {
+    "name": "Kivuruga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Kivuruga",
+      "cell": "Cyintare",
+      "village": "Bigogwe"
+    }
+  },
+  {
+    "name": "Mataba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Mataba",
+      "cell": "Buyange",
+      "village": "Nyamiyaga"
+    }
+  },
+  {
+    "name": "Minazi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Minazi",
+      "cell": "Gasiho",
+      "village": "Kigeyo"
+    }
+  },
+  {
+    "name": "Mugunga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Mugunga",
+      "cell": "Gahinga",
+      "village": "Cyinama"
+    }
+  },
+  {
+    "name": "Muhondo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Muhondo",
+      "cell": "Busake",
+      "village": "Busake"
+    }
+  },
+  {
+    "name": "Muyongwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Muyongwe",
+      "cell": "Bumba",
+      "village": "Bumba"
+    }
+  },
+  {
+    "name": "Muzo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Muzo",
+      "cell": "Kabatezi",
+      "village": "Gitabi"
+    }
+  },
+  {
+    "name": "Nemba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Nemba",
+      "cell": "Buranga",
+      "village": "Buranga"
+    }
+  },
+  {
+    "name": "Ruli Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Ruli",
+      "cell": "Busoro",
+      "village": "Cyoganyoni"
+    }
+  },
+  {
+    "name": "Rusasa Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Rusasa",
+      "cell": "Gataba",
+      "village": "Gahama"
+    }
+  },
+  {
+    "name": "Rushashi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gakenke",
+      "sector": "Rushashi",
+      "cell": "Burimba",
+      "village": "Kabuye"
+    }
+  },
+  {
+    "name": "Musanze District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Busogo",
+      "cell": "Gisesero",
+      "village": "Gahanga"
+    }
+  },
+  {
+    "name": "Busogo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Busogo",
+      "cell": "Gisesero",
+      "village": "Gahanga"
+    }
+  },
+  {
+    "name": "Cyuve Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Cyuve",
+      "cell": "Bukinanyana",
+      "village": "Bubandu"
+    }
+  },
+  {
+    "name": "Gacaca Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Gacaca",
+      "cell": "Gakoro",
+      "village": "Butunda"
+    }
+  },
+  {
+    "name": "Gashaki Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Gashaki",
+      "cell": "Kigabiro",
+      "village": "Kavumu"
+    }
+  },
+  {
+    "name": "Gataraga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Gataraga",
+      "cell": "Mudakama",
+      "village": "Kagongo"
+    }
+  },
+  {
+    "name": "Kimonyi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Kimonyi",
+      "cell": "Birira",
+      "village": "Kabagoyi"
+    }
+  },
+  {
+    "name": "Kinigi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Kinigi",
+      "cell": "Kaguhu",
+      "village": "Kabeza"
+    }
+  },
+  {
+    "name": "Muhoza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Muhoza",
+      "cell": "Cyabagarika",
+      "village": "Buhuye"
+    }
+  },
+  {
+    "name": "Muko Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Muko",
+      "cell": "Cyivugiza",
+      "village": "Nyiramuko"
+    }
+  },
+  {
+    "name": "Musanze Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Musanze",
+      "cell": "Cyabagarura",
+      "village": "Bukane"
+    }
+  },
+  {
+    "name": "Nkotsi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Nkotsi",
+      "cell": "Bikara",
+      "village": "Barizo"
+    }
+  },
+  {
+    "name": "Nyange Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Nyange",
+      "cell": "Cyivugiza",
+      "village": "Gasoroza"
+    }
+  },
+  {
+    "name": "Remera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Remera",
+      "cell": "Gasongero",
+      "village": "Bukara"
+    }
+  },
+  {
+    "name": "Rwaza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Rwaza",
+      "cell": "Bumara",
+      "village": "Muheta"
+    }
+  },
+  {
+    "name": "Shingiro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Musanze",
+      "sector": "Shingiro",
+      "cell": "Gakingo",
+      "village": "Bwamazi"
+    }
+  },
+  {
+    "name": "Burera District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Bungwe",
+      "cell": "Bungwe",
+      "village": "Bungwe"
+    }
+  },
+  {
+    "name": "Bungwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Bungwe",
+      "cell": "Bungwe",
+      "village": "Bungwe"
+    }
+  },
+  {
+    "name": "Butaro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Butaro",
+      "cell": "Gatsibo",
+      "village": "Gafumba"
+    }
+  },
+  {
+    "name": "Cyanika Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Cyanika",
+      "cell": "Gasiza",
+      "village": "Gahirikiro"
+    }
+  },
+  {
+    "name": "Cyeru Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Cyeru",
+      "cell": "Butare",
+      "village": "Kamata"
+    }
+  },
+  {
+    "name": "Gahunga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Gahunga",
+      "cell": "Buramba",
+      "village": "Gafatangwe"
+    }
+  },
+  {
+    "name": "Gatebe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Gatebe",
+      "cell": "Gabiro",
+      "village": "Nyakabungo"
+    }
+  },
+  {
+    "name": "Gitovu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Gitovu",
+      "cell": "Mariba",
+      "village": "Kiboga"
+    }
+  },
+  {
+    "name": "Kagogo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Kagogo",
+      "cell": "Kabaya",
+      "village": "Butare"
+    }
+  },
+  {
+    "name": "Kinoni Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Kinoni",
+      "cell": "Gafuka",
+      "village": "Bugeyo"
+    }
+  },
+  {
+    "name": "Kinyababa Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Kinyababa",
+      "cell": "Bugamba",
+      "village": "Cyogo"
+    }
+  },
+  {
+    "name": "Kivuye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Kivuye",
+      "cell": "Bukwashuri",
+      "village": "Buhita"
+    }
+  },
+  {
+    "name": "Nemba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Nemba",
+      "cell": "Kivumu",
+      "village": "Gashushura"
+    }
+  },
+  {
+    "name": "Rugarama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Rugarama",
+      "cell": "Cyahi",
+      "village": "Hanika"
+    }
+  },
+  {
+    "name": "Rugengabari Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Rugengabari",
+      "cell": "Kilibata",
+      "village": "Bushima"
+    }
+  },
+  {
+    "name": "Ruhunde Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Ruhunde",
+      "cell": "Gaseke",
+      "village": "Gahe"
+    }
+  },
+  {
+    "name": "Rusarabuye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Rusarabuye",
+      "cell": "Kabona",
+      "village": "Bucyaba"
+    }
+  },
+  {
+    "name": "Rwerere Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Burera",
+      "sector": "Rwerere",
+      "cell": "Gacundura",
+      "village": "Burindwa"
+    }
+  },
+  {
+    "name": "Gicumbi District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Bukure",
+      "cell": "Karenge",
+      "village": "Nyarutovu"
+    }
+  },
+  {
+    "name": "Bukure Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Bukure",
+      "cell": "Karenge",
+      "village": "Nyarutovu"
+    }
+  },
+  {
+    "name": "Bwisige Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Bwisige",
+      "cell": "Bwisige",
+      "village": "Kabuye"
+    }
+  },
+  {
+    "name": "Byumba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Byumba",
+      "cell": "Gisuna",
+      "village": "Gisuna"
+    }
+  },
+  {
+    "name": "Cyumba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Cyumba",
+      "cell": "Gasunzu",
+      "village": "Mubuga"
+    }
+  },
+  {
+    "name": "Giti Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Giti",
+      "cell": "Gatobotobo",
+      "village": "Kababito"
+    }
+  },
+  {
+    "name": "Kageyo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Kageyo",
+      "cell": "Gihembe",
+      "village": "Gitaba"
+    }
+  },
+  {
+    "name": "Kaniga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Kaniga",
+      "cell": "Bugomba",
+      "village": "Kabungo"
+    }
+  },
+  {
+    "name": "Manyagiro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Manyagiro",
+      "cell": "Kabuga",
+      "village": "Gabiro"
+    }
+  },
+  {
+    "name": "Miyove Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Miyove",
+      "cell": "Gakenke",
+      "village": "Karwanira"
+    }
+  },
+  {
+    "name": "Mukarange Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Mukarange",
+      "cell": "Cyamuganga",
+      "village": "Ndarama"
+    }
+  },
+  {
+    "name": "Muko Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Muko",
+      "cell": "Cyamuhinda",
+      "village": "Ntonyanga"
+    }
+  },
+  {
+    "name": "Mutete Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Mutete",
+      "cell": "Gaseke",
+      "village": "Gasharu"
+    }
+  },
+  {
+    "name": "Nyamiyaga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Nyamiyaga",
+      "cell": "Gahumuliza",
+      "village": "Majyambere"
+    }
+  },
+  {
+    "name": "Nyankenke Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Nyankenke",
+      "cell": "Butare",
+      "village": "Kabere"
+    }
+  },
+  {
+    "name": "Rubaya Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Rubaya",
+      "cell": "Gihanga",
+      "village": "Gomba"
+    }
+  },
+  {
+    "name": "Rukomo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Rukomo",
+      "cell": "Cyuru",
+      "village": "Kabuga"
+    }
+  },
+  {
+    "name": "Rushaki Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Rushaki",
+      "cell": "Gitega",
+      "village": "Gitega"
+    }
+  },
+  {
+    "name": "Rutare Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Rutare",
+      "cell": "Bikumba",
+      "village": "Kintaganirwa"
+    }
+  },
+  {
+    "name": "Ruvune Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Ruvune",
+      "cell": "Cyandaro",
+      "village": "Karambo"
+    }
+  },
+  {
+    "name": "Rwamiko Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Rwamiko",
+      "cell": "Cyeru",
+      "village": "Kamurenzi"
+    }
+  },
+  {
+    "name": "Shangasha Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "North",
+      "district": "Gicumbi",
+      "sector": "Shangasha",
+      "cell": "Bushara",
+      "village": "Bushara"
+    }
+  },
+  {
+    "name": "Rwamagana District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Fumbwe",
+      "cell": "Mununu",
+      "village": "Cyingara"
+    }
+  },
+  {
+    "name": "Fumbwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Fumbwe",
+      "cell": "Mununu",
+      "village": "Cyingara"
+    }
+  },
+  {
+    "name": "Gahengeri Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Gahengeri",
+      "cell": "Gihumuza",
+      "village": "Cyanga"
+    }
+  },
+  {
+    "name": "Gishali Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Gishali",
+      "cell": "Binunga",
+      "village": "Busharu"
+    }
+  },
+  {
+    "name": "Karenge Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Karenge",
+      "cell": "Bicaca",
+      "village": "Bicaca"
+    }
+  },
+  {
+    "name": "Kigabiro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Kigabiro",
+      "cell": "Bwiza",
+      "village": "Gitega"
+    }
+  },
+  {
+    "name": "Muhazi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Muhazi",
+      "cell": "Byeza",
+      "village": "Kabeza"
+    }
+  },
+  {
+    "name": "Munyaga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Munyaga",
+      "cell": "Kaduha",
+      "village": "Gishike"
+    }
+  },
+  {
+    "name": "Munyiginya Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Munyiginya",
+      "cell": "Binunga",
+      "village": "Irebero"
+    }
+  },
+  {
+    "name": "Musha Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Musha",
+      "cell": "Akabare",
+      "village": "Akabare"
+    }
+  },
+  {
+    "name": "Muyumbu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Muyumbu",
+      "cell": "Akinyambo",
+      "village": "Akubugingo"
+    }
+  },
+  {
+    "name": "Mwulire Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Mwulire",
+      "cell": "Bicumbi",
+      "village": "Manene"
+    }
+  },
+  {
+    "name": "Nyakaliro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Nyakaliro",
+      "cell": "Bihembe",
+      "village": "Butare"
+    }
+  },
+  {
+    "name": "Nzige Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Nzige",
+      "cell": "Akanzu",
+      "village": "Akanzige"
+    }
+  },
+  {
+    "name": "Rubona Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Rwamagana",
+      "sector": "Rubona",
+      "cell": "Byinza",
+      "village": "Bidudu"
+    }
+  },
+  {
+    "name": "Nyagatare District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Gatunda",
+      "cell": "Cyagaju",
+      "village": "Hanganyundo"
+    }
+  },
+  {
+    "name": "Gatunda Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Gatunda",
+      "cell": "Cyagaju",
+      "village": "Hanganyundo"
+    }
+  },
+  {
+    "name": "Karama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Karama",
+      "cell": "Bushara",
+      "village": "Ihuriro"
+    }
+  },
+  {
+    "name": "Kiyombe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Kiyombe",
+      "cell": "Gataba",
+      "village": "Cyemiyaga"
+    }
+  },
+  {
+    "name": "Matimba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Matimba",
+      "cell": "Bwera",
+      "village": "Ntoma"
+    }
+  },
+  {
+    "name": "Mimuri Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Mimuri",
+      "cell": "Bibare",
+      "village": "Bibare"
+    }
+  },
+  {
+    "name": "Mukama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Mukama",
+      "cell": "Bufunda",
+      "village": "Bufunda"
+    }
+  },
+  {
+    "name": "Musheri Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Musheri",
+      "cell": "Kibirizi",
+      "village": "Nyamisange"
+    }
+  },
+  {
+    "name": "Rukomo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Rukomo",
+      "cell": "Gahurura",
+      "village": "Amahoro"
+    }
+  },
+  {
+    "name": "Tabagwe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Nyagatare",
+      "sector": "Tabagwe",
+      "cell": "Gishuro",
+      "village": "Kaborogota"
+    }
+  },
+  {
+    "name": "Gatsibo District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Gasange",
+      "cell": "Kigabiro",
+      "village": "Kabuye"
+    }
+  },
+  {
+    "name": "Gasange Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Gasange",
+      "cell": "Kigabiro",
+      "village": "Kabuye"
+    }
+  },
+  {
+    "name": "Gatsibo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Gatsibo",
+      "cell": "Gatsibo",
+      "village": "Gatare"
+    }
+  },
+  {
+    "name": "Gitoki Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Gitoki",
+      "cell": "Bukomane",
+      "village": "Bukomane"
+    }
+  },
+  {
+    "name": "Kabarore Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Kabarore",
+      "cell": "Kabarore",
+      "village": "Bihinga"
+    }
+  },
+  {
+    "name": "Kageyo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Kageyo",
+      "cell": "Busetsa",
+      "village": "Nyarubuye"
+    }
+  },
+  {
+    "name": "Kiramuruzi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Kiramuruzi",
+      "cell": "Akabuga",
+      "village": "Bushenyi"
+    }
+  },
+  {
+    "name": "Kiziguro Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Kiziguro",
+      "cell": "Agakomeye",
+      "village": "Agatovu"
+    }
+  },
+  {
+    "name": "Muhura Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Muhura",
+      "cell": "Bibare",
+      "village": "Akagasaro"
+    }
+  },
+  {
+    "name": "Murambi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Murambi",
+      "cell": "Murambi",
+      "village": "Agatagara"
+    }
+  },
+  {
+    "name": "Ngarama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Ngarama",
+      "cell": "Kigasha",
+      "village": "Akabuye"
+    }
+  },
+  {
+    "name": "Nyagihanga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Nyagihanga",
+      "cell": "Gitinda",
+      "village": "Gatungo"
+    }
+  },
+  {
+    "name": "Remera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Remera",
+      "cell": "Bushobora",
+      "village": "Agasenga"
+    }
+  },
+  {
+    "name": "Rugarama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Rugarama",
+      "cell": "Bugarama",
+      "village": "Kabare"
+    }
+  },
+  {
+    "name": "Rwimbogo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Gatsibo",
+      "sector": "Rwimbogo",
+      "cell": "Kiburara",
+      "village": "Kiburara"
+    }
+  },
+  {
+    "name": "Kayonza District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Gahini",
+      "cell": "Juru",
+      "village": "Juru"
+    }
+  },
+  {
+    "name": "Gahini Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Gahini",
+      "cell": "Juru",
+      "village": "Juru"
+    }
+  },
+  {
+    "name": "Kabare Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Kabare",
+      "cell": "Cyarubare",
+      "village": "Kabeza"
+    }
+  },
+  {
+    "name": "Kabarondo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Kabarondo",
+      "cell": "Cyabajwa",
+      "village": "Kabarondo"
+    }
+  },
+  {
+    "name": "Mukarange Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Mukarange",
+      "cell": "Bwiza",
+      "village": "Abisunganye"
+    }
+  },
+  {
+    "name": "Murama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Murama",
+      "cell": "Bunyentongo",
+      "village": "Gisunzu"
+    }
+  },
+  {
+    "name": "Murundi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Murundi",
+      "cell": "Buhabwa",
+      "village": "Buhabwa"
+    }
+  },
+  {
+    "name": "Mwiri Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Mwiri",
+      "cell": "Kageyo",
+      "village": "Kiyonza"
+    }
+  },
+  {
+    "name": "Ndego Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Ndego",
+      "cell": "Byimana",
+      "village": "Busasamana"
+    }
+  },
+  {
+    "name": "Nyamirama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Nyamirama",
+      "cell": "Gikaya",
+      "village": "Gasogi"
+    }
+  },
+  {
+    "name": "Rukara Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Rukara",
+      "cell": "Kawangire",
+      "village": "Butimba"
+    }
+  },
+  {
+    "name": "Ruramira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Ruramira",
+      "cell": "Bugambira",
+      "village": "Agasharu"
+    }
+  },
+  {
+    "name": "Rwinkwavu Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kayonza",
+      "sector": "Rwinkwavu",
+      "cell": "Gihinga",
+      "village": "Akayebe"
+    }
+  },
+  {
+    "name": "Kirehe District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Gahara",
+      "cell": "Butezi",
+      "village": "Cyamabuye"
+    }
+  },
+  {
+    "name": "Gahara Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Gahara",
+      "cell": "Butezi",
+      "village": "Cyamabuye"
+    }
+  },
+  {
+    "name": "Gatore Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Gatore",
+      "cell": "Curazo",
+      "village": "Gatenga"
+    }
+  },
+  {
+    "name": "Kigarama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Kigarama",
+      "cell": "Cyanya",
+      "village": "Cyanya"
+    }
+  },
+  {
+    "name": "Kigina Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Kigina",
+      "cell": "Gatarama",
+      "village": "Efemu"
+    }
+  },
+  {
+    "name": "Kirehe Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Kirehe",
+      "cell": "Gahama",
+      "village": "Kabeza"
+    }
+  },
+  {
+    "name": "Mahama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Mahama",
+      "cell": "Kamombo",
+      "village": "Kamombo"
+    }
+  },
+  {
+    "name": "Mpanga Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Mpanga",
+      "cell": "Bwiyorere",
+      "village": "Bihembe"
+    }
+  },
+  {
+    "name": "Musaza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Musaza",
+      "cell": "Gasarabwayi",
+      "village": "Gicuma"
+    }
+  },
+  {
+    "name": "Mushikiri Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Mushikiri",
+      "cell": "Bisagara",
+      "village": "Isangano"
+    }
+  },
+  {
+    "name": "Nasho Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Nasho",
+      "cell": "Cyambwe",
+      "village": "Gicaca"
+    }
+  },
+  {
+    "name": "Nyamugari Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Nyamugari",
+      "cell": "Bukora",
+      "village": "Bukinanyana"
+    }
+  },
+  {
+    "name": "Nyarubuye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Kirehe",
+      "sector": "Nyarubuye",
+      "cell": "Mareba",
+      "village": "Burembo"
+    }
+  },
+  {
+    "name": "Ngoma District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Gashanda",
+      "cell": "Cyerwa",
+      "village": "Cyerwa"
+    }
+  },
+  {
+    "name": "Gashanda Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Gashanda",
+      "cell": "Cyerwa",
+      "village": "Cyerwa"
+    }
+  },
+  {
+    "name": "Jarama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Jarama",
+      "cell": "Ihanika",
+      "village": "Kabonero"
+    }
+  },
+  {
+    "name": "Karembo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Karembo",
+      "cell": "Akaziba",
+      "village": "Kwiperu"
+    }
+  },
+  {
+    "name": "Kazo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Kazo",
+      "cell": "Gahurire",
+      "village": "Itambiro"
+    }
+  },
+  {
+    "name": "Kibungo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Kibungo",
+      "cell": "Gahima",
+      "village": "Rutovu"
+    }
+  },
+  {
+    "name": "Mugesera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Mugesera",
+      "cell": "Akabungo",
+      "village": "Agakindo"
+    }
+  },
+  {
+    "name": "Murama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Murama",
+      "cell": "Gitaraga",
+      "village": "Nyakabanga"
+    }
+  },
+  {
+    "name": "Mutenderi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Mutenderi",
+      "cell": "Karwema",
+      "village": "Gitesanyi"
+    }
+  },
+  {
+    "name": "Remera Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Remera",
+      "cell": "Bugera",
+      "village": "Gatare"
+    }
+  },
+  {
+    "name": "Rukira Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Rukira",
+      "cell": "Buliba",
+      "village": "Dagaza"
+    }
+  },
+  {
+    "name": "Rukumberi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Rukumberi",
+      "cell": "Ntovi",
+      "village": "Kigese"
+    }
+  },
+  {
+    "name": "Rurenge Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Rurenge",
+      "cell": "Muhurire",
+      "village": "Agatonero"
+    }
+  },
+  {
+    "name": "Sake Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Sake",
+      "cell": "Gafunzo",
+      "village": "Mabuga"
+    }
+  },
+  {
+    "name": "Zaza Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Ngoma",
+      "sector": "Zaza",
+      "cell": "Nyagasozi",
+      "village": "Rubati"
+    }
+  },
+  {
+    "name": "Bugesera District Hospital",
+    "type": "DISTRICT_HOSPITAL",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Gashora",
+      "cell": "Biryogo",
+      "village": "Biryogo"
+    }
+  },
+  {
+    "name": "Gashora Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Gashora",
+      "cell": "Biryogo",
+      "village": "Biryogo"
+    }
+  },
+  {
+    "name": "Juru Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Juru",
+      "cell": "Juru",
+      "village": "Ayabakiza"
+    }
+  },
+  {
+    "name": "Kamabuye Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Kamabuye",
+      "cell": "Biharagu",
+      "village": "Akanigo"
+    }
+  },
+  {
+    "name": "Mareba Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Mareba",
+      "cell": "Bushenyi",
+      "village": "Bigaga"
+    }
+  },
+  {
+    "name": "Mayange Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Mayange",
+      "cell": "Gakamba",
+      "village": "Kamugenzi"
+    }
+  },
+  {
+    "name": "Musenyi Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Musenyi",
+      "cell": "Gicaca",
+      "village": "Cyanika"
+    }
+  },
+  {
+    "name": "Mwogo Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Mwogo",
+      "cell": "Bitaba",
+      "village": "Bitaba"
+    }
+  },
+  {
+    "name": "Ngeruka Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Ngeruka",
+      "cell": "Gihembe",
+      "village": "Kabuye"
+    }
+  },
+  {
+    "name": "Ntarama Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Ntarama",
+      "cell": "Cyugaro",
+      "village": "Kidudu"
+    }
+  },
+  {
+    "name": "Nyamata Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Nyamata",
+      "cell": "Kanazi",
+      "village": "Musagara"
+    }
+  },
+  {
+    "name": "Nyarugenge Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Nyarugenge",
+      "cell": "Gihinga",
+      "village": "Mwoshya"
+    }
+  },
+  {
+    "name": "Rilima Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Rilima",
+      "cell": "Kabeza",
+      "village": "Karambo"
+    }
+  },
+  {
+    "name": "Ruhuha Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Ruhuha",
+      "cell": "Bihari",
+      "village": "Bihari"
+    }
+  },
+  {
+    "name": "Rweru Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Rweru",
+      "cell": "Batima",
+      "village": "Agahonnyo"
+    }
+  },
+  {
+    "name": "Shyara Health Center",
+    "type": "HEALTH_CENTER",
+    "address": {
+      "province": "East",
+      "district": "Bugesera",
+      "sector": "Shyara",
+      "cell": "Kabagugu",
+      "village": "Kabagugu"
     }
   }
 ]
