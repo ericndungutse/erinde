@@ -165,6 +165,30 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
       pagination,
     };
   }
+
+  async getCommunityHealthUnitById(id: string): Promise<ICommunityHealthUnit | null> {
+    const communityHealthUnit = await CommunityHealthUnit.findById(id)
+      .select({
+        name: 1,
+        socialHealthWorker: 1,
+        healthCenter: 1,
+        address: 1,
+      })
+      .lean()
+      .exec();
+
+    if (!communityHealthUnit) {
+      return null;
+    }
+
+    return {
+      id: communityHealthUnit._id.toString(),
+      name: communityHealthUnit.name,
+      socialHealthWorker: communityHealthUnit.socialHealthWorker,
+      healthCenter: communityHealthUnit.healthCenter,
+      address: communityHealthUnit.address,
+    };
+  }
 }
 
 export default CommunitHealthUnitService;

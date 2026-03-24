@@ -6,4 +6,8 @@ export class HospitalService implements IHospitalService {
   async getAllHospitals(): Promise<IHospital[]> {
     return Hospital.find().select("-__v -createdAt -updatedAt").lean();
   }
+
+  async getHospitalById(id: string): Promise<IHospital | null> {
+    return Hospital.findById(id).select("-__v -createdAt -updatedAt").lean();
+  }
 }
