@@ -12,6 +12,10 @@ router.get('/', protect, authorize(UserRole.ADMIN, UserRole.SOCIAL_HEALTH_WORKER
   container.communitHealthUnitController.getAllCommunityHealthUnits(req, res, next),
 );
 
+router.get('/:id', protect, authorize(UserRole.ADMIN, UserRole.SOCIAL_HEALTH_WORKER, UserRole.SCREENING_VOLUNTEER), (req, res, next) =>
+  container.communitHealthUnitController.getCommunityHealthUnitById(req, res, next),
+);
+
 router.post(
   '/',
   protect,

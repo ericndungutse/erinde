@@ -6,6 +6,7 @@
   "shw_exists_for_village": "Umujyanama w'ubuzima asanzwe ahari m'umudugudu: {{ village }}",
   "login_successful": "kwinjira muri Erinde AI byangenze neza!",
   "invalid_credentials": "Amakuru yinjijwe ntabwo ari yo.",
+  "please_login": "Injira muri konti kugira ngo ukomeze.",
   "user_not_found": "Nta mukoresha wabonetse.",
   "parameter_required": "{{ parameter }} irakenewe.",
   "user_details": "Amakuru y'umukoresha yabonetse neza.",

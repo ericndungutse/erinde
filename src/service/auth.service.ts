@@ -7,6 +7,7 @@ import type { UserProjection } from '../dto/user.dto.js';
 import type { IAuthService } from './interface/iauth.service.js';
 import { Nurse } from '../models/user.model.js';
 import { UserRole } from '../types/roles.types.js';
+import CommunityHealthUnit from '../models/communitHealthUnit.model.js';
 
 export default class AuthService implements IAuthService {
   async login(credentials: ILoginPayload): Promise<ILoginResponse> {
@@ -58,7 +59,7 @@ export default class AuthService implements IAuthService {
     // TODO: IF USER HAS MULTIPLE ROLES, REQUEST U  SER TO SELECT ACTIVE ROLE
     // TODO: IF USER IS JUST ONLY USER, SET ACTIVE ROLE TO USER: OPTION let Client Decide
 
-    const loginResponse: ILoginResponse = {
+    let loginResponse: ILoginResponse = {
       token,
       user: {
         id: user.id,
@@ -68,6 +69,78 @@ export default class AuthService implements IAuthService {
       },
     };
 
+    if (user.roles.includes(UserRole.SOCIAL_HEALTH_WORKER)) {
+      loginResponse = await this.handleSocialHealthWorkerCustomLoginResponse(loginResponse, user.id);
+    }
+
     return loginResponse;
+  }
+
+  async handleSocialHealthWorkerCustomLoginResponse(loginResponse: ILoginResponse, userId: string): Promise<ILoginResponse> {
+    const normalizeCommunityHealthUnitId = (value: unknown): string | undefined => {
+      if (!value) {
+        return undefined;
+      }
+
+      if (typeof value === 'object' && value !== null && 'id' in value) {
+        return normalizeCommunityHealthUnitId((value as { id: unknown }).id);
+      }
+
+      if (Buffer.isBuffer(value)) {
+        return value.toString('hex');
+      }
+
+      if (typeof value === 'string') {
+        return value;
+      }
+
+      return String(value);
+    };
+
+    const assignedCommunityHealthUnitId = normalizeCommunityHealthUnitId(loginResponse.user.communityHealthUnit);
+
+    const [assignedCommunityHealthUnit, managedCommunityHealthUnit] = await Promise.all([
+      assignedCommunityHealthUnitId
+        ? CommunityHealthUnit.findById(assignedCommunityHealthUnitId, {
+            _id: 1,
+            name: 1,
+          }).lean()
+        : Promise.resolve(null),
+      CommunityHealthUnit.findOne(
+        { socialHealthWorker: userId },
+        {
+          _id: 1,
+          name: 1,
+        },
+      ).lean(),
+    ]);
+
+    const normalizeCommunityHealthUnit = (
+      communityHealthUnit: {
+        _id: unknown;
+        name: string;
+      } | null,
+    ) => {
+      if (!communityHealthUnit) {
+        return undefined;
+      }
+
+      return {
+        id: String(communityHealthUnit._id),
+        name: communityHealthUnit.name,
+      };
+    };
+
+    const communityHealthUnit = normalizeCommunityHealthUnit(assignedCommunityHealthUnit);
+    const managedCommunityHealthUnitDetails = normalizeCommunityHealthUnit(managedCommunityHealthUnit);
+
+    return {
+      ...loginResponse,
+      user: {
+        ...loginResponse.user,
+        ...(communityHealthUnit ? { communityHealthUnit } : {}),
+        ...(managedCommunityHealthUnitDetails ? { managedCommunityHealthUnit: managedCommunityHealthUnitDetails } : {}),
+      },
+    };
   }
 }

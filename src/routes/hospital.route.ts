@@ -9,4 +9,9 @@ router.get("/", protect, (req, res, next) =>
   container.hospitalController.getAllHospitals(req, res, next),
 );
 
+// GET /hospitals/:id - Get hospital details by id (protected)
+router.get("/:id", protect, (req, res, next) =>
+  container.hospitalController.getHospitalById(req, res, next),
+);
+
 export default router;
