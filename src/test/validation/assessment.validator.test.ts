@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { NextFunction, Request, Response } from 'express';
 
-import { validateCreateAssessment } from '../../validation/assessmentValidator.js';
+import { ModelNames } from '../../constants/constant.values.js';
+import { CreateAssessmentSchemaZ } from '../../dto/assessmentDto.js';
+import { validateBody } from '../../validation/validator.js';
 
 function createMockRes(): Response & { statusCode?: number; body?: any } {
   const res: any = {};
@@ -20,6 +22,8 @@ function createMockRes(): Response & { statusCode?: number; body?: any } {
 const validPayload = {
   patientNumber: 12345,
   indicator: 'indicator-123',
+  takenFrom: 'chu-123',
+  takenFromType: ModelNames.CommunityHealthUnit,
   readings: {
     random_blood_glucose: {
       value: 139,
@@ -29,12 +33,14 @@ const validPayload = {
 };
 
 describe('validateCreateAssessment', () => {
+  const middleware = validateBody(CreateAssessmentSchemaZ);
+
   it('calls next for a valid request body', () => {
     const req = { body: validPayload } as Request;
     const res = createMockRes();
     const next = vi.fn() as unknown as NextFunction;
 
-    validateCreateAssessment(req, res, next);
+    middleware(req, res, next);
 
     expect(next).toHaveBeenCalledOnce();
     expect(res.status).not.toHaveBeenCalled();
@@ -45,24 +51,20 @@ describe('validateCreateAssessment', () => {
     const req = {
       body: {
         indicator: validPayload.indicator,
+        takenFrom: validPayload.takenFrom,
+        takenFromType: validPayload.takenFromType,
         readings: validPayload.readings,
       },
     } as Request;
     const res = createMockRes();
     const next = vi.fn() as unknown as NextFunction;
 
-    validateCreateAssessment(req, res, next);
+    middleware(req, res, next);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.status).toBe('fail');
-    expect(res.body.message).toBe('Invalid request data');
-    expect(res.body.errors).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          field: 'patientNumber',
-        }),
-      ]),
-    );
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body.errors).toHaveProperty('patientNumber');
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -76,17 +78,13 @@ describe('validateCreateAssessment', () => {
     const res = createMockRes();
     const next = vi.fn() as unknown as NextFunction;
 
-    validateCreateAssessment(req, res, next);
+    middleware(req, res, next);
 
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors).toEqual(
-      expect.arrayContaining([
-        {
-          field: 'patientNumber',
-          message: 'patientNumber must be a positive integer',
-        },
-      ]),
-    );
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body.errors).toMatchObject({
+      patientNumber: 'patientNumber must be a positive integer',
+    });
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -100,17 +98,13 @@ describe('validateCreateAssessment', () => {
     const res = createMockRes();
     const next = vi.fn() as unknown as NextFunction;
 
-    validateCreateAssessment(req, res, next);
+    middleware(req, res, next);
 
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors).toEqual(
-      expect.arrayContaining([
-        {
-          field: 'indicator',
-          message: 'indicator id cannot be empty',
-        },
-      ]),
-    );
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body.errors).toMatchObject({
+      indicator: 'indicator id cannot be empty',
+    });
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -119,21 +113,18 @@ describe('validateCreateAssessment', () => {
       body: {
         patientNumber: validPayload.patientNumber,
         indicator: validPayload.indicator,
+        takenFrom: validPayload.takenFrom,
+        takenFromType: validPayload.takenFromType,
       },
     } as Request;
     const res = createMockRes();
     const next = vi.fn() as unknown as NextFunction;
 
-    validateCreateAssessment(req, res, next);
+    middleware(req, res, next);
 
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          field: 'readings',
-        }),
-      ]),
-    );
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body.errors).toHaveProperty('readings');
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -152,17 +143,13 @@ describe('validateCreateAssessment', () => {
     const res = createMockRes();
     const next = vi.fn() as unknown as NextFunction;
 
-    validateCreateAssessment(req, res, next);
+    middleware(req, res, next);
 
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors).toEqual(
-      expect.arrayContaining([
-        {
-          field: 'readings.random_blood_glucose.unit',
-          message: 'reading.unit cannot be empty',
-        },
-      ]),
-    );
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body.errors).toMatchObject({
+      'readings.random_blood_glucose.unit': 'reading.unit cannot be empty',
+    });
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -181,16 +168,11 @@ describe('validateCreateAssessment', () => {
     const res = createMockRes();
     const next = vi.fn() as unknown as NextFunction;
 
-    validateCreateAssessment(req, res, next);
+    middleware(req, res, next);
 
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          field: 'readings.random_blood_glucose.value',
-        }),
-      ]),
-    );
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body.errors).toHaveProperty('readings.random_blood_glucose.value');
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -199,6 +181,8 @@ describe('validateCreateAssessment', () => {
       body: {
         patientNumber: -5,
         indicator: '',
+        takenFrom: validPayload.takenFrom,
+        takenFromType: validPayload.takenFromType,
         readings: {
           random_blood_glucose: {
             value: 139,
@@ -210,27 +194,16 @@ describe('validateCreateAssessment', () => {
     const res = createMockRes();
     const next = vi.fn() as unknown as NextFunction;
 
-    validateCreateAssessment(req, res, next);
+    middleware(req, res, next);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.status).toBe('fail');
-    expect(res.body.message).toBe('Invalid request data');
-    expect(res.body.errors).toEqual(
-      expect.arrayContaining([
-        {
-          field: 'patientNumber',
-          message: 'patientNumber must be a positive integer',
-        },
-        {
-          field: 'indicator',
-          message: 'indicator id cannot be empty',
-        },
-        {
-          field: 'readings.random_blood_glucose.unit',
-          message: 'reading.unit cannot be empty',
-        },
-      ]),
-    );
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body.errors).toMatchObject({
+      patientNumber: 'patientNumber must be a positive integer',
+      indicator: 'indicator id cannot be empty',
+      'readings.random_blood_glucose.unit': 'reading.unit cannot be empty',
+    });
     expect(next).not.toHaveBeenCalled();
   });
 });

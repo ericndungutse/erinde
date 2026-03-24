@@ -3,13 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import mongoose from 'mongoose';
 
 import Indicator from '../../models/indicator.model.js';
-import Hospital from '../../models/hospital.model.js';
 import { Assessment } from '../../models/assessment.model.js';
 import { AssessmentCreationError } from '../../Errors/AssessmentCreationError.js';
 import HasPendingReferralError from '../../Errors/HasPendingReferralError.js';
 import IndicatorNotFound from '../../Errors/IndicatorNotFoundError.js';
 import InvalidUnit from '../../Errors/InvalidUnits.js';
 import PatientNotFoundException from '../../Errors/PatientNotFoundException.js';
+import { ModelNames } from '../../constants/constant.values.js';
 import AssessmentClassifier from '../../service/assessment-classifier.service.js';
 import AssessmentService from '../../service/assessment.service.js';
 
@@ -33,6 +33,8 @@ describe('AssessmentService.createAssessment', () => {
   const diabetesDto = {
     patientNumber: 1001,
     indicator: 'indicator-diabetes',
+    takenFrom: 'chu-1',
+    takenFromType: ModelNames.CommunityHealthUnit,
     readings: {
       random_blood_glucose: {
         value: 139,
@@ -44,6 +46,8 @@ describe('AssessmentService.createAssessment', () => {
   const hypertensionDto = {
     patientNumber: 2001,
     indicator: 'indicator-hypertension',
+    takenFrom: 'chu-1',
+    takenFromType: ModelNames.CommunityHealthUnit,
     readings: {
       systolic_blood_pressure: {
         value: 180,
@@ -73,7 +77,9 @@ describe('AssessmentService.createAssessment', () => {
     };
 
     userService = {
-      findUserByPatientNumber: vi.fn().mockResolvedValue({ id: 'patient-1', district: 'Kigali' }),
+      findUserByPatientNumber: vi
+        .fn()
+        .mockResolvedValue({ id: 'patient-1', district: 'Kigali', communityHealthUnit: 'hospital-1' }),
     };
 
     // Pass both arguments here
@@ -172,11 +178,12 @@ describe('AssessmentService.createAssessment', () => {
       recommendations: classificationResult.recommendations,
     };
 
-    userService.findUserByPatientNumber.mockResolvedValue({ id: 'patient-2', district: 'Kigali' });
+    userService.findUserByPatientNumber.mockResolvedValue({
+      id: 'patient-2',
+      district: 'Kigali',
+      communityHealthUnit: 'hospital-1',
+    });
     vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    vi.spyOn(Hospital, 'findOne').mockReturnValue(
-      createSessionAwareLeanQuery({ _id: { toString: () => 'hospital-1' } }) as any,
-    );
     vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
     vi.spyOn(AssessmentClassifier.prototype, 'classifyHypertension').mockReturnValue(classificationResult);
     vi.spyOn(Assessment, 'create').mockResolvedValue([createdAssessment] as any);
@@ -190,8 +197,10 @@ describe('AssessmentService.createAssessment', () => {
     expect(referralService.createReferral).toHaveBeenCalledWith(
       'assessment-2',
       'patient-2',
-      'hospital-1',
       'evaluator-2',
+      hypertensionDto.takenFrom,
+      hypertensionDto.takenFromType,
+      'hospital-1',
       session,
     );
     expect(session.commitTransaction).toHaveBeenCalledOnce();
@@ -199,7 +208,7 @@ describe('AssessmentService.createAssessment', () => {
     expect(result).toEqual(createdAssessment);
   });
 
-  it('resolves the patient district hospital and passes the correct hospital id to referral creation', async () => {
+  it('passes CHU source and patient destination when creating a referral', async () => {
     const indicatorDoc = {
       name: 'hypertension',
       readings: [
@@ -222,28 +231,30 @@ describe('AssessmentService.createAssessment', () => {
       recommendations: classificationResult.recommendations,
     };
 
-    userService.findUserByPatientNumber.mockResolvedValue({ id: 'patient-3', district: 'Musanze' });
+    userService.findUserByPatientNumber.mockResolvedValue({
+      id: 'patient-3',
+      district: 'Musanze',
+      communityHealthUnit: 'hospital-musanze',
+    });
     vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    const hospitalQuery = createSessionAwareLeanQuery({ _id: { toString: () => 'hospital-musanze' } });
-    vi.spyOn(Hospital, 'findOne').mockReturnValue(hospitalQuery as any);
     vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
     vi.spyOn(AssessmentClassifier.prototype, 'classifyHypertension').mockReturnValue(classificationResult);
     vi.spyOn(Assessment, 'create').mockResolvedValue([createdAssessment] as any);
 
     await service.createAssessment(hypertensionDto as any, 'evaluator-3');
 
-    expect(Hospital.findOne).toHaveBeenCalledWith({ 'address.district': 'Musanze' });
-    expect(hospitalQuery.session).toHaveBeenCalledWith(session);
     expect(referralService.createReferral).toHaveBeenCalledWith(
       'assessment-3',
       'patient-3',
-      'hospital-musanze',
       'evaluator-3',
+      hypertensionDto.takenFrom,
+      hypertensionDto.takenFromType,
+      'hospital-musanze',
       session,
     );
   });
 
-  it('throws when no hospital is found for the patient district', async () => {
+  it('throws when referral source is not CHU for abnormal assessment', async () => {
     const indicatorDoc = {
       name: 'hypertension',
       readings: [
@@ -266,20 +277,25 @@ describe('AssessmentService.createAssessment', () => {
       recommendations: classificationResult.recommendations,
     };
 
-    userService.findUserByPatientNumber.mockResolvedValue({ id: 'patient-4', district: 'Nyagatare' });
+    const nonChuDto = {
+      ...hypertensionDto,
+      takenFromType: ModelNames.Hospital,
+    };
+
+    userService.findUserByPatientNumber.mockResolvedValue({
+      id: 'patient-4',
+      district: 'Nyagatare',
+      communityHealthUnit: 'hospital-nyagatare',
+    });
     vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    const hospitalQuery = createSessionAwareLeanQuery(null);
-    vi.spyOn(Hospital, 'findOne').mockReturnValue(hospitalQuery as any);
     vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
     vi.spyOn(AssessmentClassifier.prototype, 'classifyHypertension').mockReturnValue(classificationResult);
     const createSpy = vi.spyOn(Assessment, 'create').mockResolvedValue([createdAssessment] as any);
 
-    await expect(service.createAssessment(hypertensionDto as any, 'evaluator-4')).rejects.toThrow(
-      'No hospital found for the specified district',
+    await expect(service.createAssessment(nonChuDto as any, 'evaluator-4')).rejects.toThrow(
+      'Referral creation for non-CHU sources is not implemented yet',
     );
 
-    expect(Hospital.findOne).toHaveBeenCalledWith({ 'address.district': 'Nyagatare' });
-    expect(hospitalQuery.session).toHaveBeenCalledWith(session);
     expect(createSpy).toHaveBeenCalledOnce();
     expect(referralService.createReferral).not.toHaveBeenCalled();
     expect(session.commitTransaction).not.toHaveBeenCalled();

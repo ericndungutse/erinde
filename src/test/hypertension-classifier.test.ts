@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 import AssessmentClassifier from '../service/assessment-classifier.service.js';
 import type { IIndicatorData } from '../types/indicator.types.js';
-import type { IAssessmentReadings } from '../types/assessment.types.js';
+import type { IAssessmentReadings } from '../domain/assessment.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -104,10 +104,10 @@ describe('AssessmentClassifier.classifyHypertension', () => {
   describe('Error Handling', () => {
     it('throws if systolic or diastolic reading is missing', () => {
       expect(() => classifier.classifyHypertension(makeReadings(120, undefined), baseHypertensionIndicator)).toThrow(
-        /requires systolic and diastolic readings/i
+        /requires systolic and diastolic readings/i,
       );
       expect(() => classifier.classifyHypertension(makeReadings(undefined, 80), baseHypertensionIndicator)).toThrow(
-        /requires systolic and diastolic readings/i
+        /requires systolic and diastolic readings/i,
       );
     });
 
@@ -126,7 +126,7 @@ describe('AssessmentClassifier.classifyHypertension', () => {
         ],
       };
       expect(() => classifier.classifyHypertension(makeReadings(120, 80), customIndicator)).toThrow(
-        /Unable to classify hypertension/i
+        /Unable to classify hypertension/i,
       );
     });
   });

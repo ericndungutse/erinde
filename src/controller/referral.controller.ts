@@ -142,7 +142,7 @@ export default class ReferralController {
       }
 
       const loggedInHospitalId = req.user?.hospitalId;
-      if (loggedInHospitalId && referral.hospitalId !== loggedInHospitalId) {
+      if (loggedInHospitalId && referral.to !== loggedInHospitalId) {
         return res.status(404).json({ status: 'fail', message: 'Referral not found' });
       }
 

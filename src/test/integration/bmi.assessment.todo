@@ -1,0 +1,425 @@
+// import { beforeEach, describe, expect, test } from 'vitest';
+// import { Assessment } from '../../models/assessment.model.js';
+// import ClinicalProfile from '../../models/clinicalProfile.model.js';
+// import Hospital from '../../models/hospital.model.js';
+// import Referral from '../../models/referral.model.js';
+// import User from '../../models/user.model.js';
+// import { setupTestData } from '../testDataSetup/index.js';
+// import { setupTestDB } from '../utils/mongo-memory.js';
+// import { arrangeAssessment, createAssessment } from './util/utils.js';
+
+// // Initialize in-memory MongoDB for these tests
+// setupTestDB();
+
+// // Setup test data before running the tests
+// beforeEach(async () => {
+//   await setupTestData();
+// });
+
+// describe('BMI Assessment: POST /api/v1/assessments', () => {
+//   // 1) Normal Case: Valid BMI readings in the normal range should return a Normal assessment with healthy status and recommendations.
+//   // 1.1: No referral should be created for a healthy BMI assessment.
+//   // 1.2: The assessment should be recorded in the database.
+//   // 1.3: A second BMI assessment for the same patient and indicator on the same day should be rejected by the unique index.
+//   test('1) Normal Case: Valid input returns Normal assessment, no referral, and assessment is recorded', async () => {
+//     // Arrange
+//     const { shwToken, patientNumber, indicatorId } = await arrangeAssessment('SOCIAL_HEALTH_WORKER_NYIRANUMA', 'bmi');
+
+//     // Act
+//     const res = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 64, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     // Assert
+//     expect(res.status).toBe(201);
+//     expect(res.body.status).toBe('success');
+//     expect(res.body.data.assessment.classification.label).toBe('Normal');
+//     expect(res.body.data.assessment.classification.status_code).toBe('healthy');
+//     expect(res.body.data.assessment.recommendations).toEqual(
+//       expect.arrayContaining(["Komeza akamenyero keza ufite k'ubuzima"]),
+//     );
+
+//     // ======== SIDE EFFECT ASSERTIONS ========
+//     // 1.1: No referral created (healthy status_code -> no referral)
+//     const referralCount = await Referral.countDocuments();
+//     expect(referralCount).toBe(0);
+
+//     // 1.2: Assessment is recorded
+//     const assessmentCount = await Assessment.countDocuments();
+//     expect(assessmentCount).toBe(1);
+
+//     // 1.3: A new one cannot be created for the same patient and indicator on the same day (enforced by unique index)
+//     const secondRes = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 64, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     expect(secondRes.status).toBe(400);
+//     expect(secondRes.body.status).toBe('fail');
+//     expect(secondRes.body.message).toBe('Duplicate value for field: patient');
+//   });
+
+//   // 2) Underweight Case: BMI readings in the underweight range should return an Underweight assessment with warning status and recommendations.
+//   // 2.1: A referral should be created for an underweight BMI assessment.
+//   // 2.2: The assessment should be recorded in the database.
+//   // 2.3: The created referral should be linked to the assessment.
+//   // 2.4: A second BMI assessment should be blocked while the referral is still pending.
+//   test('2) Underweight Case: Underweight input creates referral, records assessment, links them, and blocks repeat assessment', async () => {
+//     // Arrange
+//     const { shwToken, patientNumber, indicatorId } = await arrangeAssessment('SOCIAL_HEALTH_WORKER_NYIRANUMA', 'bmi');
+
+//     // Act
+//     const res = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 49, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     // Assert response
+//     expect(res.status).toBe(201);
+//     expect(res.body.status).toBe('success');
+//     expect(res.body.data.assessment.classification.label).toBe('Underweight');
+//     expect(res.body.data.assessment.classification.status_code).toBe('warning');
+//     expect(res.body.data.assessment.recommendations).toEqual(
+//       expect.arrayContaining([
+//         'Rya indyo yuzuye irimo poroteyine nyinshi',
+//         "Gana ivuriro bakugire inama nyuma y'ibyumweru bine",
+//       ]),
+//     );
+
+//     // ======== SIDE EFFECT ASSERTIONS ========
+//     const assessmentId = res.body.data.assessment.id;
+
+//     // 2.1: Referral created
+//     const referralCount = await Referral.countDocuments();
+//     expect(referralCount).toBe(1);
+
+//     // 2.2: Assessment is recorded
+//     const assessmentCount = await Assessment.countDocuments();
+//     expect(assessmentCount).toBe(1);
+
+//     // 2.3: Referral is linked to the assessment
+//     const referral = await Referral.findOne({ patientNumber }).lean();
+//     expect(referral).not.toBeNull();
+//     expect(referral!.assessments.map(String)).toContain(assessmentId);
+
+//     // 2.3.1: Referral is routed to the hospital in the patient's district
+//     const clinicalProfile = await ClinicalProfile.findOne({ patientNumber }).lean();
+//     expect(clinicalProfile).not.toBeNull();
+
+//     const patient = await User.findById(clinicalProfile!.userId).lean();
+//     expect(patient).not.toBeNull();
+
+//     const expectedHospital = await Hospital.findOne({ 'address.district': patient!.address.district }).lean();
+//     expect(expectedHospital).not.toBeNull();
+//     expect(String(referral!.hospitalId)).toBe(String(expectedHospital!._id));
+
+//     // 2.4: Cannot take another BMI assessment while referral is pending
+//     const secondRes = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 49, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     expect(secondRes.status).toBe(400);
+//     expect(secondRes.body.status).toBe('fail');
+//     expect(secondRes.body.message).toBe(
+//       'Patient has a pending referral with this indicator assessment already included. Please resolve the current referral before initiating a new one.',
+//     );
+//   });
+
+//   // 3) Overweight Case: BMI readings in the overweight range should return an Overweight assessment with warning status and recommendations.
+//   // 3.1: A referral should be created for an overweight BMI assessment.
+//   // 3.2: The assessment should be recorded in the database.
+//   // 3.3: The created referral should be linked to the assessment.
+//   // 3.4: A second BMI assessment should be blocked while the referral is still pending.
+//   test('3) Overweight Case: Overweight input creates referral, records assessment, links them, and blocks repeat assessment', async () => {
+//     // Arrange
+//     const { shwToken, patientNumber, indicatorId } = await arrangeAssessment('SOCIAL_HEALTH_WORKER_NYIRANUMA', 'bmi');
+
+//     // Act
+//     const res = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 78, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     // Assert response
+//     expect(res.status).toBe(201);
+//     expect(res.body.status).toBe('success');
+//     expect(res.body.data.assessment.classification.label).toBe('Overweight');
+//     expect(res.body.data.assessment.classification.status_code).toBe('warning');
+//     expect(res.body.data.assessment.recommendations).toEqual(
+//       expect.arrayContaining(["Genzura ingano y'ibiryo urya kandi uhitemo ibiryo bitanga ubuzima"]),
+//     );
+
+//     // ======== SIDE EFFECT ASSERTIONS ========
+//     const assessmentId = res.body.data.assessment.id;
+
+//     // 3.1: Referral created
+//     const referralCount = await Referral.countDocuments();
+//     expect(referralCount).toBe(1);
+
+//     // 3.2: Assessment is recorded
+//     const assessmentCount = await Assessment.countDocuments();
+//     expect(assessmentCount).toBe(1);
+
+//     // 3.3: Referral is linked to the assessment
+//     const referral = await Referral.findOne({ patientNumber }).lean();
+//     expect(referral).not.toBeNull();
+//     expect(referral!.assessments.map(String)).toContain(assessmentId);
+
+//     // 3.4: Cannot take another BMI assessment while referral is pending
+//     const secondRes = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 78, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     expect(secondRes.status).toBe(400);
+//     expect(secondRes.body.status).toBe('fail');
+//     expect(secondRes.body.message).toBe(
+//       'Patient has a pending referral with this indicator assessment already included. Please resolve the current referral before initiating a new one.',
+//     );
+//   });
+
+//   // 4) Obesity Class I Case: BMI readings in Obesity Class I should return the correct danger classification and recommendations.
+//   // 4.1: A referral should be created for an Obesity Class I BMI assessment.
+//   // 4.2: The assessment should be recorded in the database.
+//   // 4.3: The created referral should be linked to the assessment.
+//   // 4.4: A second BMI assessment should be blocked while the referral is still pending.
+//   test('4) Obesity Class I Case: Class I input creates referral, records assessment, links them, and blocks repeat assessment', async () => {
+//     // Arrange
+//     const { shwToken, patientNumber, indicatorId } = await arrangeAssessment('SOCIAL_HEALTH_WORKER_NYIRANUMA', 'bmi');
+
+//     // Act
+//     const res = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 92, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     // Assert response
+//     expect(res.status).toBe(201);
+//     expect(res.body.status).toBe('success');
+//     expect(res.body.data.assessment.classification.label).toBe('Obesity Class I');
+//     expect(res.body.data.assessment.classification.status_code).toBe('danger');
+//     expect(res.body.data.assessment.recommendations).toEqual(
+//       expect.arrayContaining(['Gira akamenyero ko kurya neza no gukora siporo buri munsi']),
+//     );
+
+//     // ======== SIDE EFFECT ASSERTIONS ========
+//     const assessmentId = res.body.data.assessment.id;
+
+//     // 4.1: Referral created
+//     const referralCount = await Referral.countDocuments();
+//     expect(referralCount).toBe(1);
+
+//     // 4.2: Assessment is recorded
+//     const assessmentCount = await Assessment.countDocuments();
+//     expect(assessmentCount).toBe(1);
+
+//     // 4.3: Referral is linked to the assessment
+//     const referral = await Referral.findOne({ patientNumber }).lean();
+//     expect(referral).not.toBeNull();
+//     expect(referral!.assessments.map(String)).toContain(assessmentId);
+
+//     // 4.4: Cannot take another BMI assessment while referral is pending
+//     const secondRes = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 92, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     expect(secondRes.status).toBe(400);
+//     expect(secondRes.body.status).toBe('fail');
+//     expect(secondRes.body.message).toBe(
+//       'Patient has a pending referral with this indicator assessment already included. Please resolve the current referral before initiating a new one.',
+//     );
+//   });
+
+//   // 5) Obesity Class II Case: BMI readings in Obesity Class II should return the correct danger classification and recommendations.
+//   // 5.1: A referral should be created for an Obesity Class II BMI assessment.
+//   // 5.2: The assessment should be recorded in the database.
+//   // 5.3: The created referral should be linked to the assessment.
+//   // 5.4: A second BMI assessment should be blocked while the referral is still pending.
+//   test('5) Obesity Class II Case: Class II input creates referral, records assessment, links them, and blocks repeat assessment', async () => {
+//     // Arrange
+//     const { shwToken, patientNumber, indicatorId } = await arrangeAssessment('SOCIAL_HEALTH_WORKER_NYIRANUMA', 'bmi');
+
+//     // Act
+//     const res = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 107, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     // Assert response
+//     expect(res.status).toBe(201);
+//     expect(res.body.status).toBe('success');
+//     expect(res.body.data.assessment.classification.label).toBe('Obesity Class II');
+//     expect(res.body.data.assessment.classification.status_code).toBe('danger');
+//     expect(res.body.data.assessment.recommendations).toEqual(
+//       expect.arrayContaining(['Gabanya igihe umara nicaye, wongere imyitozo ngororamubiri']),
+//     );
+
+//     // ======== SIDE EFFECT ASSERTIONS ========
+//     const assessmentId = res.body.data.assessment.id;
+
+//     // 5.1: Referral created
+//     const referralCount = await Referral.countDocuments();
+//     expect(referralCount).toBe(1);
+
+//     // 5.2: Assessment is recorded
+//     const assessmentCount = await Assessment.countDocuments();
+//     expect(assessmentCount).toBe(1);
+
+//     // 5.3: Referral is linked to the assessment
+//     const referral = await Referral.findOne({ patientNumber }).lean();
+//     expect(referral).not.toBeNull();
+//     expect(referral!.assessments.map(String)).toContain(assessmentId);
+
+//     // 5.4: Cannot take another BMI assessment while referral is pending
+//     const secondRes = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 107, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     expect(secondRes.status).toBe(400);
+//     expect(secondRes.body.status).toBe('fail');
+//     expect(secondRes.body.message).toBe(
+//       'Patient has a pending referral with this indicator assessment already included. Please resolve the current referral before initiating a new one.',
+//     );
+//   });
+
+//   // 6) Obesity Class III Case: BMI readings in Obesity Class III should return the correct danger classification and recommendations.
+//   // 6.1: A referral should be created for an Obesity Class III BMI assessment.
+//   // 6.2: The assessment should be recorded in the database.
+//   // 6.3: The created referral should be linked to the assessment.
+//   // 6.4: A second BMI assessment should be blocked while the referral is still pending.
+//   test('6) Obesity Class III Case: Class III input creates referral, records assessment, links them, and blocks repeat assessment', async () => {
+//     // Arrange
+//     const { shwToken, patientNumber, indicatorId } = await arrangeAssessment('SOCIAL_HEALTH_WORKER_NYIRANUMA', 'bmi');
+
+//     // Act
+//     const res = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 121, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     // Assert response
+//     expect(res.status).toBe(201);
+//     expect(res.body.status).toBe('success');
+//     expect(res.body.data.assessment.classification.label).toBe('Obesity Class III');
+//     expect(res.body.data.assessment.classification.status_code).toBe('danger');
+//     expect(res.body.data.assessment.recommendations).toEqual(
+//       expect.arrayContaining(["Shaka inama z'abaganga kugira ngo ugabanye ibiro mu buryo burambye"]),
+//     );
+
+//     // ======== SIDE EFFECT ASSERTIONS ========
+//     const assessmentId = res.body.data.assessment.id;
+
+//     // 6.1: Referral created
+//     const referralCount = await Referral.countDocuments();
+//     expect(referralCount).toBe(1);
+
+//     // 6.2: Assessment is recorded
+//     const assessmentCount = await Assessment.countDocuments();
+//     expect(assessmentCount).toBe(1);
+
+//     // 6.3: Referral is linked to the assessment
+//     const referral = await Referral.findOne({ patientNumber }).lean();
+//     expect(referral).not.toBeNull();
+//     expect(referral!.assessments.map(String)).toContain(assessmentId);
+
+//     // 6.4: Cannot take another BMI assessment while referral is pending
+//     const secondRes = await createAssessment(
+//       {
+//         patientNumber,
+//         indicator: indicatorId,
+//         readings: {
+//           height: { value: 170, unit: 'cm' },
+//           weight: { value: 121, unit: 'kg' },
+//         },
+//       },
+//       shwToken,
+//     );
+
+//     expect(secondRes.status).toBe(400);
+//     expect(secondRes.body.status).toBe('fail');
+//     expect(secondRes.body.message).toBe(
+//       'Patient has a pending referral with this indicator assessment already included. Please resolve the current referral before initiating a new one.',
+//     );
+//   });
+// });

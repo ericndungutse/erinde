@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 import AssessmentClassifier from '../service/assessment-classifier.service.js';
 import type { IIndicatorData } from '../types/indicator.types.js';
-import type { IAssessmentReadings } from '../types/assessment.types.js';
+import type { IAssessmentReadings } from '../domain/assessment.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
