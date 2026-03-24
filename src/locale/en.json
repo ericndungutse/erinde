@@ -6,6 +6,7 @@
   "shw_exists_for_village": "A social health worker already exists for village: {{ village }}",
   "login_successful": "Login to Erinde AI was successful!",
   "invalid_credentials": "Invalid credentials provided.",
+  "please_login": "Please login to continue.",
   "user_not_found": "User not found.",
   "parameter_required": "{{ parameter }} is required.",
   "user_details": "User details retrieved successfully.",

@@ -1,8 +1,10 @@
 import type { Response, Request, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import { verifyToken } from '../security/jwt.utils.js';
 import User from '../models/user.model.js';
 import type { UserRole } from '../types/roles.types.js';
 import { UserRole as UserRoleEnum } from '../types/roles.types.js';
+import JwtAuthenticationError from '../Errors/JwtAuthenticationError.js';
 
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -50,6 +52,14 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     };
     next();
   } catch (error) {
+    if (
+      error instanceof jwt.TokenExpiredError ||
+      error instanceof jwt.JsonWebTokenError ||
+      (error instanceof Error && error.message === 'Invalid token payload')
+    ) {
+      return next(new JwtAuthenticationError());
+    }
+
     next(error);
   }
 };

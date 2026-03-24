@@ -61,7 +61,10 @@ export default class ResponseFactory {
   unauthenticated(message = 'Unauthenticated. Please log in to access this resource.') {
     return this.res.status(401).json({
       status: 'fail',
-      message,
+      message: i18next.t(message, {
+        lng: this.res.req?.language || ConstantValues.DEFAULT_LANGUAGE,
+        defaultValue: message,
+      }),
     });
   }
 
