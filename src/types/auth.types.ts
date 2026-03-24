@@ -15,6 +15,10 @@ export const LoginSchema = z.object({
 export type ILoggedInUser = Pick<IUser, 'roles' | 'communityHealthUnit'> & {
   id: string;
   hospitalId?: string | undefined;
+  managedCommunityHealthUnit?: {
+    id: string;
+    name: string;
+  };
 };
 
 export interface IAuthTokenPayload extends JwtPayload {
@@ -27,6 +31,13 @@ export interface IAuthTokenPayload extends JwtPayload {
 
 export interface ILoginResponse {
   token: string;
-  user: ILoggedInUser;
+  user: Omit<ILoggedInUser, 'communityHealthUnit'> & {
+    communityHealthUnit:
+      | ILoggedInUser['communityHealthUnit']
+      | {
+          id: string;
+          name: string;
+        };
+  };
   activeRole?: string;
 }

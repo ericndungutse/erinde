@@ -50,7 +50,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     };
     next();
   } catch (error) {
-    return;
+    next(error);
   }
 };
 
