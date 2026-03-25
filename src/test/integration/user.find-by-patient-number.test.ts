@@ -44,11 +44,24 @@ describe('Integration: GET /api/v1/users/:patientNumber', () => {
   it('returns user details for a valid patient number', async () => {
     const token = await loginByPhone(TEST_USERS.SOCIAL_HEALTH_WORKER.phone, TEST_USERS.SOCIAL_HEALTH_WORKER.password);
 
+    const chuRes = await request(app)
+      .get('/api/v1/community-health-units')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(chuRes.status).toBe(200);
+    const communityHealthUnits = chuRes.body.data.communityHealthUnits;
+    expect(Array.isArray(communityHealthUnits)).toBe(true);
+    expect(communityHealthUnits.length).toBeGreaterThan(0);
+    const communityHealthUnitId = communityHealthUnits[0].id as string;
+
     // First register a user to obtain a patient number
     const regRes = await request(app)
       .post('/api/v1/users')
       .set('Authorization', `Bearer ${token}`)
-      .send(validRegisterPayload);
+      .send({
+        ...validRegisterPayload,
+        communityHealthUnit: communityHealthUnitId,
+      });
 
     expect(regRes.status).toBe(201);
     const patientNumber: number = regRes.body.data.patientNumber.patientNumber as number;

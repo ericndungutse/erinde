@@ -400,7 +400,7 @@ describe('ReferralController.getReferralById', () => {
   it('returns 200 with referral when found', async () => {
     const referral = {
       id: 'ref-200',
-      hospitalId: 'hospital-1',
+      to: 'hospital-1',
       status: 'PENDING',
     };
     const mockService: any = {
@@ -419,7 +419,7 @@ describe('ReferralController.getReferralById', () => {
   it('returns 404 when logged-in hospitalId does not match referral hospitalId', async () => {
     const referral = {
       id: 'ref-201',
-      hospitalId: 'hospital-1',
+      to: 'hospital-1',
       status: 'PENDING',
     };
     const mockService: any = {

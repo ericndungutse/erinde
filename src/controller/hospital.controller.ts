@@ -2,7 +2,8 @@ import type { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import HospitalNotFoundError from "../Errors/HospitalNotFoundError.js";
 import type { IHospitalService } from "../service/interface/ihospital.service.js";
-import type { IHospital } from "../types/hospital.types.js";
+import type { CreateHospitalDTO, IHospital } from "../types/hospital.types.js";
+import ResponseFactory from "./responseFactory.js";
 
 export default class HospitalController {
   private _hospitalService: IHospitalService;
@@ -13,12 +14,15 @@ export default class HospitalController {
 
   async getAllHospitals(req: Request, res: Response, next: NextFunction) {
     try {
-      const hospitals: IHospital[]= await this._hospitalService.getAllHospitals();
+      const result = await this._hospitalService.getAllHospitals(
+        req.query as Record<string, string | string[] | undefined>,
+      );
       res.status(200).json({
         status: "success",
         message: "Hospitals retrieved successfully",
         data: {
-          hospitals,
+          hospitals: result.hospitals,
+          pagination: result.pagination,
         },
       });
     } catch (err) {
@@ -47,6 +51,21 @@ export default class HospitalController {
           hospital,
         },
       });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async createHospital(req: Request, res: Response, next: NextFunction) {
+    try {
+      const payload: CreateHospitalDTO = req.body;
+      const created = await this._hospitalService.createHospital(payload);
+
+      return ResponseFactory.getResponseFactory(res).created(
+        "hospital",
+        created,
+        "Hospital created successfully",
+      );
     } catch (err) {
       next(err);
     }

@@ -46,6 +46,8 @@ interface QueryString {
 export class APIFeatures<T extends Document> {
   query: Query<T[], T>;
   private queryString: QueryString;
+  page?: number;
+  limit?: number;
 
   constructor(query: Query<T[], T>, queryString: QueryString) {
     this.query = query;
@@ -91,6 +93,8 @@ export class APIFeatures<T extends Document> {
   /** Skip/limit results for pagination. */
   paginate(): this {
     const { page, limit } = parsePaginationParams(this.queryString);
+    this.page = page;
+    this.limit = limit;
     const skip = (page - 1) * limit;
     this.query = this.query.skip(skip).limit(limit);
     return this;

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { AddressSchema, type IAddress } from "./address.type.js";
 
 export interface IHospital {
-  id: Types.ObjectId;
+  _id: Types.ObjectId;
   name: string;
   type: HospitalType;
   address: IAddress;
@@ -28,6 +28,8 @@ export const CreateHospitalSchema = z.object({
   type: HospitalTypeSchema,
   address: AddressSchema,
 });
+
+export type CreateHospitalDTO = z.infer<typeof CreateHospitalSchema>;
 
 // Mongoose types
 export interface IHospitalDocument extends IHospital, Document {}

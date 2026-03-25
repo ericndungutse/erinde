@@ -28,7 +28,7 @@ describe('Test Data Setup: nurses are attached to expected hospitals', () => {
     for (const [nurseSetupKey, nursePayload] of Object.entries(NURSE_SETUP)) {
       const hospitalSetupKey = nurseSetupKey.replace(/^NURSE_/, '');
       const expectedHospitalId = createdHospitalsKeys[hospitalSetupKey];
-      const expectedHospitalName = HOSPITAL_SETUP[hospitalSetupKey]?.name;
+      const expectedHospitalName = HOSPITAL_SETUP[hospitalSetupKey]?.name?.toLowerCase();
 
       expect(expectedHospitalId).toBeDefined();
       expect(expectedHospitalName).toBeDefined();

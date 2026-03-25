@@ -81,11 +81,11 @@ describe('Test Data Setup Orchestrator: setupTestData()', () => {
 
     for (const [hospitalSetupKey, hospitalPayload] of Object.entries(HOSPITAL_SETUP)) {
       const createdHospital = await Hospital.findOne({
-        name: hospitalPayload.name,
+        name: hospitalPayload.name.toLowerCase(),
       }).lean();
 
       expect(createdHospital).toBeTruthy();
-      expect(createdHospital!.name).toBe(hospitalPayload.name);
+      expect(createdHospital!.name).toBe(hospitalPayload.name.toLowerCase());
       expect(result.createdHospitals[hospitalSetupKey]).toBe(
         createdHospital!._id.toString(),
       );
@@ -151,7 +151,7 @@ describe('Test Data Setup Orchestrator: setupTestData()', () => {
         name: string;
       };
       expect(populatedHospital._id.toString()).toBe(expectedHospitalId);
-      expect(populatedHospital.name).toBe(HOSPITAL_SETUP[hospitalSetupKey]?.name);
+      expect(populatedHospital.name).toBe(HOSPITAL_SETUP[hospitalSetupKey]?.name?.toLowerCase());
 
       const nurseCommunityHealthUnit = await CommunityHealthUnit.findById(
         createdNurse!.communityHealthUnit,

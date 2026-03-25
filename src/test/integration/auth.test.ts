@@ -37,7 +37,9 @@ describe('Integration: POST /api/v1/auth/login', () => {
   it('logs in ADMIN user by email', async () => {
     const { email } = ACCOUNT_SETUP.ADMIN!.contact;
 
-    const res = await client().post('/api/v1/auth/login').send({ identifier: email, password: ConstantValues.DEFAULT_PASSWORD });
+    const res = await client()
+      .post('/api/v1/auth/login')
+      .send({ identifier: email, password: ConstantValues.DEFAULT_PASSWORD });
 
     expectLoginSuccess(res, UserRole.ADMIN);
   });
@@ -45,7 +47,9 @@ describe('Integration: POST /api/v1/auth/login', () => {
   it('logs in NURSE user by phone number', async () => {
     const { phone } = NURSE_SETUP.NURSE_NYIRANUMA_HEALTH_CENTER!.contact;
 
-    const res = await client().post('/api/v1/auth/login').send({ identifier: phone, password: ConstantValues.DEFAULT_PASSWORD });
+    const res = await client()
+      .post('/api/v1/auth/login')
+      .send({ identifier: phone, password: ConstantValues.DEFAULT_PASSWORD });
 
     expectLoginSuccess(res, UserRole.NURSE);
   });
@@ -53,7 +57,9 @@ describe('Integration: POST /api/v1/auth/login', () => {
   it('logs in NURSE user by email', async () => {
     const { email } = NURSE_SETUP.NURSE_NYIRANUMA_HEALTH_CENTER!.contact;
 
-    const res = await client().post('/api/v1/auth/login').send({ identifier: email, password: ConstantValues.DEFAULT_PASSWORD });
+    const res = await client()
+      .post('/api/v1/auth/login')
+      .send({ identifier: email, password: ConstantValues.DEFAULT_PASSWORD });
 
     expectLoginSuccess(res, UserRole.NURSE);
   });
@@ -61,7 +67,9 @@ describe('Integration: POST /api/v1/auth/login', () => {
   it('logs in SOCIAL_HEALTH_WORKER by phone number', async () => {
     const { phone } = ACCOUNT_SETUP.SOCIAL_HEALTH_WORKER_NYIRANUMA!.contact;
 
-    const res = await client().post('/api/v1/auth/login').send({ identifier: phone, password: ConstantValues.DEFAULT_PASSWORD });
+    const res = await client()
+      .post('/api/v1/auth/login')
+      .send({ identifier: phone, password: ConstantValues.DEFAULT_PASSWORD });
 
     expectLoginSuccess(res, UserRole.SOCIAL_HEALTH_WORKER);
   });
