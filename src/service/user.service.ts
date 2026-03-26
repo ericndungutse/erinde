@@ -298,6 +298,7 @@ export class UserService implements IUserService {
       phone: user.contact?.phone,
       district: user.address?.district,
       communityHealthUnit: user.communityHealthUnit,
+      patientNumber: clinicalProfile.patientNumber,
     };
   }
 

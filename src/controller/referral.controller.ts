@@ -13,12 +13,8 @@ export default class ReferralController {
    * List referrals scoped to the logged-in social health worker.
    * Uses ClinicalProfile.healthWorkerId to determine assignment.
    */
-  async listMyReferrals(req: Request, res: Response) {
+  async getReferralsByCommunityHealthUnit(req: Request, res: Response) {
     try {
-      const loggedInUserId = req.user?.id;
-      if (!loggedInUserId) {
-        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
-      }
 
       const rawStatus = Array.isArray(req.query?.status) ? req.query.status[0] : req.query?.status;
       const allowedStatuses: ReferralStatus[] = ['PENDING', 'COMPLETED', 'CANCELLED'];
@@ -32,11 +28,11 @@ export default class ReferralController {
         });
       }
 
-      const { referrals, pagination } = await this._referralService.listReferralsByHealthWorker(
-        loggedInUserId,
-        status,
-        (req.query ?? {}) as Record<string, string | string[] | undefined>,
+      const { referrals, pagination } = await this._referralService.getReferralsByCommunityHealthUnit(
+        req.params.id?.toString() || '',
+       req.query ? (req.query as Record<string, string | string[] | undefined>) : {},
       );
+      
       return res.status(200).json({ status: 'success', data: { referrals, pagination } });
     } catch (error: any) {
       return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list referrals' });

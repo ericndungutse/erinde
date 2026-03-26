@@ -3,11 +3,11 @@ import { container } from '../container.js';
 import { protect, authorize } from '../security/auth.middleware.js';
 import { UserRole } from '../types/roles.types.js';
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
-// GET /referrals/me - List referrals for patients under the logged-in health worker's follow-up
-router.get('/me', protect, authorize(UserRole.SOCIAL_HEALTH_WORKER), (req, res) =>
-  container.referralController.listMyReferrals(req, res),
+// GET /:communityHealthUnit - List referrals for patients under a specific social health worker's follow-up
+router.get('/', protect, authorize(UserRole.SOCIAL_HEALTH_WORKER), (req, res) =>
+  container.referralController.getReferralsByCommunityHealthUnit(req, res),
 );
 
 // GET /referrals/upcoming - List upcoming referral visits (by scheduledVisitDate) for the logged-in social health worker

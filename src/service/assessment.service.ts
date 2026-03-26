@@ -86,6 +86,9 @@ export default class AssessmentService implements IAssessmentService {
         session,
       );
       console.log("Created assessment", dto, ModelNames.CommunityHealthUnit);
+
+    
+      
       await this.createReferralIfNeeded(
         created.id,
         patient,
@@ -397,6 +400,7 @@ export default class AssessmentService implements IAssessmentService {
       await this.referralService.createReferral(
         assessmentId,
         patient.id.toString(),
+        patient.patientNumber,
         evaluatedBy,
         takenFrom,
         takenFromType,

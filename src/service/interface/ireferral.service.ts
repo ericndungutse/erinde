@@ -15,11 +15,13 @@ export interface IReferralService {
    *
    * @param assessmentId - Assessment id to attach to the referral
    * @param patientId - User id of the patient
+   * @param patientNumber - Patient number for domain linkage
    * @param referredBy - User id of the person who initiated the referral
    */
   createReferral(
     assessmentId: string,
     userId: string,
+    patientNumber: number,
     referredBy: string,
     from: string,
     fromType: string,
@@ -34,11 +36,10 @@ export interface IReferralService {
    * @param healthWorkerId - Logged-in social health worker's user id
    * @returns Array of referrals for patients assigned to the given health worker
    */
-  listReferralsByHealthWorker(
-    healthWorkerId: string,
-    status: ReferralStatus,
+  getReferralsByCommunityHealthUnit(
+    communityHealthUnit: string,
     query?: Record<string, string | string[] | undefined>,
-  ): Promise<GetHealthWorkerReferralsResult>;
+  ): Promise<any>;
 
   /**
    * List referrals for a specific hospital.

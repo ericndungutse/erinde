@@ -16,6 +16,9 @@ import type {
 import type { PaginationMeta } from '../types/api.types.js';
 import type { ReferralStatus } from '../types/ReferralStatus.types.js';
 import { parsePaginationParams } from '../utils/pagination.js';
+import { APIFeatures } from '../utils/apiFeatures.js';
+import type { IHospital } from '../types/hospital.types.js';
+import { ModelNames } from '../constants/constant.values.js';
 
 export class ReferralService implements IReferralService {
   getPendingReferralByPatientNumber(patientNumber: number, session: ClientSession): Promise<IReferral | null> {
@@ -66,6 +69,7 @@ export class ReferralService implements IReferralService {
   async createReferral(
     assessmentId: string,
     userId: string,
+    patientNumber: number,
     referredBy: string,
     from: string,
     fromType: string,
@@ -77,8 +81,11 @@ export class ReferralService implements IReferralService {
 
     // 1. Check for existing PENDING referral (transaction-aware)
     // Check if there is a pending referral for the patient
+
+    console.log('Checking for existing referral for patientNumber:', patientNumber, 'userId:', userId);
     const existingReferral = await Referral.findOne({
-      patient: userId,
+      patientNumber: patientNumber,
+      userId: userId,
       status: 'PENDING',
     })
       .session(session ?? null)
@@ -144,58 +151,37 @@ export class ReferralService implements IReferralService {
    * Uses ClinicalProfile.healthWorkerId to determine patient assignment.
    * Returns most recent first.
    */
-  async listReferralsByHealthWorker(
-    healthWorkerId: string,
-    status: ReferralStatus = 'PENDING',
+  async getReferralsByCommunityHealthUnit(
+    communityHealthUnit: string,
     query: Record<string, string | string[] | undefined> = {},
-  ): Promise<GetHealthWorkerReferralsResult> {
-    const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
-    const { page, limit } = parsePaginationParams(query);
-    const basePipeline = [
-      {
-        $lookup: {
-          from: 'clinicalprofiles',
-          localField: 'clinicalProfile',
-          foreignField: '_id',
-          as: 'cp',
-        },
-      },
-      { $unwind: '$cp' },
-      { $match: { 'cp.healthWorkerId': hwObjectId, status } },
-    ];
+  ): Promise<any> {
 
-    const [countResult] = await Referral.aggregate([...basePipeline, { $count: 'count' }]).exec();
-    const totalResults = countResult?.count ?? 0;
+
+    
+
+   
+    const features = new APIFeatures(Referral.find({ fromType: ModelNames.CommunityHealthUnit, from: communityHealthUnit }), query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+
+    // Count documents matching the same filter
+    const countFeatures = new APIFeatures(Referral.find({ fromType: ModelNames.CommunityHealthUnit, from: communityHealthUnit }), query).filter();
+    const filteredQuery = countFeatures.query.getFilter() as any;
+    const totalResults = await Referral.countDocuments(filteredQuery).exec();
+
+    const page = features.page ?? 1;
+    const limit = features.limit ?? 20;
     const totalPages = Math.max(1, Math.ceil(totalResults / limit));
     const currentPage = Math.min(page, totalPages);
-    const skip = (currentPage - 1) * limit;
 
-    const results = await Referral.aggregate([
-      ...basePipeline,
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: limit },
-      {
-        $project: {
-          _id: 1,
-          patientNumber: 1,
-          referralDate: 1,
-          scheduledVisitDate: 1,
-          status: 1,
-          assessmentCount: { $size: '$assessments' },
-        },
-      },
-    ]).exec();
-
-    // Map _id to id for DTO shape
-    const summaries: IReferralSummary[] = results.map((r: any) => ({
-      id: r._id.toString(),
-      patientNumber: r.patientNumber,
-      referralDate: r.referralDate,
-      scheduledVisitDate: r.scheduledVisitDate,
-      status: r.status,
-      assessmentCount: r.assessmentCount,
-    }));
+    // Ensure we keep our hospital projection consistent.
+    const referrals = (await features.query
+      .select("-__v -createdAt -updatedAt")
+      .lean()
+      .exec()) as unknown as IReferral[];
 
     const pagination: PaginationMeta = {
       currentPage,
@@ -208,10 +194,8 @@ export class ReferralService implements IReferralService {
       prevPage: currentPage > 1 ? currentPage - 1 : null,
     };
 
-    return {
-      referrals: summaries,
-      pagination,
-    };
+    return { referrals, pagination };
+  
   }
 
   /**
