@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { container } from '../container.js';
 import { CreateAssessmentSchemaZ } from '../dto/assessmentDto.js';
-import { resolveAssessmentTakenFrom } from '../middleware/resolveAssessmentTakenFrom.js';
+import { resolveAssessmentTakenFrom, validateAssessmentTakenTwice } from '../middleware/assessment.middlewares.js';
 import { authorize, protect } from '../security/auth.middleware.js';
 import { UserRole } from '../types/roles.types.js';
 import { validateBody } from '../validation/validator.js';
 const router = Router();
 
-router.post('/', protect, resolveAssessmentTakenFrom, validateBody(CreateAssessmentSchemaZ), (req, res, next) =>
+router.post('/', protect, resolveAssessmentTakenFrom, validateBody(CreateAssessmentSchemaZ), validateAssessmentTakenTwice, (req, res, next) =>
   container.assessmentController.createAssessment(req, res, next),
 );
 

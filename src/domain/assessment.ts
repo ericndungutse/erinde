@@ -31,6 +31,7 @@ export interface IAssessmentClassification {
 
 export interface IAssessment {
   patient: Types.ObjectId | string;
+  patientNumber: number;
   indicator: Types.ObjectId | string;
   evaluatedBy: Types.ObjectId | string;
   readings: IAssessmentReadings;

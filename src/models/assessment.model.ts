@@ -81,6 +81,11 @@ const AssessmentResultSchema = new Schema<IAssessmentDocument>(
       // required: true,
     },
 
+    patientNumber: {
+      type: Number,
+      required: true,
+    },
+
     recommendations: {
       type: [String],
       default: [],

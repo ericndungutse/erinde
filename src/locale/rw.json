@@ -19,5 +19,6 @@
   "hospital_not_found": "Ibitaro ntibibashije kuboneka.",
    "password_required": "Ijambobanga rirakenewe.",
    "indicator_not_found": "Ikigereranyo ntibibashije kuboneka.",
-   "patient_not_found": "Umurwayi ntibibashije kuboneka."
+   "patient_not_found": "Umurwayi ntibibashije kuboneka.",
+   "assessment_for_same_indicator_taken_today": "Isuzuma ryakozwe uyumunsi ku ndwara mwatanze."
 }

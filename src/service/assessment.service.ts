@@ -76,6 +76,7 @@ export default class AssessmentService implements IAssessmentService {
       const assessmentPayload = this.buildAssessmentPayload(
         dto,
         evaluatedBy,
+        // Stands for user ID
         patient.id,
         classification,
         recommendations,
@@ -108,6 +109,7 @@ export default class AssessmentService implements IAssessmentService {
         recommendations: created.recommendations,
         takenFrom: created.takenFrom,
         takenFromType: created.takenFromType,
+        patientNumber: created.patientNumber,
       };
     } catch (error) {
       await session.abortTransaction();
@@ -143,6 +145,7 @@ export default class AssessmentService implements IAssessmentService {
       patient: doc.patient.toString(),
       indicator: doc.indicator.toString(),
       evaluatedBy: doc.evaluatedBy?.toString() ?? "",
+      patientNumber: doc.patientNumber,
       readings: doc.readings,
       classification: doc.classification,
       takenFrom: doc.takenFrom,
@@ -355,6 +358,7 @@ export default class AssessmentService implements IAssessmentService {
   ): IAssessment {
     return {
       patient: patientId,
+      patientNumber: dto.patientNumber,
       indicator: dto.indicator,
       evaluatedBy,
       readings: dto.readings,
