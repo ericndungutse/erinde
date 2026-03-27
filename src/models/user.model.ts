@@ -1,11 +1,11 @@
 
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { Document, Schema, Types, type HydratedDocument } from 'mongoose';
 import type { IUser } from '../domain/user.js';
 import { UserRole } from '../types/roles.types.js';
 import type { INurse } from '../domain/nurse.js';
 
-export interface IUserDocument extends IUser, Document {}
-export interface INurseDocument extends INurse, Document {}
+export type IUserDocument = HydratedDocument<IUser>;
+export type INurseDocument = HydratedDocument<INurse>;
 
 // Discriminator key to differentiate between User and Nurse
 const option = { discriminatorKey: 'role', collection: 'users' };

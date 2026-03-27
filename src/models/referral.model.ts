@@ -1,15 +1,15 @@
-import mongoose, { type Model, Schema } from 'mongoose';
-import type { IReferral } from '../domain/referral.js';
-import { ModelNames } from '../constants/constant.values.js';
+import mongoose, { type HydratedDocument, type Model, Schema } from "mongoose";
+import type { IReferral } from "../domain/referral.js";
+import { ModelNames } from "../constants/constant.values.js";
 
-export interface IReferralDocument extends IReferral, Document {}
-export interface IReferralModel extends Model<IReferralDocument> {}
+export type IReferralDocument = HydratedDocument<IReferral>;
+export interface IReferralModel extends Model<IReferral> {}
 
-const referralSchema = new Schema<IReferralDocument>(
+const referralSchema = new Schema<IReferral>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       index: true,
     },
@@ -28,7 +28,7 @@ const referralSchema = new Schema<IReferralDocument>(
 
     to: {
       type: Schema.Types.ObjectId,
-      ref: 'Hospital',
+      ref: "Hospital",
       required: true,
     },
 
@@ -43,22 +43,22 @@ const referralSchema = new Schema<IReferralDocument>(
 
     status: {
       type: String,
-      enum: ['PENDING', 'COMPLETED', 'CANCELLED', 'ESCALATED'],
-      default: 'PENDING',
+      enum: ["PENDING", "COMPLETED", "CANCELLED", "ESCALATED"],
+      default: "PENDING",
       index: true,
     },
 
     assessments: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Assessment',
+        ref: "Assessment",
         required: true,
       },
     ],
 
     referredBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
 
@@ -66,7 +66,7 @@ const referralSchema = new Schema<IReferralDocument>(
     from: {
       type: Schema.Types.ObjectId,
       required: true,
-      refPath: 'fromType',
+      refPath: "fromType",
     },
 
     // Tells mongoose which model to use
@@ -81,7 +81,7 @@ const referralSchema = new Schema<IReferralDocument>(
   },
 );
 
-referralSchema.set('toJSON', {
+referralSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (_doc, ret) => {
@@ -90,6 +90,9 @@ referralSchema.set('toJSON', {
   },
 });
 
-const Referral = mongoose.model<IReferralDocument, IReferralModel>(ModelNames.Referral, referralSchema);
+const Referral = mongoose.model<IReferral, IReferralModel>(
+  ModelNames.Referral,
+  referralSchema,
+);
 
 export default Referral;

@@ -1,10 +1,12 @@
-import mongoose, { type Document, Schema, Types } from 'mongoose';
+import type { HydratedDocument } from 'mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
 import type { ICommunityHealthUnit } from '../domain/communityHealthUnit.js';
+import type { Model } from 'mongoose';
 
-export interface ICommunityHealthUnitDocument extends ICommunityHealthUnit, Document {}
-export interface ICommunityHealthUnitModel extends mongoose.Model<ICommunityHealthUnitDocument> {}
+export type ICommunityHealthUnitDocument = HydratedDocument<ICommunityHealthUnit>;
+export interface ICommunityHealthUnitModel extends Model<ICommunityHealthUnit> {}
 
-const CommunityHealthUnitSchema = new Schema<ICommunityHealthUnitDocument>(
+const CommunityHealthUnitSchema = new Schema<ICommunityHealthUnit>(
   {
     name: { type: String, trim: true, lowercase: true },
     socialHealthWorker: { type: Types.ObjectId, ref: 'User', required: false, default: null },
@@ -50,7 +52,7 @@ CommunityHealthUnitSchema.index(
   { unique: true },
 );
 
-const CommunityHealthUnit = mongoose.model<ICommunityHealthUnitDocument, ICommunityHealthUnitModel>(
+const CommunityHealthUnit = mongoose.model<ICommunityHealthUnit, ICommunityHealthUnitModel>(
   'CommunityHealthUnit',
   CommunityHealthUnitSchema,
 );

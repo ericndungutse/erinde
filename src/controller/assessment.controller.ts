@@ -14,7 +14,7 @@ export default class AssessmentController {
       // Resolve creator id from authenticated user if available
       const evaluatedBy = req.user?.id;
 
-      const created = await this._assessmentService.createAssessment(req.body, evaluatedBy);
+      const created = await this._assessmentService.createAssessment(req.body, evaluatedBy, req.existingPendingReferral);
       ResponseFactory.getResponseFactory(res).created('assessment', created, 'Assessment created successfully');
     } catch (err: any) {
       next(err);

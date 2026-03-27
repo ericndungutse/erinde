@@ -1,9 +1,14 @@
+
 import mongoose, { Schema } from 'mongoose';
-import { HospitalType, type IHospitalDocument } from '../types/hospital.types.js';
-import type { Model, Types } from 'mongoose';
-export interface IHospitalModel extends Model<IHospitalDocument> {
+import { HospitalType, type IHospital} from '../types/hospital.types.js';
+import type { HydratedDocument, Model, Types } from 'mongoose';
+
+
+export type IHospitalDocument = HydratedDocument<IHospital>;
+export interface IHospitalModel extends Model<IHospital> {
   existsById(id: Types.ObjectId): Promise<boolean>;
 }
+
 const hospitalSchema = new Schema<IHospitalDocument>(
   {
     name: { type: String, required: true, trim: true, lowercase: true },

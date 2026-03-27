@@ -1,3 +1,4 @@
+import type { IReferral } from '../../domain/referral.js';
 import type {
   AssessmentCreatedResponseDTO,
   AssessmentDetailsDTO,
@@ -10,8 +11,9 @@ export interface IAssessmentService {
    * Create a new assessment record from DTO (user passes patientNumber, indicator, readings)
    * @param dto CreateAssessmentDTO payload
    * @param evaluatedBy optional evaluator  id
+   * @param existingPendingReferral optional existing pending referral
    */
-  createAssessment(dto: CreateAssessmentDTO, evaluatedBy?: string): Promise<AssessmentCreatedResponseDTO>;
+  createAssessment(dto: CreateAssessmentDTO, evaluatedBy?: string, existingPendingReferral?: IReferral | null): Promise<AssessmentCreatedResponseDTO>;
 
   /**
    * Get single assessment details by id (no population)

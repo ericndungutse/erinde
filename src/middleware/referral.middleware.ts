@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import HasPendingReferralError from "../Errors/HasPendingReferralError.js";
 import { Assessment } from "../models/assessment.model.js";
-import Referral from "../models/referral.model.js";
+import Referral, { type IReferralDocument } from "../models/referral.model.js";
 import { logger } from "../logger.js";
 
 export async function checkPendingReferral(
@@ -15,18 +15,18 @@ export async function checkPendingReferral(
   logger.trace({ patientNumber, indicator }, "Checking for pending referrals");
 
   try {
-    const referral = await Referral.findOne({
+    const referral: IReferralDocument | null = await Referral.findOne({
       patientNumber,
       status: "PENDING",
     })
-      .lean()
+    .select("assessments")
       .exec();
 
-    if (!referral) {
-      // 2. DEBUG: Helpful to know the path taken when no referral exists
-      logger.debug({ patientNumber }, "No pending referral found; proceeding");
-      return next();
-    }
+      if (!referral) {
+        // 2. DEBUG: Helpful to know the path taken when no referral exists
+        logger.debug({ patientNumber }, "No pending referral found; proceeding");
+        return next();
+      }
 
     logger.debug(
       {
@@ -68,6 +68,9 @@ export async function checkPendingReferral(
       { patientNumber, indicator },
       "Pending referral exists but for a different indicator; allowing new assessment",
     );
+
+    // 8. REferral exists and does not containg assessment about the indicator being assessed. Proceed and attach existingPendigReferral to request
+    req.existingPendingReferral = referral;
     return next();
   } catch (error) {
     // 8. ERROR: System/Database failure

@@ -1,49 +1,53 @@
-import ClinicalProfile from '../models/clinicalProfile.model.js';
-import { Assessment } from '../models/assessment.model.js';
-import Referral from '../models/referral.model.js';
-import mongoose, { Types, type ClientSession } from 'mongoose';
-import type { IReferralService } from './interface/ireferral.service.js';
+import mongoose, { type ClientSession } from "mongoose";
+import { Assessment } from "../models/assessment.model.js";
+import ClinicalProfile from "../models/clinicalProfile.model.js";
+import Referral, { type IReferralDocument } from "../models/referral.model.js";
+import type { IReferralService } from "./interface/ireferral.service.js";
 
-import HasPendingReferralError from '../Errors/HasPendingReferralError.js';
-import type { IReferral } from '../domain/referral.js';
+import { ModelNames } from "../constants/constant.values.js";
+import type { IReferral } from "../domain/referral.js";
 import type {
   GetHospitalReferralsResult,
-  GetHealthWorkerReferralsResult,
   IReferralDetails,
   IReferralStatusSummary,
-  IReferralSummary,
-} from '../dto/referral.dto.js';
-import type { PaginationMeta } from '../types/api.types.js';
-import type { ReferralStatus } from '../types/ReferralStatus.types.js';
-import { parsePaginationParams } from '../utils/pagination.js';
-import { APIFeatures } from '../utils/apiFeatures.js';
-import type { IHospital } from '../types/hospital.types.js';
-import { ModelNames } from '../constants/constant.values.js';
+  IReferralSummary
+} from "../dto/referral.dto.js";
+import type { PaginationMeta } from "../types/api.types.js";
+import { APIFeatures } from "../utils/apiFeatures.js";
+import { parsePaginationParams } from "../utils/pagination.js";
 
 export class ReferralService implements IReferralService {
-  getPendingReferralByPatientNumber(patientNumber: number, session: ClientSession): Promise<IReferral | null> {
-    const referral = Referral.findOne({ patientNumber, status: 'PENDING' }).session(session).lean().exec();
+  getPendingReferralByPatientNumber(
+    patientNumber: number,
+    session: ClientSession,
+  ): Promise<IReferral | null> {
+    const referral = Referral.findOne({ patientNumber, status: "PENDING" })
+      .session(session)
+      .lean()
+      .exec();
     return referral;
   }
 
   async hasPendingReferral(patientNumber: number): Promise<boolean> {
     const exists = await Referral.exists({
       patientNumber,
-      status: 'PENDING',
+      status: "PENDING",
     });
     return !!exists;
   }
 
   // TODO: Analytics: You can now calculate the "Lag Time" between scheduledVisitDate and actualVisitDate to see if patients are arriving earlier or later than expected.
-  async completeReferralByPatientNumber(patientNumber: number): Promise<any | null> {
+  async completeReferralByPatientNumber(
+    patientNumber: number,
+  ): Promise<any | null> {
     const updated = await Referral.findOneAndUpdate(
       {
         patientNumber,
-        status: 'PENDING',
+        status: "PENDING",
       },
       {
         $set: {
-          status: 'COMPLETED',
+          status: "COMPLETED",
           visitDate: new Date(),
         },
       },
@@ -52,7 +56,7 @@ export class ReferralService implements IReferralService {
         sort: { createdAt: -1 },
       },
     )
-      .populate('patient')
+      .populate("patient")
       .exec();
 
     return updated;
@@ -69,41 +73,49 @@ export class ReferralService implements IReferralService {
   async createReferral(
     assessmentId: string,
     userId: string,
-    patientNumber: number,
     referredBy: string,
     from: string,
     fromType: string,
     to: string,
+    existingPendingReferral?: IReferralDocument | null,
     session?: ClientSession,
   ): Promise<void> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 1. Check for existing PENDING referral (transaction-aware)
-    // Check if there is a pending referral for the patient
+    // // 1. Check for existing PENDING referral (transaction-aware)
+    // // Check if there is a pending referral for the patient
 
-    console.log('Checking for existing referral for patientNumber:', patientNumber, 'userId:', userId);
-    const existingReferral = await Referral.findOne({
-      patientNumber: patientNumber,
-      userId: userId,
-      status: 'PENDING',
-    })
-      .session(session ?? null)
-      .exec();
+    // const existingReferral = await Referral.findOne({
+    //   patientNumber: patientNumber,
+    //   userId: userId,
+    //   status: "PENDING",
+    // })
+    //   .session(session ?? null)
+    //   .exec();
 
-    if (existingReferral) {
-      // Ensure assessments are added for the same day as referral was created.
-      if (!this.isSameDay(today, new Date(existingReferral.referralDate))) {
-        throw new HasPendingReferralError();
+    // if (existingReferral) {
+    //   // Ensure assessments are added for the same day as referral was created.
+    //   if (!this.isSameDay(today, new Date(existingReferral.referralDate))) {
+    //     throw new HasPendingReferralError();
+    //   }
+
+    //   // Add assessment if not already included
+    //   if (!existingReferral.assessments.includes(assessmentId)) {
+    //     existingReferral.assessments.push(assessmentId);
+    //     await existingReferral.save({ session: session ?? null });
+    //   }
+    //   return;
+    // }
+
+    // if existingPendingReferral is provided, append assessment to its assessments list and save
+    if (existingPendingReferral) {
+      if (!existingPendingReferral.assessments.includes(assessmentId)) {
+        existingPendingReferral.assessments.push(assessmentId);
+        await existingPendingReferral.save({ session: session ?? null });
       }
-
-      // Add assessment if not already included
-      if (!existingReferral.assessments.includes(assessmentId)) {
-        existingReferral.assessments.push(assessmentId);
-        await existingReferral.save({ session: session ?? null });
-      }
-      return;
     }
+
 
     // 2. Fetch assessment and clinical profile (transaction-aware)
     const [assessment, clinicalProfile] = await Promise.all([
@@ -118,7 +130,7 @@ export class ReferralService implements IReferralService {
     ]);
 
     if (!assessment || !clinicalProfile) {
-      throw new Error('Required Assessment or Clinical Profile not found');
+      throw new Error("Required Assessment or Clinical Profile not found");
     }
 
     // 3. Schedule next visit
@@ -134,7 +146,7 @@ export class ReferralService implements IReferralService {
           patientNumber: clinicalProfile.patientNumber,
           referralDate: today,
           scheduledVisitDate,
-          status: 'PENDING',
+          status: "PENDING",
           assessments: [assessmentId],
           from,
           fromType,
@@ -155,20 +167,26 @@ export class ReferralService implements IReferralService {
     communityHealthUnit: string,
     query: Record<string, string | string[] | undefined> = {},
   ): Promise<any> {
-
-
-    
-
-   
-    const features = new APIFeatures(Referral.find({ fromType: ModelNames.CommunityHealthUnit, from: communityHealthUnit }), query)
+    const features = new APIFeatures(
+      Referral.find({
+        fromType: ModelNames.CommunityHealthUnit,
+        from: communityHealthUnit,
+      }),
+      query,
+    )
       .filter()
       .sort()
       .limitFields()
       .paginate();
 
-
     // Count documents matching the same filter
-    const countFeatures = new APIFeatures(Referral.find({ fromType: ModelNames.CommunityHealthUnit, from: communityHealthUnit }), query).filter();
+    const countFeatures = new APIFeatures(
+      Referral.find({
+        fromType: ModelNames.CommunityHealthUnit,
+        from: communityHealthUnit,
+      }),
+      query,
+    ).filter();
     const filteredQuery = countFeatures.query.getFilter() as any;
     const totalResults = await Referral.countDocuments(filteredQuery).exec();
 
@@ -195,7 +213,6 @@ export class ReferralService implements IReferralService {
     };
 
     return { referrals, pagination };
-  
   }
 
   /**
@@ -209,7 +226,9 @@ export class ReferralService implements IReferralService {
     const hospitalObjectId = new mongoose.Types.ObjectId(hospitalId);
     const { page, limit } = parsePaginationParams(query);
 
-    const totalResults = await Referral.countDocuments({ hospitalId: hospitalObjectId }).exec();
+    const totalResults = await Referral.countDocuments({
+      hospitalId: hospitalObjectId,
+    }).exec();
     const totalPages = Math.max(1, Math.ceil(totalResults / limit));
     const currentPage = Math.min(page, totalPages);
     const skip = (currentPage - 1) * limit;
@@ -259,7 +278,9 @@ export class ReferralService implements IReferralService {
    * List upcoming referrals (today and future) for patients under the given
    * social health worker's follow-up, ordered by scheduledVisitDate ascending.
    */
-  async listUpcomingReferralsByHealthWorker(healthWorkerId: string): Promise<IReferralSummary[]> {
+  async listUpcomingReferralsByHealthWorker(
+    healthWorkerId: string,
+  ): Promise<IReferralSummary[]> {
     const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
 
     const now = new Date();
@@ -268,17 +289,17 @@ export class ReferralService implements IReferralService {
     const results = await Referral.aggregate([
       {
         $lookup: {
-          from: 'clinicalprofiles',
-          localField: 'clinicalProfile',
-          foreignField: '_id',
-          as: 'cp',
+          from: "clinicalprofiles",
+          localField: "clinicalProfile",
+          foreignField: "_id",
+          as: "cp",
         },
       },
-      { $unwind: '$cp' },
+      { $unwind: "$cp" },
       {
         $match: {
-          'cp.healthWorkerId': hwObjectId,
-          status: 'PENDING',
+          "cp.healthWorkerId": hwObjectId,
+          status: "PENDING",
           scheduledVisitDate: { $gte: now, $lte: in48Hours },
         },
       },
@@ -291,7 +312,7 @@ export class ReferralService implements IReferralService {
           referralDate: 1,
           scheduledVisitDate: 1,
           status: 1,
-          assessmentCount: { $size: '$assessments' },
+          assessmentCount: { $size: "$assessments" },
         },
       },
     ]).exec();
@@ -312,26 +333,28 @@ export class ReferralService implements IReferralService {
    * Return the total number of PENDING referrals for patients assigned to
    * the given social health worker.
    */
-  async countPendingReferralsByHealthWorker(healthWorkerId: string): Promise<number> {
+  async countPendingReferralsByHealthWorker(
+    healthWorkerId: string,
+  ): Promise<number> {
     const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
 
     const result = await Referral.aggregate([
       {
         $lookup: {
-          from: 'clinicalprofiles',
-          localField: 'clinicalProfile',
-          foreignField: '_id',
-          as: 'cp',
+          from: "clinicalprofiles",
+          localField: "clinicalProfile",
+          foreignField: "_id",
+          as: "cp",
         },
       },
-      { $unwind: '$cp' },
+      { $unwind: "$cp" },
       {
         $match: {
-          'cp.healthWorkerId': hwObjectId,
-          status: 'PENDING',
+          "cp.healthWorkerId": hwObjectId,
+          status: "PENDING",
         },
       },
-      { $count: 'count' },
+      { $count: "count" },
     ]).exec();
 
     if (!result || result.length === 0) {
@@ -345,50 +368,56 @@ export class ReferralService implements IReferralService {
    * Compute referral status overview for patients assigned to a given
    * social health worker: pending, completed this month, and overdue.
    */
-  async getReferralStatusOverviewByHealthWorker(healthWorkerId: string): Promise<IReferralStatusSummary> {
+  async getReferralStatusOverviewByHealthWorker(
+    healthWorkerId: string,
+  ): Promise<IReferralStatusSummary> {
     const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const startOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    const startOfNextMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      1,
+    );
 
     const [result] = await Referral.aggregate([
       {
         $lookup: {
-          from: 'clinicalprofiles',
-          localField: 'clinicalProfile',
-          foreignField: '_id',
-          as: 'cp',
+          from: "clinicalprofiles",
+          localField: "clinicalProfile",
+          foreignField: "_id",
+          as: "cp",
         },
       },
-      { $unwind: '$cp' },
+      { $unwind: "$cp" },
       {
         $match: {
-          'cp.healthWorkerId': hwObjectId,
+          "cp.healthWorkerId": hwObjectId,
         },
       },
       {
         $facet: {
-          pending: [{ $match: { status: 'PENDING' } }, { $count: 'count' }],
+          pending: [{ $match: { status: "PENDING" } }, { $count: "count" }],
           completed_this_month: [
             {
               $match: {
-                status: 'COMPLETED',
+                status: "COMPLETED",
                 visitDate: { $gte: startOfMonth, $lt: startOfNextMonth },
               },
             },
-            { $count: 'count' },
+            { $count: "count" },
           ],
           overdue: [
             {
               $match: {
-                status: 'PENDING',
+                status: "PENDING",
                 scheduledVisitDate: { $lt: today },
               },
             },
-            { $count: 'count' },
+            { $count: "count" },
           ],
         },
       },

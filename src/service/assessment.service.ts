@@ -1,33 +1,30 @@
-import ClinicalProfile from "../models/clinicalProfile.model.js";
-import Indicator from "../models/indicator.model.js";
 import type { ClientSession } from "mongoose";
+import Indicator from "../models/indicator.model.js";
 
 import AssessmentClassifier from "./assessment-classifier.service.js";
 
-import type { IAssessmentService } from "./interface/iassessment.service.js";
-import type { IIndicatorData } from "../types/indicator.types.js";
-import type { IReferralService } from "./interface/ireferral.service.js";
-import HasPendingReferralError from "../Errors/HasPendingReferralError.js";
-import InvalidUnit from "../Errors/InvalidUnits.js";
-import IndicatorNotFound from "../Errors/IndicatorNotFoundError.js";
-import PatientNotFoundException from "../Errors/PatientNotFoundException.js";
-import mongoose, { modelNames } from "mongoose";
-import { Assessment } from "../models/assessment.model.js";
-import { AssessmentCreationError } from "../Errors/AssessmentCreationError.js";
-import type { IUserService } from "./interface/iuser.service.js";
-import Hospital from "../models/hospital.model.js";
+import mongoose from "mongoose";
+import { ModelNames } from "../constants/constant.values.js";
+import type {
+  IAssessment,
+  IAssessmentClassification,
+} from "../domain/assessment.js";
+import type { IReferral } from "../domain/referral.js";
 import type {
   AssessmentCreatedResponseDTO,
   AssessmentDetailsDTO,
   CreateAssessmentDTO,
   RecentAssessmentSummaryDTO,
 } from "../dto/assessmentDto.js";
-import type {
-  IAssessment,
-  IAssessmentClassification,
-} from "../domain/assessment.js";
-import { ModelNames } from "../constants/constant.values.js";
-import CommunityHealthUnit from "../models/communitHealthUnit.model.js";
+import { AssessmentCreationError } from "../Errors/AssessmentCreationError.js";
+import IndicatorNotFound from "../Errors/IndicatorNotFoundError.js";
+import InvalidUnit from "../Errors/InvalidUnits.js";
+import { Assessment } from "../models/assessment.model.js";
+import type { IReferralDocument } from "../models/referral.model.js";
+import type { IIndicatorData } from "../types/indicator.types.js";
+import type { IAssessmentService } from "./interface/iassessment.service.js";
+import type { IReferralService } from "./interface/ireferral.service.js";
+import type { IUserService } from "./interface/iuser.service.js";
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
@@ -45,23 +42,16 @@ export default class AssessmentService implements IAssessmentService {
   async createAssessment(
     dto: CreateAssessmentDTO,
     evaluatedBy: string,
+    existingPendingReferral?: IReferralDocument | null,
   ): Promise<AssessmentCreatedResponseDTO> {
     const session = await mongoose.startSession();
 
     try {
       session.startTransaction();
 
-      const indicatorDoc = await this.getIndicatorOrThrow(
-        dto.indicator,
-        session,
-      );
-      this.validateReadingUnits(dto, indicatorDoc);
+      const indicatorDoc = await this.getIndicatorOrThrow(dto.indicator);
 
-      await this.ensureNoPendingReferral(
-        dto.patientNumber,
-        dto.indicator,
-        session,
-      );
+      this.validateReadingUnits(dto, indicatorDoc);
 
       const patient = await this._userService.findUserByPatientNumber(
         dto.patientNumber,
@@ -86,10 +76,7 @@ export default class AssessmentService implements IAssessmentService {
         assessmentPayload,
         session,
       );
-      console.log("Created assessment", dto, ModelNames.CommunityHealthUnit);
 
-    
-      
       await this.createReferralIfNeeded(
         created.id,
         patient,
@@ -98,6 +85,7 @@ export default class AssessmentService implements IAssessmentService {
         dto.takenFrom,
         dto.takenFromType,
         session,
+        existingPendingReferral ? existingPendingReferral : undefined,
       );
 
       await session.commitTransaction();
@@ -217,79 +205,16 @@ export default class AssessmentService implements IAssessmentService {
     return results as RecentAssessmentSummaryDTO[];
   }
 
-  private async indicatorAssessmentExistsForPendingReferral(
-    patientNumber: number,
-    indicatorId: string,
-    session?: ClientSession,
-  ): Promise<boolean> {
-    const referral =
-      await this.referralService.getPendingReferralByPatientNumber(
-        patientNumber,
-        session,
-      );
-
-    if (!referral) {
-      return false;
-    }
-
-    for (const assessmentId of referral.assessments) {
-      const assessment = await this.getAssessmentIndicator(
-        assessmentId.toString(),
-      );
-
-      if (assessment && assessment.indicator.toString() === indicatorId) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   private async getIndicatorOrThrow(
     indicatorId: string,
-    session: ClientSession,
   ): Promise<IIndicatorData> {
-    const indicatorDoc = await Indicator.findById(indicatorId)
-      .session(session)
-      .lean();
+    const indicatorDoc = await Indicator.findById(indicatorId).lean();
 
     if (!indicatorDoc) {
       throw new IndicatorNotFound();
     }
 
     return indicatorDoc as IIndicatorData;
-  }
-
-  private async ensureNoPendingReferral(
-    patientNumber: number,
-    indicatorId: string,
-    session: ClientSession,
-  ): Promise<void> {
-    const hasPendingReferral =
-      await this.indicatorAssessmentExistsForPendingReferral(
-        patientNumber,
-        indicatorId,
-        session,
-      );
-
-    if (hasPendingReferral) {
-      throw new HasPendingReferralError();
-    }
-  }
-
-  private async getPatientIdOrThrow(
-    patientNumber: number,
-    session: ClientSession,
-  ): Promise<string> {
-    const clinical = await ClinicalProfile.findOne({ patientNumber })
-      .session(session)
-      .lean();
-
-    if (!clinical) {
-      throw new PatientNotFoundException();
-    }
-
-    return clinical.userId.toString();
   }
 
   private validateReadingUnits(
@@ -394,6 +319,7 @@ export default class AssessmentService implements IAssessmentService {
     takenFrom: string,
     takenFromType: string,
     session: ClientSession,
+    existingPendingReferral?: IReferralDocument | null,
   ): Promise<void> {
     if (!classification || classification.status_code === "healthy") {
       return;
@@ -404,11 +330,11 @@ export default class AssessmentService implements IAssessmentService {
       await this.referralService.createReferral(
         assessmentId,
         patient.id.toString(),
-        patient.patientNumber,
         evaluatedBy,
         takenFrom,
         takenFromType,
         patient.communityHealthUnit,
+        existingPendingReferral,
         session,
       );
     } else {

@@ -1,10 +1,10 @@
 import mongoose, { Schema } from 'mongoose';
-import type { Model } from 'mongoose';
+import type { HydratedDocument, Model } from 'mongoose';
 import type { IAssessment, IAssessmentClassification, IAssessmentReading } from '../domain/assessment.js';
 import { ModelNames } from '../constants/constant.values.js';
 
-export interface IAssessmentDocument extends IAssessment, Document {}
-export interface IAssessmentModel extends Model<IAssessmentDocument> {}
+export type IAssessmentDocument = HydratedDocument<IAssessment>;
+export interface IAssessmentModel extends Model<IAssessment> {}
 
 /**
  * Subdocument: single reading
@@ -45,7 +45,7 @@ const AssessmentClassificationSchema = new Schema<IAssessmentClassification>(
 /**
  * Main Assessment Result Schema
  */
-const AssessmentResultSchema = new Schema<IAssessmentDocument>(
+const AssessmentResultSchema = new Schema<IAssessment>(
   {
     patient: {
       type: Schema.Types.ObjectId,
@@ -140,7 +140,7 @@ AssessmentResultSchema.index({ patient: 1, evaluatedAt: -1 });
 
 AssessmentResultSchema.index({ patient: 1, indicator: 1, evaluatedDate: 1 }, { unique: true });
 
-export const Assessment = mongoose.model<IAssessmentDocument, IAssessmentModel>(
+export const Assessment = mongoose.model<IAssessment, IAssessmentModel>(
   ModelNames.Assessment,
   AssessmentResultSchema,
 );
