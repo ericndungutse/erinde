@@ -1,63 +1,83 @@
-import bcrypt from 'bcrypt';
-import InvalidCredentialsError from '../Errors/InvalidCredentialsError.js';
-import Account from '../models/account.model.js';
-import { generateToken } from '../security/jwt.utils.js';
-import type { ILoginPayload, ILoginResponse } from '../types/auth.types.js';
-import type { UserProjection } from '../dto/user.dto.js';
-import type { IAuthService } from './interface/iauth.service.js';
-import { Nurse } from '../models/user.model.js';
-import { UserRole } from '../types/roles.types.js';
-import CommunityHealthUnit from '../models/communitHealthUnit.model.js';
+import bcrypt from "bcrypt";
+import InvalidCredentialsError from "../Errors/InvalidCredentialsError.js";
+import Account from "../models/account.model.js";
+import { generateToken } from "../security/jwt.utils.js";
+import type { ILoginPayload, ILoginResponse } from "../types/auth.types.js";
+import type { UserProjection } from "../dto/user.dto.js";
+import type { IAuthService } from "./interface/iauth.service.js";
+import { Nurse } from "../models/user.model.js";
+import { UserRole } from "../types/roles.types.js";
+import CommunityHealthUnit from "../models/communitHealthUnit.model.js";
+import { logger } from "../logger.js";
 
 export default class AuthService implements IAuthService {
   async login(credentials: ILoginPayload): Promise<ILoginResponse> {
-    // Find user by email or username
+    // 1. TRACE: Start of the operation (Useful for debugging flow)
+    logger.trace(
+      { identifier: credentials.identifier },
+      "Login attempt initiated",
+    );
+
     const account = await Account.findOne({
-      $or: [{ email: credentials.identifier }, { phoneNumber: credentials.identifier }],
+      $or: [
+        { email: credentials.identifier },
+        { phoneNumber: credentials.identifier },
+      ],
     });
 
     if (!account) {
+      // 2. WARN: Authentication failure (Not an 'error' because the system didn't break)
+      logger.warn(
+        { identifier: credentials.identifier },
+        "Login failed: Account not found",
+      );
       throw new InvalidCredentialsError();
     }
 
-    // Compare password
-    const isPasswordValid = await bcrypt.compare(credentials.password, account.password);
+    const isPasswordValid = await bcrypt.compare(
+      credentials.password,
+      account.password,
+    );
     if (!isPasswordValid) {
+      // 3. WARN: Potential brute force or typo
+      logger.warn(
+        { accountId: account._id, identifier: credentials.identifier },
+        "Login failed: Incorrect password",
+      );
       throw new InvalidCredentialsError();
     }
 
-    // Get User and Roles - assuming account has a reference to user
-    const user: (UserProjection<'roles' | 'communityHealthUnit'> & { id: string }) | null = await account.getUser([
-      'roles',
-      'communityHealthUnit',
-    ]);
+    const user = await account.getUser(["roles", "communityHealthUnit"]);
+
+    if (!user) {
+      // 4. ERROR: Logic/Data integrity issue (Account exists but User record is missing)
+      logger.error(
+        { accountId: account._id },
+        "Data Integrity Error: Account has no associated User record",
+      );
+      throw new Error("User roles not found");
+    }
 
     let nurse;
-    // if iser is a nurse, get his hospital id and add to the payload
-    if (user?.roles.includes(UserRole.NURSE)) {
+    if (user.roles.includes(UserRole.NURSE)) {
       nurse = await Nurse.findById(user.id, { hospitalId: 1 }).lean();
       if (!nurse) {
+        logger.error(
+          { userId: user.id },
+          "Nurse profile missing for user with NURSE role",
+        );
         throw new InvalidCredentialsError();
       }
     }
 
-    if (!user) {
-      throw new Error('User roles not found');
-    }
-
-    // Generate JWT token
-    const payload: { accountId: string; email: string | undefined; roles: string[]; hospitalId?: string | undefined } =
-      {
-        accountId: account._id.toString(),
-        email: account?.email || undefined,
-        roles: user.roles,
-        hospitalId: nurse?.hospitalId.toString() || undefined,
-      };
+    const payload = {
+      accountId: account._id.toString(),
+      email: account?.email || undefined,
+      roles: user.roles,
+      hospitalId: nurse?.hospitalId.toString() || undefined,
+    };
 
     const token: string = generateToken(payload, user.id);
-
-    // TODO: IF USER HAS MULTIPLE ROLES, REQUEST U  SER TO SELECT ACTIVE ROLE
-    // TODO: IF USER IS JUST ONLY USER, SET ACTIVE ROLE TO USER: OPTION let Client Decide
 
     let loginResponse: ILoginResponse = {
       token,
@@ -70,50 +90,75 @@ export default class AuthService implements IAuthService {
     };
 
     if (user.roles.includes(UserRole.SOCIAL_HEALTH_WORKER)) {
-      loginResponse = await this.handleSocialHealthWorkerCustomLoginResponse(loginResponse, user.id);
+      logger.debug(
+        { userId: user.id },
+        "Handling custom response for Social Health Worker",
+      );
+      loginResponse = await this.handleSocialHealthWorkerCustomLoginResponse(
+        loginResponse,
+        user.id,
+      );
     }
+
+    // 5. INFO: High-level success message
+    logger.info(
+      {
+        userId: user.id,
+        roles: user.roles,
+        hospitalId: nurse?.hospitalId,
+      },
+      "User logged in successfully",
+    );
 
     return loginResponse;
   }
 
-  async handleSocialHealthWorkerCustomLoginResponse(loginResponse: ILoginResponse, userId: string): Promise<ILoginResponse> {
-    const normalizeCommunityHealthUnitId = (value: unknown): string | undefined => {
+  async handleSocialHealthWorkerCustomLoginResponse(
+    loginResponse: ILoginResponse,
+    userId: string,
+  ): Promise<ILoginResponse> {
+    const normalizeCommunityHealthUnitId = (
+      value: unknown,
+    ): string | undefined => {
       if (!value) {
         return undefined;
       }
 
-      if (typeof value === 'object' && value !== null && 'id' in value) {
+      if (typeof value === "object" && value !== null && "id" in value) {
         return normalizeCommunityHealthUnitId((value as { id: unknown }).id);
       }
 
       if (Buffer.isBuffer(value)) {
-        return value.toString('hex');
+        return value.toString("hex");
       }
 
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         return value;
       }
 
       return String(value);
     };
 
-    const assignedCommunityHealthUnitId = normalizeCommunityHealthUnitId(loginResponse.user.communityHealthUnit);
+    const assignedCommunityHealthUnitId = normalizeCommunityHealthUnitId(
+      loginResponse.user.communityHealthUnit,
+    );
 
-    const [assignedCommunityHealthUnit, managedCommunityHealthUnit] = await Promise.all([
-      assignedCommunityHealthUnitId
-        ? CommunityHealthUnit.findById(assignedCommunityHealthUnitId, {
+    const [assignedCommunityHealthUnit, managedCommunityHealthUnit] =
+      await Promise.all([
+        assignedCommunityHealthUnitId
+          ? CommunityHealthUnit.findById(assignedCommunityHealthUnitId, {
+              _id: 1,
+              name: 1,
+            }).lean()
+          : Promise.resolve(null),
+        CommunityHealthUnit.findOne(
+          { socialHealthWorker: userId },
+          {
             _id: 1,
             name: 1,
-          }).lean()
-        : Promise.resolve(null),
-      CommunityHealthUnit.findOne(
-        { socialHealthWorker: userId },
-        {
-          _id: 1,
-          name: 1,
-        },
-      ).lean(),
-    ]);
+          },
+        ).lean(),
+      ]);
 
     const normalizeCommunityHealthUnit = (
       communityHealthUnit: {
@@ -131,15 +176,21 @@ export default class AuthService implements IAuthService {
       };
     };
 
-    const communityHealthUnit = normalizeCommunityHealthUnit(assignedCommunityHealthUnit);
-    const managedCommunityHealthUnitDetails = normalizeCommunityHealthUnit(managedCommunityHealthUnit);
+    const communityHealthUnit = normalizeCommunityHealthUnit(
+      assignedCommunityHealthUnit,
+    );
+    const managedCommunityHealthUnitDetails = normalizeCommunityHealthUnit(
+      managedCommunityHealthUnit,
+    );
 
     return {
       ...loginResponse,
       user: {
         ...loginResponse.user,
         ...(communityHealthUnit ? { communityHealthUnit } : {}),
-        ...(managedCommunityHealthUnitDetails ? { managedCommunityHealthUnit: managedCommunityHealthUnitDetails } : {}),
+        ...(managedCommunityHealthUnitDetails
+          ? { managedCommunityHealthUnit: managedCommunityHealthUnitDetails }
+          : {}),
       },
     };
   }

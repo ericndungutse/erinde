@@ -5,9 +5,10 @@ import { resolveAssessmentTakenFrom, validateAssessmentTakenTwice } from '../mid
 import { authorize, protect } from '../security/auth.middleware.js';
 import { UserRole } from '../types/roles.types.js';
 import { validateBody } from '../validation/validator.js';
+import { checkPendingReferral } from '../middleware/referral.middleware.js';
 const router = Router();
 
-router.post('/', protect, resolveAssessmentTakenFrom, validateBody(CreateAssessmentSchemaZ), validateAssessmentTakenTwice, (req, res, next) =>
+router.post('/', protect, resolveAssessmentTakenFrom, validateBody(CreateAssessmentSchemaZ), validateAssessmentTakenTwice, checkPendingReferral, (req, res, next) =>
   container.assessmentController.createAssessment(req, res, next),
 );
 
