@@ -45,9 +45,6 @@ export interface RecentAssessmentSummaryDTO {
     label: string;
     status_code: string;
   };
-  recommendations: string[];
-  takenFrom: Types.ObjectId | string;
-  takenFromType: ModelNames;
 }
 
 //  Details DTO for a single assessment (no population)

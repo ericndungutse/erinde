@@ -139,7 +139,7 @@ export default class AssessmentService implements IAssessmentService {
       evaluatedBy: new mongoose.Types.ObjectId(evaluatorId),
       evaluatedAt: { $gte: since },
     })
-      .select('patientNumber patient indicator classification recommendations takenFrom takenFromType _id')
+      .select('patientNumber patient indicator classification _id')
       .populate('patient', '_id firstname lastname')
       .populate('indicator', '_id name')
       .lean<RecentAssessmentSummaryDTO[]>()
