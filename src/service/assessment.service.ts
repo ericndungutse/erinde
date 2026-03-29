@@ -22,6 +22,7 @@ import type { IIndicatorData } from '../types/indicator.types.js';
 import type { IAssessmentService } from './interface/iassessment.service.js';
 import type { IReferralService } from './interface/ireferral.service.js';
 import type { IUserService } from './interface/iuser.service.js';
+import { subHours } from 'date-fns';
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
@@ -112,26 +113,19 @@ export default class AssessmentService implements IAssessmentService {
         recommendations: 1,
         evaluatedAt: 1,
       })
-      .lean()
+      .populate('patient', '_id firstname lastname')
+      .populate('indicator', '_id name')
+      .populate('evaluatedBy', '_id firstname lastname')
+      .populate('takenFrom', '_id name')
+      .lean<AssessmentDetailsDTO>()
       .exec();
 
     if (!doc) return null;
 
-    const details: AssessmentDetailsDTO = {
-      id: doc._id.toString(),
-      patient: doc.patient.toString(),
-      indicator: doc.indicator.toString(),
-      evaluatedBy: doc.evaluatedBy?.toString() ?? '',
-      patientNumber: doc.patientNumber,
-      readings: doc.readings,
-      classification: doc.classification,
-      takenFrom: doc.takenFrom,
-      takenFromType: doc.takenFromType,
-      recommendations: doc.recommendations ?? [],
-      evaluatedAt: doc.evaluatedAt as any,
+    return {
+      ...doc,
+      id: (doc as any)._id.toString(),
     };
-
-    return details;
   }
 
   /**
@@ -139,57 +133,19 @@ export default class AssessmentService implements IAssessmentService {
    * returning patient number, names, indicator name, and classification label.
    */
   async listAssessmentsByEvaluatorLast24Hours(evaluatorId: string): Promise<RecentAssessmentSummaryDTO[]> {
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const since = subHours(new Date(), 24);
 
-    const results = await Assessment.aggregate([
-      {
-        $match: {
-          evaluatedBy: new mongoose.Types.ObjectId(evaluatorId),
-          evaluatedAt: { $gte: since },
-        },
-      },
-      {
-        $lookup: {
-          from: 'clinicalprofiles',
-          localField: 'patient',
-          foreignField: 'userId',
-          as: 'cp',
-        },
-      },
-      { $unwind: '$cp' },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'patient',
-          foreignField: '_id',
-          as: 'patientUser',
-        },
-      },
-      { $unwind: '$patientUser' },
-      {
-        $lookup: {
-          from: 'indicators',
-          localField: 'indicator',
-          foreignField: '_id',
-          as: 'indicatorDoc',
-        },
-      },
-      { $unwind: '$indicatorDoc' },
-      { $sort: { evaluatedAt: -1 } },
-      {
-        $project: {
-          _id: 1,
-          patientNumber: '$cp.patientNumber',
-          patientName: {
-            $concat: ['$patientUser.firstname', ' ', '$patientUser.lastname'],
-          },
-          indicatorName: '$indicatorDoc.name',
-          classificationLabel: '$classification.label',
-        },
-      },
-    ]).exec();
+    const assessments = await Assessment.find({
+      evaluatedBy: new mongoose.Types.ObjectId(evaluatorId),
+      evaluatedAt: { $gte: since },
+    })
+      .select('patientNumber patient indicator classification recommendations takenFrom takenFromType _id')
+      .populate('patient', '_id firstname lastname')
+      .populate('indicator', '_id name')
+      .lean<RecentAssessmentSummaryDTO[]>()
+      .exec();
 
-    return results as RecentAssessmentSummaryDTO[];
+    return assessments;
   }
 
   private async getIndicatorOrThrow(indicatorId: string): Promise<IIndicatorData> {

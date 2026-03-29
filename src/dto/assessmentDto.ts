@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ModelNames } from '../constants/constant.values.js';
-import type { IAssessment } from '../domain/assessment.js';
+import type { IAssessment, IAssessmentClassification, IAssessmentReadings } from '../domain/assessment.js';
+import type { Types } from 'mongoose';
 
 // Zod schemas for runtime validation when creating an assessment
 export const AssessmentReadingSchemaZ = z.object({
@@ -29,15 +30,54 @@ export const CreateAssessmentSchemaZ = z.object(
 export type CreateAssessmentDTO = z.infer<typeof CreateAssessmentSchemaZ>;
 
 export interface RecentAssessmentSummaryDTO {
-  id: string;
+  _id: Types.ObjectId | string;
   patientNumber: number;
-  patientName: string;
-  indicatorName: string;
-  classificationLabel: string;
+  patient: {
+    _id: Types.ObjectId | string;
+    firstname: string;
+    lastname: string;
+  };
+  indicator: {
+    _id: Types.ObjectId | string;
+    name: string;
+  };
+  classification: {
+    label: string;
+    status_code: string;
+  };
+  recommendations: string[];
+  takenFrom: Types.ObjectId | string;
+  takenFromType: ModelNames;
 }
 
 //  Details DTO for a single assessment (no population)
-export type AssessmentDetailsDTO = Omit<IAssessment, never> & { id: string };
+export type AssessmentDetailsDTO = {
+  id: string;
+  patientNumber: number;
+  patient: {
+    _id: Types.ObjectId | string;
+    firstname: string;
+    lastname: string;
+  };
+  indicator: {
+    _id: Types.ObjectId | string;
+    name: string;
+  };
+  evaluatedBy: {
+    _id: Types.ObjectId | string;
+    firstname: string;
+    lastname: string;
+  };
+  takenFrom: {
+    _id: Types.ObjectId | string;
+    name: string;
+  };
+  takenFromType: ModelNames;
+  readings: IAssessmentReadings;
+  classification: IAssessmentClassification;
+  recommendations: string[];
+  evaluatedAt: Date | string;
+};
 
 export type AssessmentCreatedResponseDTO = Omit<
   IAssessment,
