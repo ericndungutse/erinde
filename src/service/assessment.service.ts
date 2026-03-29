@@ -1,30 +1,27 @@
-import type { ClientSession } from "mongoose";
-import Indicator from "../models/indicator.model.js";
+import type { ClientSession } from 'mongoose';
+import Indicator from '../models/indicator.model.js';
 
-import AssessmentClassifier from "./assessment-classifier.service.js";
+import AssessmentClassifier from './assessment-classifier.service.js';
 
-import mongoose from "mongoose";
-import { ModelNames } from "../constants/constant.values.js";
-import type {
-  IAssessment,
-  IAssessmentClassification,
-} from "../domain/assessment.js";
-import type { IReferral } from "../domain/referral.js";
+import mongoose from 'mongoose';
+import { ModelNames } from '../constants/constant.values.js';
+import type { IAssessment, IAssessmentClassification } from '../domain/assessment.js';
+import type { IReferral } from '../domain/referral.js';
 import type {
   AssessmentCreatedResponseDTO,
   AssessmentDetailsDTO,
   CreateAssessmentDTO,
   RecentAssessmentSummaryDTO,
-} from "../dto/assessmentDto.js";
-import { AssessmentCreationError } from "../Errors/AssessmentCreationError.js";
-import IndicatorNotFound from "../Errors/IndicatorNotFoundError.js";
-import InvalidUnit from "../Errors/InvalidUnits.js";
-import { Assessment } from "../models/assessment.model.js";
-import type { IReferralDocument } from "../models/referral.model.js";
-import type { IIndicatorData } from "../types/indicator.types.js";
-import type { IAssessmentService } from "./interface/iassessment.service.js";
-import type { IReferralService } from "./interface/ireferral.service.js";
-import type { IUserService } from "./interface/iuser.service.js";
+} from '../dto/assessmentDto.js';
+import { AssessmentCreationError } from '../Errors/AssessmentCreationError.js';
+import IndicatorNotFound from '../Errors/IndicatorNotFoundError.js';
+import InvalidUnit from '../Errors/InvalidUnits.js';
+import { Assessment } from '../models/assessment.model.js';
+import type { IReferralDocument } from '../models/referral.model.js';
+import type { IIndicatorData } from '../types/indicator.types.js';
+import type { IAssessmentService } from './interface/iassessment.service.js';
+import type { IReferralService } from './interface/ireferral.service.js';
+import type { IUserService } from './interface/iuser.service.js';
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
@@ -36,7 +33,7 @@ export default class AssessmentService implements IAssessmentService {
   }
 
   getAssessmentIndicator(assessmentId: string): Promise<any | null> {
-    return Assessment.findById(assessmentId).select("indicator").lean().exec();
+    return Assessment.findById(assessmentId).select('indicator').lean().exec();
   }
 
   async createAssessment(
@@ -53,15 +50,9 @@ export default class AssessmentService implements IAssessmentService {
 
       this.validateReadingUnits(dto, indicatorDoc);
 
-      const patient = await this._userService.findUserByPatientNumber(
-        dto.patientNumber,
-        session,
-      );
+      const patient = await this._userService.findUserByPatientNumber(dto.patientNumber, session);
 
-      const { classification, recommendations } = this.classifyAssessment(
-        dto,
-        indicatorDoc,
-      );
+      const { classification, recommendations } = this.classifyAssessment(dto, indicatorDoc);
 
       const assessmentPayload = this.buildAssessmentPayload(
         dto,
@@ -72,10 +63,7 @@ export default class AssessmentService implements IAssessmentService {
         recommendations,
       );
 
-      const created = await this.createAssessmentRecord(
-        assessmentPayload,
-        session,
-      );
+      const created = await this.createAssessmentRecord(assessmentPayload, session);
 
       await this.createReferralIfNeeded(
         created.id,
@@ -110,15 +98,16 @@ export default class AssessmentService implements IAssessmentService {
   /**
    * Return single assessment details by id (no population)
    */
-  async getAssessmentById(
-    assessmentId: string,
-  ): Promise<AssessmentDetailsDTO | null> {
+  async getAssessmentById(assessmentId: string): Promise<AssessmentDetailsDTO | null> {
     const doc = await Assessment.findById(assessmentId)
       .select({
         patient: 1,
+        patientNumber: 1,
         indicator: 1,
         evaluatedBy: 1,
         readings: 1,
+        takenFrom: 1,
+        takenFromType: 1,
         classification: 1,
         recommendations: 1,
         evaluatedAt: 1,
@@ -132,7 +121,7 @@ export default class AssessmentService implements IAssessmentService {
       id: doc._id.toString(),
       patient: doc.patient.toString(),
       indicator: doc.indicator.toString(),
-      evaluatedBy: doc.evaluatedBy?.toString() ?? "",
+      evaluatedBy: doc.evaluatedBy?.toString() ?? '',
       patientNumber: doc.patientNumber,
       readings: doc.readings,
       classification: doc.classification,
@@ -149,9 +138,7 @@ export default class AssessmentService implements IAssessmentService {
    * List assessments taken by the given evaluator in the last 24 hours,
    * returning patient number, names, indicator name, and classification label.
    */
-  async listAssessmentsByEvaluatorLast24Hours(
-    evaluatorId: string,
-  ): Promise<RecentAssessmentSummaryDTO[]> {
+  async listAssessmentsByEvaluatorLast24Hours(evaluatorId: string): Promise<RecentAssessmentSummaryDTO[]> {
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     const results = await Assessment.aggregate([
@@ -163,41 +150,41 @@ export default class AssessmentService implements IAssessmentService {
       },
       {
         $lookup: {
-          from: "clinicalprofiles",
-          localField: "patient",
-          foreignField: "userId",
-          as: "cp",
+          from: 'clinicalprofiles',
+          localField: 'patient',
+          foreignField: 'userId',
+          as: 'cp',
         },
       },
-      { $unwind: "$cp" },
+      { $unwind: '$cp' },
       {
         $lookup: {
-          from: "users",
-          localField: "patient",
-          foreignField: "_id",
-          as: "patientUser",
+          from: 'users',
+          localField: 'patient',
+          foreignField: '_id',
+          as: 'patientUser',
         },
       },
-      { $unwind: "$patientUser" },
+      { $unwind: '$patientUser' },
       {
         $lookup: {
-          from: "indicators",
-          localField: "indicator",
-          foreignField: "_id",
-          as: "indicatorDoc",
+          from: 'indicators',
+          localField: 'indicator',
+          foreignField: '_id',
+          as: 'indicatorDoc',
         },
       },
-      { $unwind: "$indicatorDoc" },
+      { $unwind: '$indicatorDoc' },
       { $sort: { evaluatedAt: -1 } },
       {
         $project: {
           _id: 1,
-          patientNumber: "$cp.patientNumber",
+          patientNumber: '$cp.patientNumber',
           patientName: {
-            $concat: ["$patientUser.firstname", " ", "$patientUser.lastname"],
+            $concat: ['$patientUser.firstname', ' ', '$patientUser.lastname'],
           },
-          indicatorName: "$indicatorDoc.name",
-          classificationLabel: "$classification.label",
+          indicatorName: '$indicatorDoc.name',
+          classificationLabel: '$classification.label',
         },
       },
     ]).exec();
@@ -205,9 +192,7 @@ export default class AssessmentService implements IAssessmentService {
     return results as RecentAssessmentSummaryDTO[];
   }
 
-  private async getIndicatorOrThrow(
-    indicatorId: string,
-  ): Promise<IIndicatorData> {
+  private async getIndicatorOrThrow(indicatorId: string): Promise<IIndicatorData> {
     const indicatorDoc = await Indicator.findById(indicatorId).lean();
 
     if (!indicatorDoc) {
@@ -217,25 +202,18 @@ export default class AssessmentService implements IAssessmentService {
     return indicatorDoc as IIndicatorData;
   }
 
-  private validateReadingUnits(
-    dto: CreateAssessmentDTO,
-    indicatorDoc: IIndicatorData,
-  ): void {
+  private validateReadingUnits(dto: CreateAssessmentDTO, indicatorDoc: IIndicatorData): void {
     const invalids: string[] = [];
 
     Object.entries(dto.readings).forEach(([key, val]) => {
-      const expected = (indicatorDoc.readings || []).find(
-        (r) => r.type === key,
-      );
+      const expected = (indicatorDoc.readings || []).find((r) => r.type === key);
       if (expected?.unit && val.unit && expected.unit !== val.unit) {
-        invalids.push(
-          `${key} expects unit ${expected.unit} but got ${val.unit}`,
-        );
+        invalids.push(`${key} expects unit ${expected.unit} but got ${val.unit}`);
       }
     });
 
     if (invalids.length) {
-      throw new InvalidUnit(`Reading unit mismatch: ${invalids.join("; ")}`);
+      throw new InvalidUnit(`Reading unit mismatch: ${invalids.join('; ')}`);
     }
   }
 
@@ -251,19 +229,19 @@ export default class AssessmentService implements IAssessmentService {
     const classifier = new AssessmentClassifier();
 
     switch (indicatorDoc.name) {
-      case "hypertension": {
+      case 'hypertension': {
         const r = classifier.classifyHypertension(dto.readings, indicatorDoc);
         classification = r.classification;
         recommendations = r.recommendations;
         break;
       }
-      case "bmi": {
+      case 'bmi': {
         const r = classifier.classifyBmi(dto.readings, indicatorDoc);
         classification = r.classification;
         recommendations = r.recommendations;
         break;
       }
-      case "diabetes": {
+      case 'diabetes': {
         const r = classifier.classifyDiabetes(dto.readings, indicatorDoc);
         classification = r.classification;
         recommendations = r.recommendations;
@@ -296,10 +274,7 @@ export default class AssessmentService implements IAssessmentService {
     } as IAssessment;
   }
 
-  private async createAssessmentRecord(
-    assessmentPayload: IAssessment,
-    session: ClientSession,
-  ) {
+  private async createAssessmentRecord(assessmentPayload: IAssessment, session: ClientSession) {
     const [created] = await Assessment.create([assessmentPayload], {
       session: session ?? null,
     });
@@ -321,7 +296,7 @@ export default class AssessmentService implements IAssessmentService {
     session: ClientSession,
     existingPendingReferral?: IReferralDocument | null,
   ): Promise<void> {
-    if (!classification || classification.status_code === "healthy") {
+    if (!classification || classification.status_code === 'healthy') {
       return;
     }
 
@@ -338,9 +313,7 @@ export default class AssessmentService implements IAssessmentService {
         session,
       );
     } else {
-      throw new Error(
-        "Referral creation for non-CHU sources is not implemented yet",
-      );
+      throw new Error('Referral creation for non-CHU sources is not implemented yet');
     }
   }
 }
