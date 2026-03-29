@@ -5,7 +5,6 @@ import mongoose from 'mongoose';
 import Indicator from '../../models/indicator.model.js';
 import { Assessment } from '../../models/assessment.model.js';
 import { AssessmentCreationError } from '../../Errors/AssessmentCreationError.js';
-import HasPendingReferralError from '../../Errors/HasPendingReferralError.js';
 import IndicatorNotFound from '../../Errors/IndicatorNotFoundError.js';
 import InvalidUnit from '../../Errors/InvalidUnits.js';
 import PatientNotFoundException from '../../Errors/PatientNotFoundException.js';
@@ -22,10 +21,19 @@ function createSessionMock() {
   };
 }
 
-function createSessionAwareLeanQuery<T>(result: T) {
+/** Indicator.findById in service uses `.lean()` only (no session). */
+function createIndicatorLeanQuery<T>(result: T) {
   return {
-    session: vi.fn().mockReturnThis(),
-    lean: vi.fn().mockReturnValue(result),
+    lean: vi.fn().mockResolvedValue(result),
+  };
+}
+
+function createAssessmentQueryChain<T>(execResult: T) {
+  const exec = vi.fn().mockResolvedValue(execResult);
+  return {
+    select: vi.fn().mockReturnThis(),
+    lean: vi.fn().mockReturnThis(),
+    exec,
   };
 }
 
@@ -63,9 +71,10 @@ describe('AssessmentService.createAssessment', () => {
   let session: ReturnType<typeof createSessionMock>;
   let referralService: {
     createReferral: ReturnType<typeof vi.fn>;
-    getPendingReferralByPatientNumber: ReturnType<typeof vi.fn>;
   };
-  let userService: any; // Add this
+  let userService: {
+    findUserByPatientNumber: ReturnType<typeof vi.fn>;
+  };
   let service: AssessmentService;
 
   beforeEach(() => {
@@ -73,7 +82,6 @@ describe('AssessmentService.createAssessment', () => {
 
     referralService = {
       createReferral: vi.fn().mockResolvedValue(undefined),
-      getPendingReferralByPatientNumber: vi.fn().mockResolvedValue(null),
     };
 
     userService = {
@@ -82,7 +90,6 @@ describe('AssessmentService.createAssessment', () => {
         .mockResolvedValue({ id: 'patient-1', district: 'Kigali', communityHealthUnit: 'hospital-1' }),
     };
 
-    // Pass both arguments here
     service = new AssessmentService(referralService as any, userService as any);
 
     vi.spyOn(mongoose, 'startSession').mockResolvedValue(session as any);
@@ -92,14 +99,33 @@ describe('AssessmentService.createAssessment', () => {
     vi.restoreAllMocks();
   });
 
+  type CreatedAssessmentDoc = {
+    id: string;
+    readings: typeof diabetesDto.readings | typeof hypertensionDto.readings;
+    classification: { label: string; status_code: string };
+    recommendations: string[];
+    takenFrom: string;
+    takenFromType: ModelNames;
+    patientNumber: number;
+  };
+
+  function createdAssessmentMock(
+    base: { takenFrom: string; takenFromType: ModelNames; patientNumber: number },
+    fields: Pick<CreatedAssessmentDoc, 'id' | 'readings' | 'classification' | 'recommendations'>,
+  ): CreatedAssessmentDoc {
+    return {
+      takenFrom: base.takenFrom,
+      takenFromType: base.takenFromType,
+      patientNumber: base.patientNumber,
+      ...fields,
+    };
+  }
+
   it('creates a healthy diabetes assessment and commits without creating a referral', async () => {
     const indicatorDoc = {
       name: 'diabetes',
       readings: [{ type: 'random_blood_glucose', unit: 'mg/dL' }],
       classifications: [],
-    };
-    const clinicalProfile = {
-      userId: 'patient-1',
     };
     const classificationResult = {
       classification: {
@@ -108,24 +134,22 @@ describe('AssessmentService.createAssessment', () => {
       },
       recommendations: ['Komeza kurya indyo yuzuye'],
     };
-    const createdAssessment = {
+    const createdAssessment = createdAssessmentMock(diabetesDto, {
       id: 'assessment-1',
       readings: diabetesDto.readings,
       classification: classificationResult.classification,
       recommendations: classificationResult.recommendations,
-    };
+    });
 
-    const indicatorQuery = createSessionAwareLeanQuery(indicatorDoc);
+    const indicatorQuery = createIndicatorLeanQuery(indicatorDoc);
 
     vi.spyOn(Indicator, 'findById').mockReturnValue(indicatorQuery as any);
-    vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
     vi.spyOn(AssessmentClassifier.prototype, 'classifyDiabetes').mockReturnValue(classificationResult);
     const createSpy = vi.spyOn(Assessment, 'create').mockResolvedValue([createdAssessment] as any);
 
     const result = await service.createAssessment(diabetesDto as any, 'evaluator-1');
 
     expect(Indicator.findById).toHaveBeenCalledWith(diabetesDto.indicator);
-    expect(indicatorQuery.session).toHaveBeenCalledWith(session);
     expect(userService.findUserByPatientNumber).toHaveBeenCalledWith(diabetesDto.patientNumber, session);
     expect(AssessmentClassifier.prototype.classifyDiabetes).toHaveBeenCalledWith(diabetesDto.readings, indicatorDoc);
     expect(createSpy).toHaveBeenCalledTimes(1);
@@ -135,9 +159,12 @@ describe('AssessmentService.createAssessment', () => {
 
     expect(createOptions).toEqual({ session });
     expect(assessmentPayload.patient).toBe('patient-1');
+    expect(assessmentPayload.patientNumber).toBe(diabetesDto.patientNumber);
     expect(assessmentPayload.indicator).toBe(diabetesDto.indicator);
     expect(assessmentPayload.evaluatedBy).toBe('evaluator-1');
     expect(assessmentPayload.readings).toEqual(diabetesDto.readings);
+    expect(assessmentPayload.takenFrom).toBe(diabetesDto.takenFrom);
+    expect(assessmentPayload.takenFromType).toBe(diabetesDto.takenFromType);
     expect(assessmentPayload.classification).toEqual(classificationResult.classification);
     expect(assessmentPayload.recommendations).toEqual(classificationResult.recommendations);
     expect(assessmentPayload.evaluatedAt).toBeInstanceOf(Date);
@@ -152,7 +179,15 @@ describe('AssessmentService.createAssessment', () => {
     expect(session.commitTransaction).toHaveBeenCalledOnce();
     expect(session.abortTransaction).not.toHaveBeenCalled();
     expect(session.endSession).toHaveBeenCalledOnce();
-    expect(result).toEqual(createdAssessment);
+    expect(result).toEqual({
+      id: createdAssessment.id,
+      readings: createdAssessment.readings,
+      classification: createdAssessment.classification,
+      recommendations: createdAssessment.recommendations,
+      takenFrom: createdAssessment.takenFrom,
+      takenFromType: createdAssessment.takenFromType,
+      patientNumber: createdAssessment.patientNumber,
+    });
   });
 
   it('creates a referral for an abnormal hypertension assessment', async () => {
@@ -171,20 +206,19 @@ describe('AssessmentService.createAssessment', () => {
       },
       recommendations: ['Gana ivuriro ryihuse bitarenze uyu munsi'],
     };
-    const createdAssessment = {
+    const createdAssessment = createdAssessmentMock(hypertensionDto, {
       id: 'assessment-2',
       readings: hypertensionDto.readings,
       classification: classificationResult.classification,
       recommendations: classificationResult.recommendations,
-    };
+    });
 
     userService.findUserByPatientNumber.mockResolvedValue({
       id: 'patient-2',
       district: 'Kigali',
       communityHealthUnit: 'hospital-1',
     });
-    vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
+    vi.spyOn(Indicator, 'findById').mockReturnValue(createIndicatorLeanQuery(indicatorDoc) as any);
     vi.spyOn(AssessmentClassifier.prototype, 'classifyHypertension').mockReturnValue(classificationResult);
     vi.spyOn(Assessment, 'create').mockResolvedValue([createdAssessment] as any);
 
@@ -201,11 +235,67 @@ describe('AssessmentService.createAssessment', () => {
       hypertensionDto.takenFrom,
       hypertensionDto.takenFromType,
       'hospital-1',
+      undefined,
       session,
     );
     expect(session.commitTransaction).toHaveBeenCalledOnce();
     expect(session.abortTransaction).not.toHaveBeenCalled();
-    expect(result).toEqual(createdAssessment);
+    expect(result).toEqual({
+      id: createdAssessment.id,
+      readings: createdAssessment.readings,
+      classification: createdAssessment.classification,
+      recommendations: createdAssessment.recommendations,
+      takenFrom: createdAssessment.takenFrom,
+      takenFromType: createdAssessment.takenFromType,
+      patientNumber: createdAssessment.patientNumber,
+    });
+  });
+
+  it('passes existing pending referral through to referral service when provided', async () => {
+    const indicatorDoc = {
+      name: 'hypertension',
+      readings: [
+        { type: 'systolic_blood_pressure', unit: 'mmHg' },
+        { type: 'diastolic_blood_pressure', unit: 'mmHg' },
+      ],
+      classifications: [],
+    };
+    const classificationResult = {
+      classification: {
+        label: 'Hypertensive Crisis',
+        status_code: 'critical' as const,
+      },
+      recommendations: ['Gana ivuriro ryihuse bitarenze uyu munsi'],
+    };
+    const createdAssessment = createdAssessmentMock(hypertensionDto, {
+      id: 'assessment-pending',
+      readings: hypertensionDto.readings,
+      classification: classificationResult.classification,
+      recommendations: classificationResult.recommendations,
+    });
+    const existingPending = { _id: 'pending-ref-1' } as any;
+
+    userService.findUserByPatientNumber.mockResolvedValue({
+      id: 'patient-p',
+      district: 'Kigali',
+      communityHealthUnit: 'hospital-1',
+    });
+    vi.spyOn(Indicator, 'findById').mockReturnValue(createIndicatorLeanQuery(indicatorDoc) as any);
+    vi.spyOn(AssessmentClassifier.prototype, 'classifyHypertension').mockReturnValue(classificationResult);
+    vi.spyOn(Assessment, 'create').mockResolvedValue([createdAssessment] as any);
+
+    await service.createAssessment(hypertensionDto as any, 'evaluator-p', existingPending);
+
+    expect(referralService.createReferral).toHaveBeenCalledWith(
+      'assessment-pending',
+      'patient-p',
+      'evaluator-p',
+      hypertensionDto.takenFrom,
+      hypertensionDto.takenFromType,
+      'hospital-1',
+      existingPending,
+      session,
+    );
   });
 
   it('passes CHU source and patient destination when creating a referral', async () => {
@@ -224,20 +314,19 @@ describe('AssessmentService.createAssessment', () => {
       },
       recommendations: ['Gana ivuriro ryihuse bitarenze uyu munsi'],
     };
-    const createdAssessment = {
+    const createdAssessment = createdAssessmentMock(hypertensionDto, {
       id: 'assessment-3',
       readings: hypertensionDto.readings,
       classification: classificationResult.classification,
       recommendations: classificationResult.recommendations,
-    };
+    });
 
     userService.findUserByPatientNumber.mockResolvedValue({
       id: 'patient-3',
       district: 'Musanze',
       communityHealthUnit: 'hospital-musanze',
     });
-    vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
+    vi.spyOn(Indicator, 'findById').mockReturnValue(createIndicatorLeanQuery(indicatorDoc) as any);
     vi.spyOn(AssessmentClassifier.prototype, 'classifyHypertension').mockReturnValue(classificationResult);
     vi.spyOn(Assessment, 'create').mockResolvedValue([createdAssessment] as any);
 
@@ -250,6 +339,7 @@ describe('AssessmentService.createAssessment', () => {
       hypertensionDto.takenFrom,
       hypertensionDto.takenFromType,
       'hospital-musanze',
+      undefined,
       session,
     );
   });
@@ -270,25 +360,24 @@ describe('AssessmentService.createAssessment', () => {
       },
       recommendations: ['Gana ivuriro ryihuse bitarenze uyu munsi'],
     };
-    const createdAssessment = {
-      id: 'assessment-4',
-      readings: hypertensionDto.readings,
-      classification: classificationResult.classification,
-      recommendations: classificationResult.recommendations,
-    };
-
     const nonChuDto = {
       ...hypertensionDto,
       takenFromType: ModelNames.Hospital,
     };
+
+    const createdAssessment = createdAssessmentMock(nonChuDto, {
+      id: 'assessment-4',
+      readings: hypertensionDto.readings,
+      classification: classificationResult.classification,
+      recommendations: classificationResult.recommendations,
+    });
 
     userService.findUserByPatientNumber.mockResolvedValue({
       id: 'patient-4',
       district: 'Nyagatare',
       communityHealthUnit: 'hospital-nyagatare',
     });
-    vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
+    vi.spyOn(Indicator, 'findById').mockReturnValue(createIndicatorLeanQuery(indicatorDoc) as any);
     vi.spyOn(AssessmentClassifier.prototype, 'classifyHypertension').mockReturnValue(classificationResult);
     const createSpy = vi.spyOn(Assessment, 'create').mockResolvedValue([createdAssessment] as any);
 
@@ -304,32 +393,13 @@ describe('AssessmentService.createAssessment', () => {
   });
 
   it('throws IndicatorNotFound when the indicator does not exist', async () => {
-    vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(null) as any);
+    vi.spyOn(Indicator, 'findById').mockReturnValue(createIndicatorLeanQuery(null) as any);
     const assessmentCreateSpy = vi.spyOn(Assessment, 'create');
 
     await expect(service.createAssessment(diabetesDto as any, 'evaluator-1')).rejects.toBeInstanceOf(IndicatorNotFound);
 
     expect(assessmentCreateSpy).not.toHaveBeenCalled();
     expect(session.commitTransaction).not.toHaveBeenCalled();
-    expect(session.abortTransaction).toHaveBeenCalledOnce();
-    expect(session.endSession).toHaveBeenCalledOnce();
-  });
-
-  it('throws HasPendingReferralError when the patient already has the same indicator in a pending referral', async () => {
-    const indicatorDoc = {
-      name: 'diabetes',
-      readings: [{ type: 'random_blood_glucose', unit: 'mg/dL' }],
-      classifications: [],
-    };
-
-    vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(true);
-
-    await expect(service.createAssessment(diabetesDto as any, 'evaluator-1')).rejects.toBeInstanceOf(
-      HasPendingReferralError,
-    );
-
-    expect(userService.findUserByPatientNumber).not.toHaveBeenCalled();
     expect(session.abortTransaction).toHaveBeenCalledOnce();
     expect(session.endSession).toHaveBeenCalledOnce();
   });
@@ -342,8 +412,7 @@ describe('AssessmentService.createAssessment', () => {
     };
 
     userService.findUserByPatientNumber.mockRejectedValue(new PatientNotFoundException());
-    vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
+    vi.spyOn(Indicator, 'findById').mockReturnValue(createIndicatorLeanQuery(indicatorDoc) as any);
     const createSpy = vi.spyOn(Assessment, 'create');
 
     await expect(service.createAssessment(diabetesDto as any, 'evaluator-1')).rejects.toBeInstanceOf(
@@ -371,8 +440,7 @@ describe('AssessmentService.createAssessment', () => {
       },
     };
 
-    vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
+    vi.spyOn(Indicator, 'findById').mockReturnValue(createIndicatorLeanQuery(indicatorDoc) as any);
     const classifySpy = vi.spyOn(AssessmentClassifier.prototype, 'classifyDiabetes');
     const createSpy = vi.spyOn(Assessment, 'create');
 
@@ -408,8 +476,7 @@ describe('AssessmentService.createAssessment', () => {
       recommendations: ['Komeza kurya indyo yuzuye'],
     };
 
-    vi.spyOn(Indicator, 'findById').mockReturnValue(createSessionAwareLeanQuery(indicatorDoc) as any);
-    vi.spyOn(service as any, 'indicatorAssessmentExistsForPendingReferral').mockResolvedValue(false);
+    vi.spyOn(Indicator, 'findById').mockReturnValue(createIndicatorLeanQuery(indicatorDoc) as any);
     vi.spyOn(AssessmentClassifier.prototype, 'classifyDiabetes').mockReturnValue(classificationResult);
     vi.spyOn(Assessment, 'create').mockResolvedValue([] as any);
 
@@ -421,5 +488,154 @@ describe('AssessmentService.createAssessment', () => {
     expect(session.commitTransaction).not.toHaveBeenCalled();
     expect(session.abortTransaction).toHaveBeenCalledOnce();
     expect(session.endSession).toHaveBeenCalledOnce();
+  });
+});
+
+describe('AssessmentService.getAssessmentById', () => {
+  let referralService: { createReferral: ReturnType<typeof vi.fn> };
+  let userService: { findUserByPatientNumber: ReturnType<typeof vi.fn> };
+  let service: AssessmentService;
+
+  beforeEach(() => {
+    referralService = { createReferral: vi.fn() };
+    userService = { findUserByPatientNumber: vi.fn() };
+    service = new AssessmentService(referralService as any, userService as any);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns null when no document exists', async () => {
+    const chain = createAssessmentQueryChain(null);
+    vi.spyOn(Assessment, 'findById').mockReturnValue(chain as any);
+
+    const result = await service.getAssessmentById('missing-id');
+
+    expect(Assessment.findById).toHaveBeenCalledWith('missing-id');
+    expect(chain.select).toHaveBeenCalled();
+    expect(chain.exec).toHaveBeenCalled();
+    expect(result).toBeNull();
+  });
+
+  it('maps lean document fields to AssessmentDetailsDTO', async () => {
+    const patientId = new mongoose.Types.ObjectId();
+    const indicatorId = new mongoose.Types.ObjectId();
+    const evaluatorId = new mongoose.Types.ObjectId();
+    const evaluatedAt = new Date('2026-01-15T10:00:00.000Z');
+    const doc = {
+      _id: new mongoose.Types.ObjectId(),
+      patient: patientId,
+      patientNumber: 555,
+      indicator: indicatorId,
+      evaluatedBy: evaluatorId,
+      readings: { random_blood_glucose: { value: 100, unit: 'mg/dL' } },
+      classification: { label: 'Normal', status_code: 'healthy' as const },
+      recommendations: ['r1'],
+      takenFrom: 'chu-x',
+      takenFromType: ModelNames.CommunityHealthUnit,
+      evaluatedAt,
+    };
+
+    vi.spyOn(Assessment, 'findById').mockReturnValue(createAssessmentQueryChain(doc) as any);
+
+    const result = await service.getAssessmentById(doc._id.toString());
+
+    expect(result).toEqual({
+      id: doc._id.toString(),
+      patient: patientId.toString(),
+      indicator: indicatorId.toString(),
+      evaluatedBy: evaluatorId.toString(),
+      patientNumber: 555,
+      readings: doc.readings,
+      classification: doc.classification,
+      takenFrom: doc.takenFrom,
+      takenFromType: doc.takenFromType,
+      recommendations: doc.recommendations,
+      evaluatedAt,
+    });
+  });
+
+  it('defaults evaluatedBy to empty string and recommendations to [] when missing', async () => {
+    const doc = {
+      _id: new mongoose.Types.ObjectId(),
+      patient: new mongoose.Types.ObjectId(),
+      patientNumber: 1,
+      indicator: new mongoose.Types.ObjectId(),
+      readings: {},
+      classification: { label: 'X', status_code: 'warning' as const },
+      takenFrom: 'chu-y',
+      takenFromType: ModelNames.CommunityHealthUnit,
+      evaluatedAt: new Date(),
+    };
+
+    vi.spyOn(Assessment, 'findById').mockReturnValue(createAssessmentQueryChain(doc) as any);
+
+    const result = await service.getAssessmentById(doc._id.toString());
+
+    expect(result?.evaluatedBy).toBe('');
+    expect(result?.recommendations).toEqual([]);
+  });
+});
+
+describe('AssessmentService.getAssessmentIndicator', () => {
+  let service: AssessmentService;
+
+  beforeEach(() => {
+    service = new AssessmentService({ createReferral: vi.fn() } as any, { findUserByPatientNumber: vi.fn() } as any);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns indicator projection from Assessment.findById', async () => {
+    const leanResult = { indicator: new mongoose.Types.ObjectId() };
+    const exec = vi.fn().mockResolvedValue(leanResult);
+    const lean = vi.fn().mockReturnValue({ exec });
+    const select = vi.fn().mockReturnValue({ lean });
+    vi.spyOn(Assessment, 'findById').mockReturnValue({ select } as any);
+
+    const result = await service.getAssessmentIndicator('aid-1');
+
+    expect(Assessment.findById).toHaveBeenCalledWith('aid-1');
+    expect(select).toHaveBeenCalledWith('indicator');
+    expect(result).toBe(leanResult);
+  });
+});
+
+describe('AssessmentService.listAssessmentsByEvaluatorLast24Hours', () => {
+  let service: AssessmentService;
+
+  beforeEach(() => {
+    service = new AssessmentService({ createReferral: vi.fn() } as any, { findUserByPatientNumber: vi.fn() } as any);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns aggregate results for the evaluator', async () => {
+    const rows = [
+      {
+        _id: 'a1',
+        patientNumber: 10,
+        patientName: 'Jane Doe',
+        indicatorName: 'hypertension',
+        classificationLabel: 'warning',
+      },
+    ];
+    const exec = vi.fn().mockResolvedValue(rows);
+    const aggregateSpy = vi.spyOn(Assessment, 'aggregate').mockReturnValue({ exec } as any);
+
+    const result = await service.listAssessmentsByEvaluatorLast24Hours('507f1f77bcf86cd799439011');
+
+    expect(aggregateSpy).toHaveBeenCalled();
+    const pipeline = aggregateSpy.mock.calls[0]![0] as Array<{ $match?: Record<string, unknown> }>;
+    const firstMatch = pipeline[0]?.$match;
+    expect(firstMatch?.evaluatedBy).toEqual(new mongoose.Types.ObjectId('507f1f77bcf86cd799439011'));
+    expect((firstMatch?.evaluatedAt as { $gte?: Date } | undefined)?.$gte).toBeInstanceOf(Date);
+    expect(result).toEqual(rows);
+    expect(exec).toHaveBeenCalled();
   });
 });
