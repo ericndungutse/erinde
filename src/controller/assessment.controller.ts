@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { IAssessmentService } from '../service/interface/iassessment.service.js';
 import ResponseFactory from './responseFactory.js';
+import UnauthenticatedError from '../Errors/unauthenticatedError.js';
+import ParameterIsRequiredError from '../Errors/ParameterIsRequiredError.js';
 
 export default class AssessmentController {
   private _assessmentService: IAssessmentService;
@@ -11,10 +13,11 @@ export default class AssessmentController {
 
   async createAssessment(req: Request, res: Response, next: NextFunction) {
     try {
-      // Resolve creator id from authenticated user if available
-      const evaluatedBy = req.user?.id;
-
-      const created = await this._assessmentService.createAssessment(req.body, evaluatedBy, req.existingPendingReferral);
+      const created = await this._assessmentService.createAssessment(
+        req.body,
+        req.user?.id,
+        req.existingPendingReferral,
+      );
       ResponseFactory.getResponseFactory(res).created('assessment', created, 'Assessment created successfully');
     } catch (err: any) {
       next(err);
@@ -24,16 +27,16 @@ export default class AssessmentController {
   /**
    * Get single assessment details by id (no population)
    */
-  async getAssessmentById(req: Request, res: Response) {
+  async getAssessmentById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
       if (!id) {
-        return res.status(400).json({ status: 'fail', message: 'Assessment id is required' });
+        return next(new ParameterIsRequiredError('assessmentId'));
       }
 
       const assessment = await this._assessmentService.getAssessmentById(id);
       if (!assessment) {
-        return res.status(404).json({ status: 'fail', message: 'Assessment not found' });
+        return ResponseFactory.getResponseFactory(res).notFound('assessment_not_found');
       }
 
       return res.status(200).json({ status: 'success', data: { assessment } });
@@ -48,19 +51,17 @@ export default class AssessmentController {
    * social health worker, returning patient number, names, indicator,
    * and classification label.
    */
-  async listMyAssessmentsLast24Hours(req: Request, res: Response) {
+  async listMyAssessmentsLast24Hours(req: Request, res: Response, next: NextFunction) {
     try {
-      const evaluatorId = req.user?.id;
+      const assessments = await this._assessmentService.listAssessmentsByEvaluatorLast24Hours(req.user!.id);
 
-      if (!evaluatorId) {
-        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
-      }
-
-      const assessments = await this._assessmentService.listAssessmentsByEvaluatorLast24Hours(evaluatorId);
-      return res.status(200).json({ status: 'success', data: { assessments } });
+      ResponseFactory.getResponseFactory(res).ok({
+        key: 'assessments',
+        data: assessments,
+        message: 'Assessments fetched successfully',
+      });
     } catch (err: any) {
-      const msg = err?.message || 'Failed to fetch recent assessments';
-      return res.status(500).json({ status: 'error', message: msg });
+      next(new Error(err?.message || 'Failed to fetch recent assessments'));
     }
   }
 }

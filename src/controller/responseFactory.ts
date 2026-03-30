@@ -53,7 +53,11 @@ export default class ResponseFactory {
   badRequest(message = 'Bad Request', errors?: any) {
     return this.res.status(400).json({
       status: 'fail',
-      message: i18next.t(message, { lng: this.res.req?.language || ConstantValues.DEFAULT_LANGUAGE, defaultValue: message }),
+      message: i18next.t(message, {
+        lng: this.res.req?.language || ConstantValues.DEFAULT_LANGUAGE,
+        defaultValue: message,
+        parameter: errors?.parameter,
+      }),
       errors: errors ? errors : undefined,
     });
   }
@@ -75,11 +79,14 @@ export default class ResponseFactory {
     });
   }
 
-  notFound(message = 'Resource not found') {
-    console.log(message);
+  notFound(message: string) {
+    const defaultMessage = 'Resource not found. Please check the URL or resource identifier and try again.';
     return this.res.status(404).json({
       status: 'fail',
-      message: i18next.t(message, { lng: this.res.req?.language || ConstantValues.DEFAULT_LANGUAGE, defaultValue: message }),
+      message: i18next.t(message, {
+        lng: this.res.req?.language || ConstantValues.DEFAULT_LANGUAGE,
+        defaultValue: defaultMessage,
+      }),
     });
   }
 }

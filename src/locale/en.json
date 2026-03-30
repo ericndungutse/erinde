@@ -20,5 +20,6 @@
   "password_required": "Password is required.",
   "indicator_not_found": "Indicator not found.",
   "patient_not_found": "Patient not found.",
-  "assessment_for_same_indicator_taken_today": "An assessment for the same indicator has already been taken today for this patient."
+  "assessment_for_same_indicator_taken_today": "An assessment for the same indicator has already been taken today for this patient.",
+  "assessment_not_found": "Assessment not found."
 }

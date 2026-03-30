@@ -8,16 +8,22 @@ import { validateBody } from '../validation/validator.js';
 import { checkPendingReferral } from '../middleware/referral.middleware.js';
 const router = Router();
 
-router.post('/', protect, resolveAssessmentTakenFrom, validateBody(CreateAssessmentSchemaZ), validateAssessmentTakenTwice, checkPendingReferral, (req, res, next) =>
-  container.assessmentController.createAssessment(req, res, next),
+router.post(
+  '/',
+  protect,
+  resolveAssessmentTakenFrom,
+  validateBody(CreateAssessmentSchemaZ),
+  validateAssessmentTakenTwice,
+  checkPendingReferral,
+  (req, res, next) => container.assessmentController.createAssessment(req, res, next),
 );
 
 // GET /assessments/me/last-24-hours - List assessments taken in the last 24 hours
 // by the logged-in social health worker with patient number, names, indicator, and classification label
-router.get('/me/last-24-hours', protect, authorize(UserRole.SOCIAL_HEALTH_WORKER), (req, res) =>
-  container.assessmentController.listMyAssessmentsLast24Hours(req, res),
+router.get('/me/last-24-hours', protect, authorize(UserRole.SOCIAL_HEALTH_WORKER), (req, res, next) =>
+  container.assessmentController.listMyAssessmentsLast24Hours(req, res, next),
 );
 
 // GET /assessments/:id - Get single assessment details (no population)
-router.get('/:id', protect, (req, res) => container.assessmentController.getAssessmentById(req, res));
+router.get('/:id', protect, (req, res, next) => container.assessmentController.getAssessmentById(req, res, next));
 export default router;

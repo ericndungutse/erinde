@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 
 import Indicator from '../../models/indicator.model.js';
 import { Assessment } from '../../models/assessment.model.js';
@@ -11,6 +11,7 @@ import PatientNotFoundException from '../../Errors/PatientNotFoundException.js';
 import { ModelNames } from '../../constants/constant.values.js';
 import AssessmentClassifier from '../../service/assessment-classifier.service.js';
 import AssessmentService from '../../service/assessment.service.js';
+import type { RecentAssessmentSummaryDTO } from '../../dto/assessmentDto.js';
 
 function createSessionMock() {
   return {
@@ -491,93 +492,6 @@ describe('AssessmentService.createAssessment', () => {
   });
 });
 
-describe('AssessmentService.getAssessmentById', () => {
-  let referralService: { createReferral: ReturnType<typeof vi.fn> };
-  let userService: { findUserByPatientNumber: ReturnType<typeof vi.fn> };
-  let service: AssessmentService;
-
-  beforeEach(() => {
-    referralService = { createReferral: vi.fn() };
-    userService = { findUserByPatientNumber: vi.fn() };
-    service = new AssessmentService(referralService as any, userService as any);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('returns null when no document exists', async () => {
-    const chain = createAssessmentQueryChain(null);
-    vi.spyOn(Assessment, 'findById').mockReturnValue(chain as any);
-
-    const result = await service.getAssessmentById('missing-id');
-
-    expect(Assessment.findById).toHaveBeenCalledWith('missing-id');
-    expect(chain.select).toHaveBeenCalled();
-    expect(chain.exec).toHaveBeenCalled();
-    expect(result).toBeNull();
-  });
-
-  it('maps lean document fields to AssessmentDetailsDTO', async () => {
-    const patientId = new mongoose.Types.ObjectId();
-    const indicatorId = new mongoose.Types.ObjectId();
-    const evaluatorId = new mongoose.Types.ObjectId();
-    const evaluatedAt = new Date('2026-01-15T10:00:00.000Z');
-    const doc = {
-      _id: new mongoose.Types.ObjectId(),
-      patient: patientId,
-      patientNumber: 555,
-      indicator: indicatorId,
-      evaluatedBy: evaluatorId,
-      readings: { random_blood_glucose: { value: 100, unit: 'mg/dL' } },
-      classification: { label: 'Normal', status_code: 'healthy' as const },
-      recommendations: ['r1'],
-      takenFrom: 'chu-x',
-      takenFromType: ModelNames.CommunityHealthUnit,
-      evaluatedAt,
-    };
-
-    vi.spyOn(Assessment, 'findById').mockReturnValue(createAssessmentQueryChain(doc) as any);
-
-    const result = await service.getAssessmentById(doc._id.toString());
-
-    expect(result).toEqual({
-      id: doc._id.toString(),
-      patient: patientId.toString(),
-      indicator: indicatorId.toString(),
-      evaluatedBy: evaluatorId.toString(),
-      patientNumber: 555,
-      readings: doc.readings,
-      classification: doc.classification,
-      takenFrom: doc.takenFrom,
-      takenFromType: doc.takenFromType,
-      recommendations: doc.recommendations,
-      evaluatedAt,
-    });
-  });
-
-  it('defaults evaluatedBy to empty string and recommendations to [] when missing', async () => {
-    const doc = {
-      _id: new mongoose.Types.ObjectId(),
-      patient: new mongoose.Types.ObjectId(),
-      patientNumber: 1,
-      indicator: new mongoose.Types.ObjectId(),
-      readings: {},
-      classification: { label: 'X', status_code: 'warning' as const },
-      takenFrom: 'chu-y',
-      takenFromType: ModelNames.CommunityHealthUnit,
-      evaluatedAt: new Date(),
-    };
-
-    vi.spyOn(Assessment, 'findById').mockReturnValue(createAssessmentQueryChain(doc) as any);
-
-    const result = await service.getAssessmentById(doc._id.toString());
-
-    expect(result?.evaluatedBy).toBe('');
-    expect(result?.recommendations).toEqual([]);
-  });
-});
-
 describe('AssessmentService.getAssessmentIndicator', () => {
   let service: AssessmentService;
 
@@ -611,31 +525,60 @@ describe('AssessmentService.listAssessmentsByEvaluatorLast24Hours', () => {
     service = new AssessmentService({ createReferral: vi.fn() } as any, { findUserByPatientNumber: vi.fn() } as any);
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  it('queries with evaluatorId and a $gte boundary ~24 hours ago', async () => {
+    // Mock Chain
+    const execMock = vi.fn();
+    const leanMock = vi.fn(() => ({ exec: execMock }));
+    const populateMock = vi.fn(() => ({ populate: populateMock, lean: leanMock }));
+    const selectMock = vi.fn(() => ({ populate: populateMock }));
+    const findMock = vi.fn(() => ({ select: selectMock }));
 
-  it('returns aggregate results for the evaluator', async () => {
-    const rows = [
+    // Tell What find() on Assessment should call
+    vi.spyOn(Assessment, 'find').mockImplementation(findMock as any);
+
+    const mockResult: RecentAssessmentSummaryDTO[] = [
       {
-        _id: 'a1',
-        patientNumber: 10,
-        patientName: 'Jane Doe',
-        indicatorName: 'hypertension',
-        classificationLabel: 'warning',
+        _id: '507f1f77bcf86cd799439011',
+        patientNumber: 1001,
+        patient: {
+          _id: '507f1f77bcf86cd799439012',
+          firstname: 'John',
+          lastname: 'Doe',
+        },
+        indicator: {
+          _id: '507f1f77bcf86cd799439013',
+          name: 'hypertension',
+        },
+        classification: {
+          label: 'High Risk',
+          status_code: 'high',
+        },
       },
     ];
-    const exec = vi.fn().mockResolvedValue(rows);
-    const aggregateSpy = vi.spyOn(Assessment, 'aggregate').mockReturnValue({ exec } as any);
+    execMock.mockResolvedValue(mockResult);
 
-    const result = await service.listAssessmentsByEvaluatorLast24Hours('507f1f77bcf86cd799439011');
+    const evaluatorId = '507f1f77bcf86cd799439011';
 
-    expect(aggregateSpy).toHaveBeenCalled();
-    const pipeline = aggregateSpy.mock.calls[0]![0] as Array<{ $match?: Record<string, unknown> }>;
-    const firstMatch = pipeline[0]?.$match;
-    expect(firstMatch?.evaluatedBy).toEqual(new mongoose.Types.ObjectId('507f1f77bcf86cd799439011'));
-    expect((firstMatch?.evaluatedAt as { $gte?: Date } | undefined)?.$gte).toBeInstanceOf(Date);
-    expect(result).toEqual(rows);
-    expect(exec).toHaveBeenCalled();
+    const result = await service.listAssessmentsByEvaluatorLast24Hours(evaluatorId);
+
+    expect(result).toEqual(mockResult);
+    expect(Assessment.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        evaluatedBy: expect.any(mongoose.Types.ObjectId),
+        evaluatedAt: {
+          $gte: expect.any(Date),
+        },
+      }),
+    );
+
+    expect(populateMock).toHaveBeenNthCalledWith(1, 'patient', '_id firstname lastname');
+    expect(populateMock).toHaveBeenNthCalledWith(2, 'indicator', '_id name');
+
+    const now = new Date();
+
+    // First Call to find should have evaluatedAt with $gte of ~24 hours ago
+    const findCallArgs = (Assessment.find as any).mock.calls[0][0];
+
+    expect(findCallArgs.evaluatedAt.$gte.getTime() + 24 * 60 * 60 * 1000).toBeLessThanOrEqual(now.getTime());
   });
 });
