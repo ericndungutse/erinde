@@ -18,7 +18,7 @@ export type ILoggedInUser = Pick<IUser, 'roles' | 'communityHealthUnit'> & {
   managedCommunityHealthUnit?: {
     id: string;
     name: string;
-  };
+  } | undefined;
 };
 
 export interface IAuthTokenPayload extends JwtPayload {
@@ -31,13 +31,6 @@ export interface IAuthTokenPayload extends JwtPayload {
 
 export interface ILoginResponse {
   token: string;
-  user: Omit<ILoggedInUser, 'communityHealthUnit'> & {
-    communityHealthUnit:
-      | ILoggedInUser['communityHealthUnit']
-      | {
-          id: string;
-          name: string;
-        };
-  };
+  user: ILoggedInUser;
   activeRole?: string;
 }

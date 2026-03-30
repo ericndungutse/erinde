@@ -40,7 +40,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/indicators", indicatorRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/assessments", assessmentRoutes);
-app.use("/api/v1/shw/referrals", referralRoutes);
+app.use("/api/v1/referrals", referralRoutes);
 app.use("/api/v1/nurse", nurseRoutes);
 app.use("/api/v1/hospitals", hospitalRoutes);
 app.use("/api/v1/community-health-units", communitHealthUnitRoutes);

@@ -6,6 +6,7 @@ declare global {
     interface Request {
       user?: ILoggedInUser;
        existingPendingReferral?: IReferralDocument | null;
+        referralFilter?: Record<string, any>;
     }
   }
 }

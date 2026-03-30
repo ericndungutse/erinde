@@ -32,6 +32,9 @@ export interface IReferralService {
     session?: ClientSession,
   ): Promise<void>;
 
+
+  getAllReferrals(query?: Record<string, string | string[] | undefined>, filter?: {}): Promise<any>;
+
   /**
    * List referrals for patients under a specific social health worker's follow-up.
    * Uses ClinicalProfile.healthWorkerId to scope visibility.

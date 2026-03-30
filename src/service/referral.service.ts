@@ -10,7 +10,7 @@ import type {
   GetHospitalReferralsResult,
   IReferralDetails,
   IReferralStatusSummary,
-  IReferralSummary
+  IReferralSummary,
 } from "../dto/referral.dto.js";
 import type { PaginationMeta } from "../types/api.types.js";
 import { APIFeatures } from "../utils/apiFeatures.js";
@@ -83,31 +83,6 @@ export class ReferralService implements IReferralService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // // 1. Check for existing PENDING referral (transaction-aware)
-    // // Check if there is a pending referral for the patient
-
-    // const existingReferral = await Referral.findOne({
-    //   patientNumber: patientNumber,
-    //   userId: userId,
-    //   status: "PENDING",
-    // })
-    //   .session(session ?? null)
-    //   .exec();
-
-    // if (existingReferral) {
-    //   // Ensure assessments are added for the same day as referral was created.
-    //   if (!this.isSameDay(today, new Date(existingReferral.referralDate))) {
-    //     throw new HasPendingReferralError();
-    //   }
-
-    //   // Add assessment if not already included
-    //   if (!existingReferral.assessments.includes(assessmentId)) {
-    //     existingReferral.assessments.push(assessmentId);
-    //     await existingReferral.save({ session: session ?? null });
-    //   }
-    //   return;
-    // }
-
     // if existingPendingReferral is provided, append assessment to its assessments list and save
     if (existingPendingReferral) {
       if (!existingPendingReferral.assessments.includes(assessmentId)) {
@@ -115,7 +90,6 @@ export class ReferralService implements IReferralService {
         await existingPendingReferral.save({ session: session ?? null });
       }
     }
-
 
     // 2. Fetch assessment and clinical profile (transaction-aware)
     const [assessment, clinicalProfile] = await Promise.all([
@@ -480,6 +454,49 @@ export class ReferralService implements IReferralService {
       dateA.getMonth() === dateB.getMonth() &&
       dateA.getDate() === dateB.getDate()
     );
+  }
+
+  async getAllReferrals(
+    query: Record<string, string | string[] | undefined> = {},
+    filter?: {},
+  ): Promise<any> {
+    const features = new APIFeatures(Referral.find(filter), query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    // Count documents matching the same filter
+    const countFeatures = new APIFeatures(
+      Referral.find(filter),
+      query,
+    ).filter();
+    const filteredQuery = countFeatures.query.getFilter() as any;
+    const totalResults = await Referral.countDocuments(filteredQuery).exec();
+
+    const page = features.page ?? 1;
+    const limit = features.limit ?? 20;
+    const totalPages = Math.max(1, Math.ceil(totalResults / limit));
+    const currentPage = Math.min(page, totalPages);
+
+    // Ensure we keep our hospital projection consistent.
+    const referrals = (await features.query
+      .select("-__v -createdAt -updatedAt")
+      .lean()
+      .exec()) as unknown as IReferral[];
+
+    const pagination: PaginationMeta = {
+      currentPage,
+      perPage: limit,
+      totalResults,
+      totalPages,
+      hasNextPage: currentPage < totalPages,
+      hasPrevPage: currentPage > 1,
+      nextPage: currentPage < totalPages ? currentPage + 1 : null,
+      prevPage: currentPage > 1 ? currentPage - 1 : null,
+    };
+
+    return { referrals, pagination };
   }
 }
 

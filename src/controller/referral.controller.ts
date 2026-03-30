@@ -1,6 +1,6 @@
-import type { Request, Response } from 'express';
-import type { IReferralService } from '../service/interface/ireferral.service.js';
-import type { ReferralStatus } from '../types/ReferralStatus.types.js';
+import type { Request, Response } from "express";
+import type { IReferralService } from "../service/interface/ireferral.service.js";
+import type { ReferralStatus } from "../types/ReferralStatus.types.js";
 
 export default class ReferralController {
   private _referralService: IReferralService;
@@ -15,27 +15,46 @@ export default class ReferralController {
    */
   async getReferralsByCommunityHealthUnit(req: Request, res: Response) {
     try {
+      const rawStatus = Array.isArray(req.query?.status)
+        ? req.query.status[0]
+        : req.query?.status;
 
-      const rawStatus = Array.isArray(req.query?.status) ? req.query.status[0] : req.query?.status;
-      const allowedStatuses: ReferralStatus[] = ['PENDING', 'COMPLETED', 'CANCELLED'];
+      const allowedStatuses: ReferralStatus[] = [
+        "PENDING",
+        "COMPLETED",
+        "CANCELLED",
+      ];
       const status: ReferralStatus =
-        typeof rawStatus === 'string' && rawStatus.length > 0 ? (rawStatus.toUpperCase() as ReferralStatus) : 'PENDING';
+        typeof rawStatus === "string" && rawStatus.length > 0
+          ? (rawStatus.toUpperCase() as ReferralStatus)
+          : "PENDING";
 
       if (!allowedStatuses.includes(status)) {
         return res.status(400).json({
-          status: 'fail',
-          message: 'Invalid status. Allowed values: PENDING, COMPLETED, CANCELLED',
+          status: "fail",
+          message:
+            "Invalid status. Allowed values: PENDING, COMPLETED, CANCELLED",
         });
       }
 
-      const { referrals, pagination } = await this._referralService.getReferralsByCommunityHealthUnit(
-        req.params.id?.toString() || '',
-       req.query ? (req.query as Record<string, string | string[] | undefined>) : {},
-      );
-      
-      return res.status(200).json({ status: 'success', data: { referrals, pagination } });
+      const { referrals, pagination } =
+        await this._referralService.getAllReferrals(
+          req.query
+            ? (req.query as Record<string, string | string[] | undefined>)
+            : {},
+          req.referralFilter || {},
+        );
+
+      return res
+        .status(200)
+        .json({ status: "success", data: { referrals, pagination } });
     } catch (error: any) {
-      return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list referrals' });
+      return res
+        .status(500)
+        .json({
+          status: "error",
+          message: error?.message || "Failed to list referrals",
+        });
     }
   }
 
@@ -46,16 +65,29 @@ export default class ReferralController {
     try {
       const hospitalId = req.user?.hospitalId;
       if (!hospitalId) {
-        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing nurse hospital context' });
+        return res
+          .status(401)
+          .json({
+            status: "fail",
+            message: "Unauthorized: missing nurse hospital context",
+          });
       }
 
-      const { referrals, pagination } = await this._referralService.listReferralsByHospital(
-        hospitalId,
-        (req.query ?? {}) as Record<string, string | string[] | undefined>,
-      );
-      return res.status(200).json({ status: 'success', data: { referrals, pagination } });
+      const { referrals, pagination } =
+        await this._referralService.listReferralsByHospital(
+          hospitalId,
+          (req.query ?? {}) as Record<string, string | string[] | undefined>,
+        );
+      return res
+        .status(200)
+        .json({ status: "success", data: { referrals, pagination } });
     } catch (error: any) {
-      return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list hospital referrals' });
+      return res
+        .status(500)
+        .json({
+          status: "error",
+          message: error?.message || "Failed to list hospital referrals",
+        });
     }
   }
 
@@ -67,13 +99,26 @@ export default class ReferralController {
     try {
       const loggedInUserId = req.user?.id;
       if (!loggedInUserId) {
-        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
+        return res
+          .status(401)
+          .json({
+            status: "fail",
+            message: "Unauthorized: missing user context",
+          });
       }
 
-      const referrals = await this._referralService.listUpcomingReferralsByHealthWorker(loggedInUserId);
-      return res.status(200).json({ status: 'success', data: { referrals } });
+      const referrals =
+        await this._referralService.listUpcomingReferralsByHealthWorker(
+          loggedInUserId,
+        );
+      return res.status(200).json({ status: "success", data: { referrals } });
     } catch (error: any) {
-      return res.status(500).json({ status: 'error', message: error?.message || 'Failed to list upcoming referrals' });
+      return res
+        .status(500)
+        .json({
+          status: "error",
+          message: error?.message || "Failed to list upcoming referrals",
+        });
     }
   }
 
@@ -84,15 +129,26 @@ export default class ReferralController {
     try {
       const loggedInUserId = req.user?.id;
       if (!loggedInUserId) {
-        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
+        return res
+          .status(401)
+          .json({
+            status: "fail",
+            message: "Unauthorized: missing user context",
+          });
       }
 
-      const count = await this._referralService.countPendingReferralsByHealthWorker(loggedInUserId);
-      return res.status(200).json({ status: 'success', data: { count } });
+      const count =
+        await this._referralService.countPendingReferralsByHealthWorker(
+          loggedInUserId,
+        );
+      return res.status(200).json({ status: "success", data: { count } });
     } catch (error: any) {
       return res
         .status(500)
-        .json({ status: 'error', message: error?.message || 'Failed to get pending referrals count' });
+        .json({
+          status: "error",
+          message: error?.message || "Failed to get pending referrals count",
+        });
     }
   }
 
@@ -104,20 +160,28 @@ export default class ReferralController {
     try {
       const loggedInUserId = req.user?.id;
       if (!loggedInUserId) {
-        return res.status(401).json({ status: 'fail', message: 'Unauthorized: missing user context' });
+        return res
+          .status(401)
+          .json({
+            status: "fail",
+            message: "Unauthorized: missing user context",
+          });
       }
 
-      const summary = await this._referralService.getReferralStatusOverviewByHealthWorker(loggedInUserId);
+      const summary =
+        await this._referralService.getReferralStatusOverviewByHealthWorker(
+          loggedInUserId,
+        );
 
       return res.status(200).json({
-        status: 'success',
-        message: 'Referral status overview retrieved successfully',
+        status: "success",
+        message: "Referral status overview retrieved successfully",
         data: { summary },
       });
     } catch (error: any) {
       return res.status(500).json({
-        status: 'error',
-        message: error?.message || 'Failed to get referral status overview',
+        status: "error",
+        message: error?.message || "Failed to get referral status overview",
       });
     }
   }
@@ -129,22 +193,33 @@ export default class ReferralController {
     try {
       const { id } = req.params;
       if (!id) {
-        return res.status(400).json({ status: 'fail', message: 'Referral id is required' });
+        return res
+          .status(400)
+          .json({ status: "fail", message: "Referral id is required" });
       }
 
       const referral = await this._referralService.getReferralById(id);
       if (!referral) {
-        return res.status(404).json({ status: 'fail', message: 'Referral not found' });
+        return res
+          .status(404)
+          .json({ status: "fail", message: "Referral not found" });
       }
 
       const loggedInHospitalId = req.user?.hospitalId;
       if (loggedInHospitalId && referral.to !== loggedInHospitalId) {
-        return res.status(404).json({ status: 'fail', message: 'Referral not found' });
+        return res
+          .status(404)
+          .json({ status: "fail", message: "Referral not found" });
       }
 
-      return res.status(200).json({ status: 'success', data: { referral } });
+      return res.status(200).json({ status: "success", data: { referral } });
     } catch (error: any) {
-      return res.status(500).json({ status: 'error', message: error?.message || 'Failed to fetch referral' });
+      return res
+        .status(500)
+        .json({
+          status: "error",
+          message: error?.message || "Failed to fetch referral",
+        });
     }
   }
 
@@ -157,17 +232,37 @@ export default class ReferralController {
       const patientNumber = Number(patientNumberParam);
 
       if (!patientNumber || Number.isNaN(patientNumber)) {
-        return res.status(400).json({ status: 'fail', message: 'Valid patientNumber is required (param or body)' });
+        return res
+          .status(400)
+          .json({
+            status: "fail",
+            message: "Valid patientNumber is required (param or body)",
+          });
       }
 
-      const updated = await this._referralService.completeReferralByPatientNumber(patientNumber);
+      const updated =
+        await this._referralService.completeReferralByPatientNumber(
+          patientNumber,
+        );
       if (!updated) {
-        return res.status(404).json({ status: 'fail', message: 'No pending referral found for given patient number' });
+        return res
+          .status(404)
+          .json({
+            status: "fail",
+            message: "No pending referral found for given patient number",
+          });
       }
 
-      return res.status(200).json({ status: 'success', data: { referral: updated } });
+      return res
+        .status(200)
+        .json({ status: "success", data: { referral: updated } });
     } catch (error: any) {
-      return res.status(500).json({ status: 'error', message: error?.message || 'Failed to complete referral' });
+      return res
+        .status(500)
+        .json({
+          status: "error",
+          message: error?.message || "Failed to complete referral",
+        });
     }
   }
 }
