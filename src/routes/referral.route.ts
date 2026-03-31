@@ -1,32 +1,16 @@
 import { Router } from "express";
 import { container } from "../container.js";
-import { protect, authorize } from "../security/auth.middleware.js";
+import { resolveGetAllReferralFilter } from "../middleware/referral.middleware.js";
+import { authorize, protect } from "../security/auth.middleware.js";
 import { UserRole } from "../types/roles.types.js";
-import { ModelNames } from "../constants/constant.values.js";
 
 const router = Router({ mergeParams: true });
 
 router.get(
   "/",
   protect,
-  authorize(UserRole.SOCIAL_HEALTH_WORKER),
-  (req, res, next) => {
-    const referralFilter: any = {
-      
-    };
-    const userRoles = req.user?.roles || [];
-
-    console.log("User Roles:", req.user); // Debugging line to check user roles
-
-    if (userRoles.includes(UserRole.SOCIAL_HEALTH_WORKER)) {
-      referralFilter['from'] = req.user?.managedCommunityHealthUnit;
-      referralFilter['fromType'] = ModelNames.CommunityHealthUnit;
-    }
-
-    req.referralFilter = referralFilter; 
-
-    next();
-  },
+  authorize(UserRole.SOCIAL_HEALTH_WORKER, UserRole.NURSE),
+  resolveGetAllReferralFilter,
   (req, res) =>
     container.referralController.getReferralsByCommunityHealthUnit(req, res),
 );

@@ -3,6 +3,8 @@ import HasPendingReferralError from "../Errors/HasPendingReferralError.js";
 import { Assessment } from "../models/assessment.model.js";
 import Referral, { type IReferralDocument } from "../models/referral.model.js";
 import { logger } from "../logger.js";
+import { UserRole } from "../types/roles.types.js";
+import { ModelNames } from "../constants/constant.values.js";
 
 export async function checkPendingReferral(
   req: Request,
@@ -19,14 +21,14 @@ export async function checkPendingReferral(
       patientNumber,
       status: "PENDING",
     })
-    .select("assessments")
+      .select("assessments")
       .exec();
 
-      if (!referral) {
-        // 2. DEBUG: Helpful to know the path taken when no referral exists
-        logger.debug({ patientNumber }, "No pending referral found; proceeding");
-        return next();
-      }
+    if (!referral) {
+      // 2. DEBUG: Helpful to know the path taken when no referral exists
+      logger.debug({ patientNumber }, "No pending referral found; proceeding");
+      return next();
+    }
 
     logger.debug(
       {
@@ -80,4 +82,27 @@ export async function checkPendingReferral(
     );
     return next(error);
   }
+}
+
+export function resolveGetAllReferralFilter(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const referralFilter: any = {};
+  const userRoles = req.user?.roles || [];
+
+  if (userRoles.includes(UserRole.SOCIAL_HEALTH_WORKER)) {
+    referralFilter["from"] = req.user?.managedCommunityHealthUnit;
+    referralFilter["fromType"] = ModelNames.CommunityHealthUnit;
+  }
+
+  if (userRoles.includes(UserRole.NURSE)) {
+    referralFilter["from"] = req.user?.hospitalId;
+    referralFilter["fromType"] = ModelNames.Hospital;
+  }
+
+  req.referralFilter = referralFilter;
+
+  next();
 }

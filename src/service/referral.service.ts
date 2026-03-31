@@ -133,63 +133,6 @@ export class ReferralService implements IReferralService {
   }
 
   /**
-   * List referrals for patients under the given social health worker's follow-up.
-   * Uses ClinicalProfile.healthWorkerId to determine patient assignment.
-   * Returns most recent first.
-   */
-  async getReferralsByCommunityHealthUnit(
-    communityHealthUnit: string,
-    query: Record<string, string | string[] | undefined> = {},
-  ): Promise<any> {
-    const features = new APIFeatures(
-      Referral.find({
-        fromType: ModelNames.CommunityHealthUnit,
-        from: communityHealthUnit,
-      }),
-      query,
-    )
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-
-    // Count documents matching the same filter
-    const countFeatures = new APIFeatures(
-      Referral.find({
-        fromType: ModelNames.CommunityHealthUnit,
-        from: communityHealthUnit,
-      }),
-      query,
-    ).filter();
-    const filteredQuery = countFeatures.query.getFilter() as any;
-    const totalResults = await Referral.countDocuments(filteredQuery).exec();
-
-    const page = features.page ?? 1;
-    const limit = features.limit ?? 20;
-    const totalPages = Math.max(1, Math.ceil(totalResults / limit));
-    const currentPage = Math.min(page, totalPages);
-
-    // Ensure we keep our hospital projection consistent.
-    const referrals = (await features.query
-      .select("-__v -createdAt -updatedAt")
-      .lean()
-      .exec()) as unknown as IReferral[];
-
-    const pagination: PaginationMeta = {
-      currentPage,
-      perPage: limit,
-      totalResults,
-      totalPages,
-      hasNextPage: currentPage < totalPages,
-      hasPrevPage: currentPage > 1,
-      nextPage: currentPage < totalPages ? currentPage + 1 : null,
-      prevPage: currentPage > 1 ? currentPage - 1 : null,
-    };
-
-    return { referrals, pagination };
-  }
-
-  /**
    * List referrals scoped to a specific hospital.
    * Returns most recent first.
    */
@@ -456,6 +399,7 @@ export class ReferralService implements IReferralService {
     );
   }
 
+  // Get all referrals with optional filtering, sorting, field limiting, and pagination.
   async getAllReferrals(
     query: Record<string, string | string[] | undefined> = {},
     filter?: {},

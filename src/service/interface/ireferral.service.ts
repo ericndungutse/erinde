@@ -1,12 +1,12 @@
-import type { ClientSession } from 'mongoose';
-import type { IReferral } from '../../domain/referral.js';
+import type { ClientSession } from "mongoose";
+import type { IReferral } from "../../domain/referral.js";
 import type {
   GetHospitalReferralsResult,
   IReferralDetails,
   IReferralStatusSummary,
-  IReferralSummary
-} from '../../dto/referral.dto.js';
-import type { IReferralDocument } from '../../models/referral.model.js';
+  IReferralSummary,
+} from "../../dto/referral.dto.js";
+import type { IReferralDocument } from "../../models/referral.model.js";
 export interface IReferralService {
   /**
    * Create or update a daily referral for a patient
@@ -32,19 +32,9 @@ export interface IReferralService {
     session?: ClientSession,
   ): Promise<void>;
 
-
-  getAllReferrals(query?: Record<string, string | string[] | undefined>, filter?: {}): Promise<any>;
-
-  /**
-   * List referrals for patients under a specific social health worker's follow-up.
-   * Uses ClinicalProfile.healthWorkerId to scope visibility.
-   *
-   * @param healthWorkerId - Logged-in social health worker's user id
-   * @returns Array of referrals for patients assigned to the given health worker
-   */
-  getReferralsByCommunityHealthUnit(
-    communityHealthUnit: string,
+  getAllReferrals(
     query?: Record<string, string | string[] | undefined>,
+    filter?: {},
   ): Promise<any>;
 
   /**
@@ -66,7 +56,9 @@ export interface IReferralService {
    * @param healthWorkerId - Logged-in social health worker's user id
    * @returns Array of upcoming referrals for patients assigned to the given health worker
    */
-  listUpcomingReferralsByHealthWorker(healthWorkerId: string): Promise<IReferralSummary[]>;
+  listUpcomingReferralsByHealthWorker(
+    healthWorkerId: string,
+  ): Promise<IReferralSummary[]>;
 
   /**
    * Get total count of pending referrals for patients under a specific
@@ -81,7 +73,9 @@ export interface IReferralService {
    * Get referral status overview (pending, completed this month, overdue)
    * for patients under the given social health worker's follow-up.
    */
-  getReferralStatusOverviewByHealthWorker(healthWorkerId: string): Promise<IReferralStatusSummary>;
+  getReferralStatusOverviewByHealthWorker(
+    healthWorkerId: string,
+  ): Promise<IReferralStatusSummary>;
 
   /**
    * Get a single referral by id. No population, raw referral data only.
@@ -104,5 +98,8 @@ export interface IReferralService {
   /**
    * Get a single referral by patient number. No population, raw referral data only.
    */
-  getPendingReferralByPatientNumber(patientNumber: number, session?: ClientSession): Promise<IReferral | null>;
+  getPendingReferralByPatientNumber(
+    patientNumber: number,
+    session?: ClientSession,
+  ): Promise<IReferral | null>;
 }
