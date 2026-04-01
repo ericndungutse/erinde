@@ -37,28 +37,7 @@ export interface IReferralService {
     filter?: {},
   ): Promise<any>;
 
-  /**
-   * List referrals for a specific hospital.
-   * Intended for nurse views scoped to their assigned hospital.
-   *
-   * @param hospitalId - Hospital id of the logged-in nurse
-   * @returns Paginated referrals for the specified hospital
-   */
-  listReferralsByHospital(
-    hospitalId: string,
-    query?: Record<string, string | string[] | undefined>,
-  ): Promise<GetHospitalReferralsResult>;
-
-  /**
-   * List upcoming referrals (future or today) for patients under a specific
-   * social health worker's follow-up, ordered by scheduledVisitDate ascending.
-   *
-   * @param healthWorkerId - Logged-in social health worker's user id
-   * @returns Array of upcoming referrals for patients assigned to the given health worker
-   */
-  listUpcomingReferralsByHealthWorker(
-    healthWorkerId: string,
-  ): Promise<IReferralSummary[]>;
+  getCommingReferralVisitsIn48h(filter: {}): Promise<IReferralSummary[]>;
 
   /**
    * Get total count of pending referrals for patients under a specific

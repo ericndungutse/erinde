@@ -11,8 +11,7 @@ router.get(
   protect,
   authorize(UserRole.SOCIAL_HEALTH_WORKER, UserRole.NURSE),
   resolveGetAllReferralFilter,
-  (req, res) =>
-    container.referralController.getReferralsByCommunityHealthUnit(req, res),
+  (req, res) => container.referralController.getReferrals(req, res),
 );
 
 // GET /referrals/upcoming - List upcoming referral visits (by scheduledVisitDate) for the logged-in social health worker
@@ -20,9 +19,12 @@ router.get(
   "/upcoming",
   protect,
   authorize(UserRole.SOCIAL_HEALTH_WORKER),
-  (req, res) => container.referralController.listMyUpcomingReferrals(req, res),
+  resolveGetAllReferralFilter,
+  (req, res, next) =>
+    container.referralController.getUpcomingReferralsIn48(req, res, next),
 );
 
+// TODO: Next
 // GET /referrals/pending/count - Get count of pending referrals for the logged-in social health worker
 router.get(
   "/pending/count",

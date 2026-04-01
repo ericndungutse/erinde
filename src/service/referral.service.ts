@@ -4,17 +4,20 @@ import ClinicalProfile from "../models/clinicalProfile.model.js";
 import Referral, { type IReferralDocument } from "../models/referral.model.js";
 import type { IReferralService } from "./interface/ireferral.service.js";
 
-import { ModelNames } from "../constants/constant.values.js";
+import { addHours, startOfMinute } from "date-fns";
 import type { IReferral } from "../domain/referral.js";
 import type {
-  GetHospitalReferralsResult,
   IReferralDetails,
   IReferralStatusSummary,
   IReferralSummary,
 } from "../dto/referral.dto.js";
 import type { PaginationMeta } from "../types/api.types.js";
 import { APIFeatures } from "../utils/apiFeatures.js";
-import { parsePaginationParams } from "../utils/pagination.js";
+import { logger } from "../logger.js";
+import {
+  resolveStartDateTimeBasedOnKigaliTime,
+  toKigaliTime,
+} from "../utils/date.js";
 
 export class ReferralService implements IReferralService {
   getPendingReferralByPatientNumber(
@@ -80,14 +83,16 @@ export class ReferralService implements IReferralService {
     existingPendingReferral?: IReferralDocument | null,
     session?: ClientSession,
   ): Promise<void> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now: Date = new Date();
 
     // if existingPendingReferral is provided, append assessment to its assessments list and save
     if (existingPendingReferral) {
       if (!existingPendingReferral.assessments.includes(assessmentId)) {
         existingPendingReferral.assessments.push(assessmentId);
         await existingPendingReferral.save({ session: session ?? null });
+
+        // Append to existing referral and return
+        // return;
       }
     }
 
@@ -108,17 +113,16 @@ export class ReferralService implements IReferralService {
     }
 
     // 3. Schedule next visit
-    const scheduledVisitDate = new Date(today);
+    const scheduledVisitDate = new Date(now);
     scheduledVisitDate.setDate(scheduledVisitDate.getDate() + 30);
 
     // 4. Create referral (transaction-aware)
-
     await Referral.create(
       [
         {
           userId,
           patientNumber: clinicalProfile.patientNumber,
-          referralDate: today,
+          referralDate: now,
           scheduledVisitDate,
           status: "PENDING",
           assessments: [assessmentId],
@@ -130,120 +134,6 @@ export class ReferralService implements IReferralService {
       ],
       { session: session ?? null },
     );
-  }
-
-  /**
-   * List referrals scoped to a specific hospital.
-   * Returns most recent first.
-   */
-  async listReferralsByHospital(
-    hospitalId: string,
-    query: Record<string, string | string[] | undefined> = {},
-  ): Promise<GetHospitalReferralsResult> {
-    const hospitalObjectId = new mongoose.Types.ObjectId(hospitalId);
-    const { page, limit } = parsePaginationParams(query);
-
-    const totalResults = await Referral.countDocuments({
-      hospitalId: hospitalObjectId,
-    }).exec();
-    const totalPages = Math.max(1, Math.ceil(totalResults / limit));
-    const currentPage = Math.min(page, totalPages);
-    const skip = (currentPage - 1) * limit;
-
-    const results = await Referral.find({ hospitalId: hospitalObjectId })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .select({
-        _id: 1,
-        patientNumber: 1,
-        referralDate: 1,
-        scheduledVisitDate: 1,
-        status: 1,
-        assessments: 1,
-      })
-      .lean()
-      .exec();
-
-    const summaries: IReferralSummary[] = results.map((r: any) => ({
-      id: r._id.toString(),
-      patientNumber: r.patientNumber,
-      referralDate: r.referralDate,
-      scheduledVisitDate: r.scheduledVisitDate,
-      status: r.status,
-      assessmentCount: Array.isArray(r.assessments) ? r.assessments.length : 0,
-    }));
-
-    const pagination: PaginationMeta = {
-      currentPage,
-      perPage: limit,
-      totalResults,
-      totalPages,
-      hasNextPage: currentPage < totalPages,
-      hasPrevPage: currentPage > 1,
-      nextPage: currentPage < totalPages ? currentPage + 1 : null,
-      prevPage: currentPage > 1 ? currentPage - 1 : null,
-    };
-
-    return {
-      referrals: summaries,
-      pagination,
-    };
-  }
-
-  /**
-   * List upcoming referrals (today and future) for patients under the given
-   * social health worker's follow-up, ordered by scheduledVisitDate ascending.
-   */
-  async listUpcomingReferralsByHealthWorker(
-    healthWorkerId: string,
-  ): Promise<IReferralSummary[]> {
-    const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
-
-    const now = new Date();
-    const in48Hours = new Date(now.getTime() + 48 * 60 * 60 * 1000);
-
-    const results = await Referral.aggregate([
-      {
-        $lookup: {
-          from: "clinicalprofiles",
-          localField: "clinicalProfile",
-          foreignField: "_id",
-          as: "cp",
-        },
-      },
-      { $unwind: "$cp" },
-      {
-        $match: {
-          "cp.healthWorkerId": hwObjectId,
-          status: "PENDING",
-          scheduledVisitDate: { $gte: now, $lte: in48Hours },
-        },
-      },
-      { $sort: { scheduledVisitDate: 1, createdAt: -1 } },
-      { $limit: 5 },
-      {
-        $project: {
-          _id: 1,
-          patientNumber: 1,
-          referralDate: 1,
-          scheduledVisitDate: 1,
-          status: 1,
-          assessmentCount: { $size: "$assessments" },
-        },
-      },
-    ]).exec();
-
-    const summaries: IReferralSummary[] = results.map((r: any) => ({
-      id: r._id.toString(),
-      patientNumber: r.patientNumber,
-      referralDate: r.referralDate,
-      scheduledVisitDate: r.scheduledVisitDate,
-      status: r.status,
-      assessmentCount: r.assessmentCount,
-    }));
-
-    return summaries;
   }
 
   /**
@@ -441,6 +331,46 @@ export class ReferralService implements IReferralService {
     };
 
     return { referrals, pagination };
+  }
+
+  async getCommingReferralVisitsIn48h(
+    filter: { from?: string; fromType?: string; status?: string } = {},
+  ): Promise<IReferralSummary[]> {
+    const now = new Date();
+    logger.debug(
+      { now: now.toISOString() },
+      "Calculating upcoming referrals in 48h Local time: %s",
+      now,
+    );
+    const next48h = addHours(now, 48);
+    logger.debug(
+      { window: next48h.toISOString() },
+      "Next 48h window ends at: %s Local time",
+      next48h,
+    );
+
+    const resolvedFilter: any = {
+      from: new mongoose.Types.ObjectId(filter.from),
+      fromType: filter.fromType,
+      scheduledVisitDate: {
+        $gte: now,
+        $lte: next48h,
+      },
+      status: filter.status ? filter.status : "PENDING",
+    };
+
+    const referrals = await Referral.find(resolvedFilter)
+      .sort({ scheduledVisitDate: 1 })
+      .lean();
+
+    return referrals.map((r) => ({
+      id: r._id.toString(),
+      patientNumber: r.patientNumber,
+      referralDate: r.referralDate,
+      scheduledVisitDate: r.scheduledVisitDate,
+      status: r.status,
+      assessmentCount: r.assessments?.length || 0,
+    }));
   }
 }
 

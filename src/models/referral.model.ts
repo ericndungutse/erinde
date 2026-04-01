@@ -90,6 +90,12 @@ referralSchema.set("toJSON", {
   },
 });
 
+// Ensure a user has at most one pending referral
+referralSchema.index(
+  { userId: 1, status: 1 },
+  { unique: true, partialFilterExpression: { status: "PENDING" } },
+);
+
 const Referral = mongoose.model<IReferral, IReferralModel>(
   ModelNames.Referral,
   referralSchema,
