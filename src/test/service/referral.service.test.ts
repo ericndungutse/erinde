@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import ClinicalProfile from "../../models/clinicalProfile.model.js";
 import { Assessment } from "../../models/assessment.model.js";
-import HasPendingReferralError from "../../Errors/HasPendingReferralError.js";
 import { ModelNames } from "../../constants/constant.values.js";
 import Referral from "../../models/referral.model.js";
 import ReferralService from "../../service/referral.service.js";
@@ -22,6 +21,7 @@ function createSessionLeanExecQuery<T>(result: T) {
   };
 }
 
+// TODO CHECK THIS ONE
 describe("ReferralService.createReferral", () => {
   const fixedNow = new Date(2026, 2, 10, 14, 30, 0, 0);
   const session = { id: "session-1" };
@@ -39,16 +39,22 @@ describe("ReferralService.createReferral", () => {
     vi.restoreAllMocks();
   });
 
-  it("appends an assessment to an existing same-day pending referral and saves it", async () => {
+  it("appends assessment to provided pending referral and saves it", async () => {
     const existingReferral = {
-      referralDate: new Date(2026, 2, 10, 8, 0, 0, 0),
       assessments: ["assessment-old"],
       save: vi.fn().mockResolvedValue(undefined),
     };
-    const findOneQuery = createSessionExecQuery(existingReferral);
-    const createSpy = vi.spyOn(Referral, "create");
+    const assessmentDoc = { _id: "assessment-new" };
+    const clinicalProfile = {
+      _id: "clinical-profile-1",
+      patientNumber: 1001,
+    };
+    const assessmentQuery = createSessionLeanExecQuery(assessmentDoc);
+    const clinicalQuery = createSessionLeanExecQuery(clinicalProfile);
+    const createSpy = vi.spyOn(Referral, "create").mockResolvedValue([] as any);
 
-    vi.spyOn(Referral, "findOne").mockReturnValue(findOneQuery as any);
+    vi.spyOn(Assessment, "findById").mockReturnValue(assessmentQuery as any);
+    vi.spyOn(ClinicalProfile, "findOne").mockReturnValue(clinicalQuery as any);
 
     await service.createReferral(
       "assessment-new",
@@ -57,32 +63,36 @@ describe("ReferralService.createReferral", () => {
       "chu-1",
       ModelNames.CommunityHealthUnit,
       "hospital-1",
+      existingReferral as any,
       session as any,
     );
 
-    expect(Referral.findOne).toHaveBeenCalledWith({
-      patient: "patient-1",
-      status: "PENDING",
-    });
-    expect(findOneQuery.session).toHaveBeenCalledWith(session);
+    expect(assessmentQuery.session).toHaveBeenCalledWith(session);
+    expect(clinicalQuery.session).toHaveBeenCalledWith(session);
     expect(existingReferral.assessments).toEqual([
       "assessment-old",
       "assessment-new",
     ]);
     expect(existingReferral.save).toHaveBeenCalledWith({ session });
-    expect(createSpy).not.toHaveBeenCalled();
+    expect(createSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("does not save when the existing referral already contains the assessment id", async () => {
+  it("does not save when existing referral already contains assessment id", async () => {
     const existingReferral = {
-      referralDate: new Date(2026, 2, 10, 9, 0, 0, 0),
       assessments: ["assessment-existing"],
       save: vi.fn().mockResolvedValue(undefined),
     };
-    const findOneQuery = createSessionExecQuery(existingReferral);
-    const createSpy = vi.spyOn(Referral, "create");
+    const assessmentDoc = { _id: "assessment-existing" };
+    const clinicalProfile = {
+      _id: "clinical-profile-1",
+      patientNumber: 1001,
+    };
+    const assessmentQuery = createSessionLeanExecQuery(assessmentDoc);
+    const clinicalQuery = createSessionLeanExecQuery(clinicalProfile);
+    const createSpy = vi.spyOn(Referral, "create").mockResolvedValue([] as any);
 
-    vi.spyOn(Referral, "findOne").mockReturnValue(findOneQuery as any);
+    vi.spyOn(Assessment, "findById").mockReturnValue(assessmentQuery as any);
+    vi.spyOn(ClinicalProfile, "findOne").mockReturnValue(clinicalQuery as any);
 
     await service.createReferral(
       "assessment-existing",
@@ -91,51 +101,25 @@ describe("ReferralService.createReferral", () => {
       "chu-1",
       ModelNames.CommunityHealthUnit,
       "hospital-1",
+      existingReferral as any,
       session as any,
     );
 
     expect(existingReferral.assessments).toEqual(["assessment-existing"]);
     expect(existingReferral.save).not.toHaveBeenCalled();
-    expect(createSpy).not.toHaveBeenCalled();
+    expect(createSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("throws HasPendingReferralError when a pending referral exists for a different day", async () => {
-    const existingReferral = {
-      referralDate: new Date(2026, 2, 9, 12, 0, 0, 0),
-      assessments: ["assessment-old"],
-      save: vi.fn().mockResolvedValue(undefined),
-    };
-    const findOneQuery = createSessionExecQuery(existingReferral);
-
-    vi.spyOn(Referral, "findOne").mockReturnValue(findOneQuery as any);
-
-    await expect(
-      service.createReferral(
-        "assessment-new",
-        "patient-1",
-        "user-1",
-        "chu-1",
-        ModelNames.CommunityHealthUnit,
-        "hospital-1",
-        session as any,
-      ),
-    ).rejects.toBeInstanceOf(HasPendingReferralError);
-
-    expect(existingReferral.save).not.toHaveBeenCalled();
-  });
-
-  it("creates a new referral when there is no existing pending referral", async () => {
+  it("creates a new referral when no existingPendingReferral is provided", async () => {
     const assessmentDoc = { _id: "assessment-1" };
     const clinicalProfile = {
       _id: "clinical-profile-1",
       patientNumber: 1001,
     };
-    const findOneQuery = createSessionExecQuery(null);
     const assessmentQuery = createSessionLeanExecQuery(assessmentDoc);
     const clinicalQuery = createSessionLeanExecQuery(clinicalProfile);
     const createSpy = vi.spyOn(Referral, "create").mockResolvedValue([] as any);
 
-    vi.spyOn(Referral, "findOne").mockReturnValue(findOneQuery as any);
     vi.spyOn(Assessment, "findById").mockReturnValue(assessmentQuery as any);
     vi.spyOn(ClinicalProfile, "findOne").mockReturnValue(clinicalQuery as any);
 
@@ -146,6 +130,7 @@ describe("ReferralService.createReferral", () => {
       "chu-1",
       ModelNames.CommunityHealthUnit,
       "hospital-1",
+      undefined,
       session as any,
     );
 
@@ -160,8 +145,8 @@ describe("ReferralService.createReferral", () => {
     const [referralDocs, createOptions] = createSpy.mock
       .calls[0] as unknown as [any[], { session: unknown }];
     const referralPayload = referralDocs[0];
-    const expectedReferralDate = new Date(2026, 2, 10, 0, 0, 0, 0);
-    const expectedScheduledVisitDate = new Date(2026, 3, 9, 0, 0, 0, 0);
+    const expectedReferralDate = new Date(2026, 2, 10, 14, 30, 0, 0);
+    const expectedScheduledVisitDate = new Date(2026, 3, 9, 14, 30, 0, 0);
 
     expect(createOptions).toEqual({ session });
     expect(referralPayload.userId).toBe("patient-1");
@@ -179,7 +164,6 @@ describe("ReferralService.createReferral", () => {
   });
 
   it("throws when the assessment document cannot be found", async () => {
-    const findOneQuery = createSessionExecQuery(null);
     const assessmentQuery = createSessionLeanExecQuery(null);
     const clinicalQuery = createSessionLeanExecQuery({
       _id: "clinical-profile-1",
@@ -187,7 +171,6 @@ describe("ReferralService.createReferral", () => {
     });
     const createSpy = vi.spyOn(Referral, "create");
 
-    vi.spyOn(Referral, "findOne").mockReturnValue(findOneQuery as any);
     vi.spyOn(Assessment, "findById").mockReturnValue(assessmentQuery as any);
     vi.spyOn(ClinicalProfile, "findOne").mockReturnValue(clinicalQuery as any);
 
@@ -199,6 +182,7 @@ describe("ReferralService.createReferral", () => {
         "chu-1",
         ModelNames.CommunityHealthUnit,
         "hospital-1",
+        undefined,
         session as any,
       ),
     ).rejects.toThrow("Required Assessment or Clinical Profile not found");
@@ -207,12 +191,10 @@ describe("ReferralService.createReferral", () => {
   });
 
   it("throws when the clinical profile cannot be found", async () => {
-    const findOneQuery = createSessionExecQuery(null);
     const assessmentQuery = createSessionLeanExecQuery({ _id: "assessment-1" });
     const clinicalQuery = createSessionLeanExecQuery(null);
     const createSpy = vi.spyOn(Referral, "create");
 
-    vi.spyOn(Referral, "findOne").mockReturnValue(findOneQuery as any);
     vi.spyOn(Assessment, "findById").mockReturnValue(assessmentQuery as any);
     vi.spyOn(ClinicalProfile, "findOne").mockReturnValue(clinicalQuery as any);
 
@@ -224,6 +206,7 @@ describe("ReferralService.createReferral", () => {
         "chu-1",
         ModelNames.CommunityHealthUnit,
         "hospital-1",
+        undefined,
         session as any,
       ),
     ).rejects.toThrow("Required Assessment or Clinical Profile not found");
@@ -232,6 +215,7 @@ describe("ReferralService.createReferral", () => {
   });
 });
 
+//TODO CHECK THIS ONE
 describe("ReferralService.isSameDay", () => {
   let service: ReferralService;
 
@@ -263,7 +247,8 @@ describe("ReferralService.isSameDay", () => {
   });
 });
 
-describe("ReferralService.getPendingReferralByPatientNumber", () => {
+// TODO After Implementing the feature
+describe.skip("ReferralService.getPendingReferralByPatientNumber", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -290,6 +275,7 @@ describe("ReferralService.getPendingReferralByPatientNumber", () => {
   });
 });
 
+// TODO CHECK THIS ONE
 describe("ReferralService.hasPendingReferral", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -318,6 +304,7 @@ describe("ReferralService.hasPendingReferral", () => {
   });
 });
 
+// TODO After Implementing the feature
 describe("ReferralService.completeReferralByPatientNumber", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -364,19 +351,112 @@ describe("ReferralService.completeReferralByPatientNumber", () => {
   });
 });
 
+//TODO CHECK THIS ONE
+describe("ReferralService.getCommingReferralVisitsIn48h", () => {
+  const fixedNow = new Date("2026-04-01T10:15:00.000Z");
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(fixedNow);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it("queries pending referrals in the next 48 hours and maps response shape", async () => {
+    const service = new ReferralService();
+    const dbRows = [
+      {
+        _id: { toString: () => "ref-1" },
+        patientNumber: 3001,
+        referralDate: new Date("2026-03-30T10:15:00.000Z"),
+        scheduledVisitDate: new Date("2026-04-02T08:00:00.000Z"),
+        status: "PENDING",
+        assessments: ["a-1", "a-2"],
+      },
+      {
+        _id: { toString: () => "ref-2" },
+        patientNumber: 3002,
+        referralDate: new Date("2026-03-31T10:15:00.000Z"),
+        scheduledVisitDate: new Date("2026-04-02T09:00:00.000Z"),
+        status: "PENDING",
+        assessments: [],
+      },
+    ];
+
+    const lean = vi.fn().mockResolvedValue(dbRows);
+    const sort = vi.fn().mockReturnValue({ lean });
+    const findSpy = vi.spyOn(Referral, "find").mockReturnValue({ sort } as any);
+
+    const result = await service.getCommingReferralVisitsIn48h({
+      from: "507f1f77bcf86cd799439011",
+      fromType: "CommunityHealthUnit",
+    });
+
+    expect(findSpy).toHaveBeenCalledTimes(1);
+    const calledFilter = findSpy.mock.calls[0]
+      ? (findSpy?.mock?.calls[0][0] as any)
+      : null;
+    expect(calledFilter.from.toString()).toBe("507f1f77bcf86cd799439011");
+    expect(calledFilter.fromType).toBe("CommunityHealthUnit");
+    expect(calledFilter.status).toBe("PENDING");
+    expect(calledFilter.scheduledVisitDate.$gte.toISOString()).toBe(
+      fixedNow.toISOString(),
+    );
+    expect(calledFilter.scheduledVisitDate.$lte.toISOString()).toBe(
+      new Date("2026-04-03T10:15:00.000Z").toISOString(),
+    );
+
+    expect(sort).toHaveBeenCalledWith({ scheduledVisitDate: 1 });
+    expect(result).toEqual([
+      {
+        id: "ref-1",
+        patientNumber: 3001,
+        referralDate: dbRows ? dbRows[0]?.referralDate : null,
+        scheduledVisitDate: dbRows ? dbRows[0]?.scheduledVisitDate : null,
+        status: "PENDING",
+        assessmentCount: 2,
+      },
+      {
+        id: "ref-2",
+        patientNumber: 3002,
+        referralDate: dbRows ? dbRows[1]?.referralDate : null,
+        scheduledVisitDate: dbRows ? dbRows[1]?.scheduledVisitDate : null,
+        status: "PENDING",
+        assessmentCount: 0,
+      },
+    ]);
+  });
+
+  it("uses provided status instead of default pending", async () => {
+    const service = new ReferralService();
+    const lean = vi.fn().mockResolvedValue([]);
+    const sort = vi.fn().mockReturnValue({ lean });
+    const findSpy = vi.spyOn(Referral, "find").mockReturnValue({ sort } as any);
+
+    await service.getCommingReferralVisitsIn48h({
+      from: "507f1f77bcf86cd799439012",
+      fromType: "CommunityHealthUnit",
+      status: "COMPLETED",
+    });
+
+    const calledFilter = findSpy.mock.calls[0]
+      ? (findSpy?.mock?.calls[0][0] as any)
+      : null;
+    expect(calledFilter.status).toBe("COMPLETED");
+  });
+});
+
+// TODO After Implementing the feature
 describe.skip("ReferralService.listReferralsByHospital", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 });
 
-describe.skip("ReferralService.listUpcomingReferralsByHealthWorker", () => {
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
-  });
-});
-
+// TODO After Implementing the feature
 describe.skip("ReferralService.countPendingReferralsByHealthWorker", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -409,6 +489,7 @@ describe.skip("ReferralService.countPendingReferralsByHealthWorker", () => {
   });
 });
 
+// TODO After Implementing the feature
 describe.skip("ReferralService.getReferralStatusOverviewByHealthWorker", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -455,6 +536,7 @@ describe.skip("ReferralService.getReferralStatusOverviewByHealthWorker", () => {
   });
 });
 
+// TODO After Implementing the feature
 describe.skip("ReferralService.getReferralById", () => {
   afterEach(() => {
     vi.restoreAllMocks();

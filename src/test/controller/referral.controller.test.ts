@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
 import ReferralController from "../../controller/referral.controller.js";
 
@@ -17,72 +17,13 @@ function createMockRes(): Response & { statusCode?: number; body?: any } {
   return res as Response & { statusCode?: number; body?: any };
 }
 
-describe("ReferralController.listMyReferrals", () => {
+describe("ReferralController.getReferrals", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("returns 401 when user context is missing", async () => {
-    const mockService: any = {
-      listReferralsByHealthWorker: vi.fn(),
-    };
-    const controller = new ReferralController(mockService);
-    const req = {} as Request;
-    const res = createMockRes();
-
-    await controller.getReferrals(req, res);
-
-    expect(mockService.listReferralsByHealthWorker).not.toHaveBeenCalled();
-    expect(res.statusCode).toBe(401);
-    expect(res.body).toEqual({
-      status: "fail",
-      message: "Unauthorized: missing user context",
-    });
-  });
-
-  it("returns 200 with default pending referrals for logged-in user", async () => {
+  it("returns 200 and uses default status validation when status is not provided", async () => {
     const referrals = [{ id: "ref-1" }];
-    const pagination = {
-      currentPage: 2,
-      perPage: 5,
-      totalResults: 7,
-      totalPages: 2,
-      hasNextPage: false,
-      hasPrevPage: true,
-      nextPage: null,
-      prevPage: 1,
-    };
-    const mockService: any = {
-      listReferralsByHealthWorker: vi
-        .fn()
-        .mockResolvedValue({ referrals, pagination }),
-    };
-    const controller = new ReferralController(mockService);
-    const req = {
-      user: { id: "hw-1" },
-      query: { page: "2", limit: "5" },
-    } as unknown as Request;
-    const res = createMockRes();
-
-    await controller.getReferrals(req, res);
-
-    expect(mockService.listReferralsByHealthWorker).toHaveBeenCalledWith(
-      "hw-1",
-      "PENDING",
-      {
-        page: "2",
-        limit: "5",
-      },
-    );
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({
-      status: "success",
-      data: { referrals, pagination },
-    });
-  });
-
-  it("uses status from query when provided", async () => {
-    const referrals = [{ id: "ref-2" }];
     const pagination = {
       currentPage: 1,
       perPage: 10,
@@ -94,27 +35,20 @@ describe("ReferralController.listMyReferrals", () => {
       prevPage: null,
     };
     const mockService: any = {
-      listReferralsByHealthWorker: vi
-        .fn()
-        .mockResolvedValue({ referrals, pagination }),
+      getAllReferrals: vi.fn().mockResolvedValue({ referrals, pagination }),
     };
     const controller = new ReferralController(mockService);
     const req = {
-      user: { id: "hw-1" },
-      query: { status: "completed", page: "1", limit: "10" },
+      query: { page: "1", limit: "10" },
+      referralFilter: { from: "507f1f77bcf86cd799439011", fromType: "CHU" },
     } as unknown as Request;
     const res = createMockRes();
 
     await controller.getReferrals(req, res);
 
-    expect(mockService.listReferralsByHealthWorker).toHaveBeenCalledWith(
-      "hw-1",
-      "COMPLETED",
-      {
-        status: "completed",
-        page: "1",
-        limit: "10",
-      },
+    expect(mockService.getAllReferrals).toHaveBeenCalledWith(
+      { page: "1", limit: "10" },
+      { from: "507f1f77bcf86cd799439011", fromType: "CHU" },
     );
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({
@@ -123,20 +57,50 @@ describe("ReferralController.listMyReferrals", () => {
     });
   });
 
-  it("returns 400 when status query is invalid", async () => {
+  it("returns 200 when status is valid regardless of input case", async () => {
     const mockService: any = {
-      listReferralsByHealthWorker: vi.fn(),
+      getAllReferrals: vi.fn().mockResolvedValue({
+        referrals: [],
+        pagination: {
+          currentPage: 1,
+          perPage: 20,
+          totalResults: 0,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+          nextPage: null,
+          prevPage: null,
+        },
+      }),
     };
     const controller = new ReferralController(mockService);
     const req = {
-      user: { id: "hw-1" },
-      query: { status: "something-else" },
+      query: { status: "completed" },
     } as unknown as Request;
     const res = createMockRes();
 
     await controller.getReferrals(req, res);
 
-    expect(mockService.listReferralsByHealthWorker).not.toHaveBeenCalled();
+    expect(mockService.getAllReferrals).toHaveBeenCalledWith(
+      { status: "completed" },
+      {},
+    );
+    expect(res.statusCode).toBe(200);
+  });
+
+  it("returns 400 when status query is invalid", async () => {
+    const mockService: any = {
+      getAllReferrals: vi.fn(),
+    };
+    const controller = new ReferralController(mockService);
+    const req = {
+      query: { status: "unknown-status" },
+    } as unknown as Request;
+    const res = createMockRes();
+
+    await controller.getReferrals(req, res);
+
+    expect(mockService.getAllReferrals).not.toHaveBeenCalled();
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({
       status: "fail",
@@ -146,12 +110,15 @@ describe("ReferralController.listMyReferrals", () => {
 
   it("returns 500 when service throws", async () => {
     const mockService: any = {
-      listReferralsByHealthWorker: vi
+      getAllReferrals: vi
         .fn()
-        .mockRejectedValue(new Error("list-referrals-failed")),
+        .mockRejectedValue(new Error("get-all-referrals-failed")),
     };
     const controller = new ReferralController(mockService);
-    const req = { user: { id: "hw-1" } } as unknown as Request;
+    const req = {
+      query: { status: "PENDING" },
+      referralFilter: { from: "507f1f77bcf86cd799439011", fromType: "CHU" },
+    } as unknown as Request;
     const res = createMockRes();
 
     await controller.getReferrals(req, res);
@@ -159,23 +126,79 @@ describe("ReferralController.listMyReferrals", () => {
     expect(res.statusCode).toBe(500);
     expect(res.body).toEqual({
       status: "error",
-      message: "list-referrals-failed",
+      message: "get-all-referrals-failed",
     });
   });
 });
 
-describe("ReferralController.listMyHospitalReferrals", () => {
+describe("ReferralController.getUpcomingReferralsIn48", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
-});
 
-describe("ReferralController.listMyUpcomingReferrals", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
+  it("calls next with error when referralFilter is missing", async () => {
+    const mockService: any = {
+      getCommingReferralVisitsIn48h: vi.fn(),
+    };
+    const controller = new ReferralController(mockService);
+    const req = {} as Request;
+    const res = createMockRes();
+    const next = vi.fn() as unknown as NextFunction;
+
+    await controller.getUpcomingReferralsIn48(req, res, next);
+
+    expect(mockService.getCommingReferralVisitsIn48h).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledTimes(1);
+    const passedError = (next as any).mock.calls[0][0] as Error;
+    expect(passedError).toBeInstanceOf(Error);
+    expect(passedError.message).toBe("ReferralFilter not present.");
+  });
+
+  it("returns 200 with upcoming referrals", async () => {
+    const referrals = [
+      { id: "ref-1", patientNumber: 1001, status: "PENDING" },
+      { id: "ref-2", patientNumber: 1002, status: "PENDING" },
+    ];
+    const mockService: any = {
+      getCommingReferralVisitsIn48h: vi.fn().mockResolvedValue(referrals),
+    };
+    const controller = new ReferralController(mockService);
+    const req = {
+      referralFilter: { from: "507f1f77bcf86cd799439011", fromType: "CHU" },
+    } as unknown as Request;
+    const res = createMockRes();
+    const next = vi.fn() as unknown as NextFunction;
+
+    await controller.getUpcomingReferralsIn48(req, res, next);
+
+    expect(mockService.getCommingReferralVisitsIn48h).toHaveBeenCalledWith({
+      from: "507f1f77bcf86cd799439011",
+      fromType: "CHU",
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ status: "success", data: { referrals } });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("forwards service errors to next", async () => {
+    const serviceError = new Error("failed-upcoming-referrals");
+    const mockService: any = {
+      getCommingReferralVisitsIn48h: vi.fn().mockRejectedValue(serviceError),
+    };
+    const controller = new ReferralController(mockService);
+    const req = {
+      referralFilter: { from: "507f1f77bcf86cd799439011", fromType: "CHU" },
+    } as unknown as Request;
+    const res = createMockRes();
+    const next = vi.fn() as unknown as NextFunction;
+
+    await controller.getUpcomingReferralsIn48(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(serviceError);
   });
 });
 
+// TODO
 describe("ReferralController.countMyPendingReferrals", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -235,6 +258,7 @@ describe("ReferralController.countMyPendingReferrals", () => {
   });
 });
 
+// TODO
 describe("ReferralController.getMyReferralStatusOverview", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -305,6 +329,7 @@ describe("ReferralController.getMyReferralStatusOverview", () => {
   });
 });
 
+// TODO
 describe("ReferralController.getReferralById", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -407,6 +432,7 @@ describe("ReferralController.getReferralById", () => {
   });
 });
 
+//TODO
 describe("ReferralController.completeReferralByPatientNumber", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -495,3 +521,5 @@ describe("ReferralController.completeReferralByPatientNumber", () => {
     });
   });
 });
+
+// GetAllReferrals
