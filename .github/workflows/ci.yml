@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      LOG_LEVEL: error
+      TEST_LANG: en
+      MONGO_URI: mongodb://127.0.0.1:27017/erinde_ci
+      PORT: '3000'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      LOG_LEVEL: error
+      TEST_LANG: en
+      MONGO_URI: mongodb://127.0.0.1:27017/erinde_ci
+      PORT: '3000'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --run
