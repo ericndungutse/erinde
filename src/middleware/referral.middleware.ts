@@ -3,8 +3,7 @@ import HasPendingReferralError from "../Errors/HasPendingReferralError.js";
 import { Assessment } from "../models/assessment.model.js";
 import Referral, { type IReferralDocument } from "../models/referral.model.js";
 import { logger } from "../logger.js";
-import { UserRole } from "../types/roles.types.js";
-import { ModelNames } from "../constants/constant.values.js";
+import { createResolveEntitySourceFilter } from "./source-scope.middleware.js";
 
 export async function checkPendingReferral(
   req: Request,
@@ -89,20 +88,5 @@ export function resolveGetAllReferralFilter(
   res: Response,
   next: NextFunction,
 ) {
-  const referralFilter: any = {};
-  const userRoles = req.user?.roles || [];
-
-  if (userRoles.includes(UserRole.SOCIAL_HEALTH_WORKER)) {
-    referralFilter["from"] = req.user?.managedCommunityHealthUnit;
-    referralFilter["fromType"] = ModelNames.CommunityHealthUnit;
-  }
-
-  if (userRoles.includes(UserRole.NURSE)) {
-    referralFilter["from"] = req.user?.hospitalId;
-    referralFilter["fromType"] = ModelNames.Hospital;
-  }
-
-  req.referralFilter = referralFilter;
-
-  next();
+  return createResolveEntitySourceFilter("referralFilter")(req, res, next);
 }

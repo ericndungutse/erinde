@@ -4,20 +4,15 @@ import ClinicalProfile from "../models/clinicalProfile.model.js";
 import Referral, { type IReferralDocument } from "../models/referral.model.js";
 import type { IReferralService } from "./interface/ireferral.service.js";
 
-import { addHours, startOfMinute } from "date-fns";
+import { addHours } from "date-fns";
 import type { IReferral } from "../domain/referral.js";
 import type {
   IReferralDetails,
-  IReferralStatusSummary,
   IReferralSummary,
 } from "../dto/referral.dto.js";
+import { logger } from "../logger.js";
 import type { PaginationMeta } from "../types/api.types.js";
 import { APIFeatures } from "../utils/apiFeatures.js";
-import { logger } from "../logger.js";
-import {
-  resolveStartDateTimeBasedOnKigaliTime,
-  toKigaliTime,
-} from "../utils/date.js";
 
 export class ReferralService implements IReferralService {
   getPendingReferralByPatientNumber(
@@ -134,109 +129,6 @@ export class ReferralService implements IReferralService {
       ],
       { session: session ?? null },
     );
-  }
-
-  /**
-   * Return the total number of PENDING referrals for patients assigned to
-   * the given social health worker.
-   */
-  async countPendingReferralsByHealthWorker(
-    healthWorkerId: string,
-  ): Promise<number> {
-    const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
-
-    const result = await Referral.aggregate([
-      {
-        $lookup: {
-          from: "clinicalprofiles",
-          localField: "clinicalProfile",
-          foreignField: "_id",
-          as: "cp",
-        },
-      },
-      { $unwind: "$cp" },
-      {
-        $match: {
-          "cp.healthWorkerId": hwObjectId,
-          status: "PENDING",
-        },
-      },
-      { $count: "count" },
-    ]).exec();
-
-    if (!result || result.length === 0) {
-      return 0;
-    }
-
-    return result[0].count as number;
-  }
-
-  /**
-   * Compute referral status overview for patients assigned to a given
-   * social health worker: pending, completed this month, and overdue.
-   */
-  async getReferralStatusOverviewByHealthWorker(
-    healthWorkerId: string,
-  ): Promise<IReferralStatusSummary> {
-    const hwObjectId = new mongoose.Types.ObjectId(healthWorkerId);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const startOfNextMonth = new Date(
-      today.getFullYear(),
-      today.getMonth() + 1,
-      1,
-    );
-
-    const [result] = await Referral.aggregate([
-      {
-        $lookup: {
-          from: "clinicalprofiles",
-          localField: "clinicalProfile",
-          foreignField: "_id",
-          as: "cp",
-        },
-      },
-      { $unwind: "$cp" },
-      {
-        $match: {
-          "cp.healthWorkerId": hwObjectId,
-        },
-      },
-      {
-        $facet: {
-          pending: [{ $match: { status: "PENDING" } }, { $count: "count" }],
-          completed_this_month: [
-            {
-              $match: {
-                status: "COMPLETED",
-                visitDate: { $gte: startOfMonth, $lt: startOfNextMonth },
-              },
-            },
-            { $count: "count" },
-          ],
-          overdue: [
-            {
-              $match: {
-                status: "PENDING",
-                scheduledVisitDate: { $lt: today },
-              },
-            },
-            { $count: "count" },
-          ],
-        },
-      },
-    ]).exec();
-
-    const summary: IReferralStatusSummary = {
-      pending: result?.pending?.[0]?.count ?? 0,
-      completed_this_month: result?.completed_this_month?.[0]?.count ?? 0,
-      overdue: result?.overdue?.[0]?.count ?? 0,
-    };
-
-    return summary;
   }
 
   /**
