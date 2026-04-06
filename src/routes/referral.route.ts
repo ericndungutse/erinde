@@ -24,22 +24,13 @@ router.get(
     container.referralController.getUpcomingReferralsIn48(req, res, next),
 );
 
-// TODO: Next
-// GET /referrals/pending/count - Get count of pending referrals for the logged-in social health worker
+// GET /referrals/metrics - Get referral metrics for the current referral scope
 router.get(
-  "/pending/count",
+  "/metrics",
   protect,
-  authorize(UserRole.SOCIAL_HEALTH_WORKER),
-  (req, res) => container.referralController.countMyPendingReferrals(req, res),
-);
-
-// GET /referrals/status/overview - Get referral status overview for the logged-in social health worker
-router.get(
-  "/status/overview",
-  protect,
-  authorize(UserRole.SOCIAL_HEALTH_WORKER),
-  (req, res) =>
-    container.referralController.getMyReferralStatusOverview(req, res),
+  authorize(UserRole.SOCIAL_HEALTH_WORKER, UserRole.NURSE),
+  resolveGetAllReferralFilter,
+  (req, res) => container.referralController.getReferralMetrics(req, res),
 );
 
 export default router;

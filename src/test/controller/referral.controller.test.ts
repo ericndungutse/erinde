@@ -198,134 +198,56 @@ describe("ReferralController.getUpcomingReferralsIn48", () => {
   });
 });
 
-// TODO
-describe("ReferralController.countMyPendingReferrals", () => {
+describe("ReferralController.getReferralMetrics", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("returns 401 when user context is missing", async () => {
-    const mockService: any = {
-      countPendingReferralsByHealthWorker: vi.fn(),
-    };
-    const controller = new ReferralController(mockService);
-    const req = {} as Request;
-    const res = createMockRes();
-
-    await controller.countMyPendingReferrals(req, res);
-
-    expect(
-      mockService.countPendingReferralsByHealthWorker,
-    ).not.toHaveBeenCalled();
-    expect(res.statusCode).toBe(401);
-    expect(res.body).toEqual({
-      status: "fail",
-      message: "Unauthorized: missing user context",
-    });
-  });
-
-  it("returns 200 with pending referrals count for logged-in user", async () => {
-    const mockService: any = {
-      countPendingReferralsByHealthWorker: vi.fn().mockResolvedValue(7),
-    };
-    const controller = new ReferralController(mockService);
-    const req = { user: { id: "hw-3" } } as unknown as Request;
-    const res = createMockRes();
-
-    await controller.countMyPendingReferrals(req, res);
-
-    expect(
-      mockService.countPendingReferralsByHealthWorker,
-    ).toHaveBeenCalledWith("hw-3");
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({ status: "success", data: { count: 7 } });
-  });
-
-  it("returns 500 when service throws", async () => {
-    const mockService: any = {
-      countPendingReferralsByHealthWorker: vi
-        .fn()
-        .mockRejectedValue(new Error("count-failed")),
-    };
-    const controller = new ReferralController(mockService);
-    const req = { user: { id: "hw-3" } } as unknown as Request;
-    const res = createMockRes();
-
-    await controller.countMyPendingReferrals(req, res);
-
-    expect(res.statusCode).toBe(500);
-    expect(res.body).toEqual({ status: "error", message: "count-failed" });
-  });
-});
-
-// TODO
-describe("ReferralController.getMyReferralStatusOverview", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns 401 when user context is missing", async () => {
-    const mockService: any = {
-      getReferralStatusOverviewByHealthWorker: vi.fn(),
-    };
-    const controller = new ReferralController(mockService);
-    const req = {} as Request;
-    const res = createMockRes();
-
-    await controller.getMyReferralStatusOverview(req, res);
-
-    expect(
-      mockService.getReferralStatusOverviewByHealthWorker,
-    ).not.toHaveBeenCalled();
-    expect(res.statusCode).toBe(401);
-    expect(res.body).toEqual({
-      status: "fail",
-      message: "Unauthorized: missing user context",
-    });
-  });
-
-  it("returns 200 with referral status summary for logged-in user", async () => {
-    const summary = {
-      pending: 4,
-      completedThisMonth: 12,
+  it("returns 200 with referral metrics", async () => {
+    const metrics = {
+      total: 20,
+      pending: 5,
+      scheduled_today: 3,
+      completed_today: 2,
       overdue: 1,
     };
     const mockService: any = {
-      getReferralStatusOverviewByHealthWorker: vi
-        .fn()
-        .mockResolvedValue(summary),
+      getReferralMetrics: vi.fn().mockResolvedValue(metrics),
     };
     const controller = new ReferralController(mockService);
-    const req = { user: { id: "hw-4" } } as unknown as Request;
+    const req = {
+      referralFilter: { from: "507f1f77bcf86cd799439011", fromType: "CHU" },
+    } as unknown as Request;
     const res = createMockRes();
 
-    await controller.getMyReferralStatusOverview(req, res);
+    await controller.getReferralMetrics(req, res);
 
-    expect(
-      mockService.getReferralStatusOverviewByHealthWorker,
-    ).toHaveBeenCalledWith("hw-4");
+    expect(mockService.getReferralMetrics).toHaveBeenCalledWith({
+      from: "507f1f77bcf86cd799439011",
+      fromType: "CHU",
+    });
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({
       status: "success",
-      message: "Referral status overview retrieved successfully",
-      data: { summary },
+      message: "Referral metrics retrieved successfully",
+      data: { metrics },
     });
   });
 
   it("returns 500 when service throws", async () => {
     const mockService: any = {
-      getReferralStatusOverviewByHealthWorker: vi
+      getReferralMetrics: vi
         .fn()
-        .mockRejectedValue(new Error("overview-failed")),
+        .mockRejectedValue(new Error("metrics-failed")),
     };
     const controller = new ReferralController(mockService);
-    const req = { user: { id: "hw-4" } } as unknown as Request;
+    const req = {} as Request;
     const res = createMockRes();
 
-    await controller.getMyReferralStatusOverview(req, res);
+    await controller.getReferralMetrics(req, res);
 
     expect(res.statusCode).toBe(500);
-    expect(res.body).toEqual({ status: "error", message: "overview-failed" });
+    expect(res.body).toEqual({ status: "error", message: "metrics-failed" });
   });
 });
 

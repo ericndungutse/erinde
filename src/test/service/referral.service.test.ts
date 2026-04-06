@@ -489,49 +489,30 @@ describe.skip("ReferralService.countPendingReferralsByHealthWorker", () => {
   });
 });
 
-// TODO After Implementing the feature
-describe.skip("ReferralService.getReferralStatusOverviewByHealthWorker", () => {
+describe("ReferralService.getReferralMetrics", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("returns computed summary from aggregate facets", async () => {
+  it("returns metrics computed from the count helpers", async () => {
     const service = new ReferralService();
-    vi.spyOn(Referral, "aggregate").mockReturnValue({
-      exec: vi.fn().mockResolvedValue([
-        {
-          pending: [{ count: 3 }],
-          completed_this_month: [{ count: 9 }],
-          overdue: [{ count: 1 }],
-        },
-      ]),
-    } as any);
+    vi.spyOn(service, "countTotalReferrals").mockResolvedValue(20);
+    vi.spyOn(service, "countPendingReferrals").mockResolvedValue(5);
+    vi.spyOn(service, "countScheduledTodayReferrals").mockResolvedValue(3);
+    vi.spyOn(service, "countCompletedTodayReferrals").mockResolvedValue(2);
+    vi.spyOn(service, "countOverdueReferrals").mockResolvedValue(1);
 
-    const result = await service.getReferralStatusOverviewByHealthWorker(
-      "507f1f77bcf86cd799439015",
-    );
-
-    expect(result).toEqual({
-      pending: 3,
-      completed_this_month: 9,
-      overdue: 1,
+    const result = await service.getReferralMetrics({
+      from: "507f1f77bcf86cd799439011",
+      fromType: "CHU",
     });
-  });
-
-  it("defaults all counters to zero when aggregate has no rows", async () => {
-    const service = new ReferralService();
-    vi.spyOn(Referral, "aggregate").mockReturnValue({
-      exec: vi.fn().mockResolvedValue([]),
-    } as any);
-
-    const result = await service.getReferralStatusOverviewByHealthWorker(
-      "507f1f77bcf86cd799439016",
-    );
 
     expect(result).toEqual({
-      pending: 0,
-      completed_this_month: 0,
-      overdue: 0,
+      total: 20,
+      pending: 5,
+      scheduled_today: 3,
+      completed_today: 2,
+      overdue: 1,
     });
   });
 });

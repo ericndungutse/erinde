@@ -53,6 +53,7 @@ export async function validateAssessmentTakenTwice(
   const { patientNumber, indicator } = req.body;
 
   // Find Asseessment for this user with same indicator and take today's date.
+  //TODO VERIFIE DATES.
   const evaluatedAtQuery = {
     $gte: startOfDay(new Date()),
     $lt: endOfDay(new Date()),

@@ -8,13 +8,120 @@ import { addHours } from "date-fns";
 import type { IReferral } from "../domain/referral.js";
 import type {
   IReferralDetails,
+  IReferralMetricsSummary,
   IReferralSummary,
 } from "../dto/referral.dto.js";
 import { logger } from "../logger.js";
 import type { PaginationMeta } from "../types/api.types.js";
 import { APIFeatures } from "../utils/apiFeatures.js";
+import { getKigaliDayEndUTC, getKigaliDayStartUTC } from "../utils/date.js";
 
 export class ReferralService implements IReferralService {
+  private getTodayBounds(): { startOfToday: Date; endOfToday: Date } {
+    const now = new Date();
+    return {
+      startOfToday: getKigaliDayStartUTC(now),
+      endOfToday: getKigaliDayEndUTC(now),
+    };
+  }
+
+  private async countReferrals(
+    filter: Record<string, unknown> = {},
+  ): Promise<number> {
+    const resolvedFilter: Record<string, unknown> = { ...filter };
+
+    for (const key of ["from", "referredBy", "to", "userId"]) {
+      if (typeof resolvedFilter[key] === "string") {
+        resolvedFilter[key] = new mongoose.Types.ObjectId(
+          resolvedFilter[key] as string,
+        );
+      }
+    }
+
+    return Referral.countDocuments(resolvedFilter).exec();
+  }
+
+  async countTotalReferrals(
+    filter: Record<string, unknown> = {},
+  ): Promise<number> {
+    return this.countReferrals(filter);
+  }
+
+  async countPendingReferrals(
+    filter: Record<string, unknown> = {},
+  ): Promise<number> {
+    return this.countReferrals({ ...filter, status: "PENDING" });
+  }
+
+  async countScheduledTodayReferrals(
+    filter: Record<string, unknown> = {},
+  ): Promise<number> {
+    const { startOfToday, endOfToday } = this.getTodayBounds();
+
+    return this.countReferrals({
+      ...filter,
+      scheduledVisitDate: {
+        $gte: startOfToday,
+        $lt: endOfToday,
+      },
+    });
+  }
+
+  // TODO ADD COMPLETED AT FIELD TO REFERRAL TO MAKE THIS MORE ACCURATE
+  async countCompletedTodayReferrals(
+    filter: Record<string, unknown> = {},
+  ): Promise<number> {
+    const { startOfToday, endOfToday } = this.getTodayBounds();
+
+    return this.countReferrals({
+      ...filter,
+      status: "COMPLETED",
+      visitDate: {
+        $gte: startOfToday,
+        $lt: endOfToday,
+      },
+    });
+  }
+
+  async countOverdueReferrals(
+    filter: Record<string, unknown> = {},
+  ): Promise<number> {
+    const { startOfToday } = this.getTodayBounds();
+
+    return this.countReferrals({
+      ...filter,
+      status: "PENDING",
+      scheduledVisitDate: {
+        $lt: startOfToday,
+      },
+    });
+  }
+
+  async countPendingReferralsByHealthWorker(userId: string): Promise<number> {
+    return this.countPendingReferrals({ referredBy: userId });
+  }
+
+  async getReferralMetrics(
+    filter: Record<string, unknown> = {},
+  ): Promise<IReferralMetricsSummary> {
+    const [total, pending, scheduledToday, completedToday, overdue] =
+      await Promise.all([
+        this.countTotalReferrals(filter),
+        this.countPendingReferrals(filter),
+        this.countScheduledTodayReferrals(filter),
+        this.countCompletedTodayReferrals(filter),
+        this.countOverdueReferrals(filter),
+      ]);
+
+    return {
+      total,
+      pending,
+      scheduled_today: scheduledToday,
+      completed_today: completedToday,
+      overdue,
+    };
+  }
+
   getPendingReferralByPatientNumber(
     patientNumber: number,
     session: ClientSession,
