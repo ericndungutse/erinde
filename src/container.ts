@@ -1,24 +1,24 @@
-import AssessmentController from './controller/assessment.controller.js';
-import AuthController from './controller/auth.controller.js';
-import CommunitHealthUnitController from './controller/communitHealthUnit.controller.js';
-import IndicatorController from './controller/indicator.controller.js';
-import UserController from './controller/user.controller.js';
-import HospitalController from './controller/hospital.controller.js';
-import ReferralController from './controller/referral.controller.js';
-import AssessmentService from './service/assessment.service.js';
-import AuthService from './service/auth.service.js';
-import CommunitHealthUnitService from './service/communitHealthUnit.service.js';
-import { IndicatorService } from './service/indicator.service.js';
-import type { IAssessmentService } from './service/interface/iassessment.service.js';
-import type { IAuthService } from './service/interface/iauth.service.js';
-import type { ICommunitHealthUnitService } from './service/interface/icommunitHealthUnit.service.js';
-import type { IIndicatorService } from './service/interface/iindicators.service.js';
-import type { IHospitalService } from './service/interface/ihospital.service.js';
-import type { IReferralService } from './service/interface/ireferral.service.js';
-import type { IUserService } from './service/interface/iuser.service.js';
-import { HospitalService } from './service/hospital.service.js';
-import ReferralService from './service/referral.service.js';
-import { UserService } from './service/user.service.js';
+import AssessmentController from "./controller/assessment.controller.js";
+import AuthController from "./controller/auth.controller.js";
+import CommunitHealthUnitController from "./controller/communitHealthUnit.controller.js";
+import IndicatorController from "./controller/indicator.controller.js";
+import UserController from "./controller/user.controller.js";
+import HospitalController from "./controller/hospital.controller.js";
+import ReferralController from "./controller/referral.controller.js";
+import AssessmentService from "./service/assessment.service.js";
+import AuthService from "./service/auth.service.js";
+import CommunitHealthUnitService from "./service/communitHealthUnit.service.js";
+import { IndicatorService } from "./service/indicator.service.js";
+import type { IAssessmentService } from "./service/interface/iassessment.service.js";
+import type { IAuthService } from "./service/interface/iauth.service.js";
+import type { ICommunitHealthUnitService } from "./service/interface/icommunitHealthUnit.service.js";
+import type { IIndicatorService } from "./service/interface/iindicators.service.js";
+import type { IHospitalService } from "./service/interface/ihospital.service.js";
+import type { IReferralService } from "./service/interface/ireferral.service.js";
+import type { IUserService } from "./service/interface/iuser.service.js";
+import { HospitalService } from "./service/hospital.service.js";
+import ReferralService from "./service/referral.service.js";
+import { UserService } from "./service/user.service.js";
 
 class Container {
   private _authService: IAuthService;
@@ -58,12 +58,21 @@ class Container {
     this._hospitalController = new HospitalController(this._hospitalService);
     this._referralService = new ReferralService();
     this._referralController = new ReferralController(this._referralService);
-    this._communitHealthUnitService = new CommunitHealthUnitService(this._userService);
-    this._communitHealthUnitController = new CommunitHealthUnitController(this._communitHealthUnitService);
+    this._communitHealthUnitService = new CommunitHealthUnitService(
+      this._userService,
+    );
+    this._communitHealthUnitController = new CommunitHealthUnitController(
+      this._communitHealthUnitService,
+    );
 
     // Assessment Injections
-    this._assessmentService = new AssessmentService(this._referralService, this._userService);
-    this._assessmentController = new AssessmentController(this._assessmentService);
+    this._assessmentService = new AssessmentService(
+      this._referralService,
+      this._userService,
+    );
+    this._assessmentController = new AssessmentController(
+      this._assessmentService,
+    );
   }
 
   // 4. Getters to access the wired-up instances
