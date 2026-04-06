@@ -2,19 +2,21 @@ import {
   CreateCommunityHealthUnitSchema,
   type CreateCommunityHealthUnitDTO,
   type GetAllCommunityHealthUnitsResult,
-} from '../dto/communitHealthUnitDto.js';
-import mongoose from 'mongoose';
-import type { ICommunityHealthUnit } from '../domain/communityHealthUnit.js';
-import UserNotFoundError from '../Errors/UserNotFoundError.js';
-import CommunityHealthUnit from '../models/communitHealthUnit.model.js';
-import User from '../models/user.model.js';
-import type { PaginationMeta } from '../types/api.types.js';
-import { UserRole } from '../types/roles.types.js';
-import { parsePaginationParams } from '../utils/pagination.js';
-import type { ICommunitHealthUnitService } from './interface/icommunitHealthUnit.service.js';
-import type { IUserService } from './interface/iuser.service.js';
+} from "../dto/communitHealthUnitDto.js";
+import mongoose from "mongoose";
+import type { ICommunityHealthUnit } from "../domain/communityHealthUnit.js";
+import UserNotFoundError from "../Errors/UserNotFoundError.js";
+import CommunityHealthUnit from "../models/communitHealthUnit.model.js";
+import User from "../models/user.model.js";
+import type { PaginationMeta } from "../types/api.types.js";
+import { UserRole } from "../types/roles.types.js";
+import { parsePaginationParams } from "../utils/pagination.js";
+import type { ICommunitHealthUnitService } from "./interface/icommunitHealthUnit.service.js";
+import type { IUserService } from "./interface/iuser.service.js";
 
-function toSingleValue(value: string | string[] | undefined): string | undefined {
+function toSingleValue(
+  value: string | string[] | undefined,
+): string | undefined {
   if (Array.isArray(value)) {
     return value[0];
   }
@@ -22,7 +24,7 @@ function toSingleValue(value: string | string[] | undefined): string | undefined
 }
 
 function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 export class CommunitHealthUnitService implements ICommunitHealthUnitService {
@@ -32,16 +34,18 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
     this._userService = userService;
   }
 
-  async createCommunityHealthUnit(payload: CreateCommunityHealthUnitDTO): Promise<ICommunityHealthUnit> {
+  async createCommunityHealthUnit(
+    payload: CreateCommunityHealthUnitDTO,
+  ): Promise<ICommunityHealthUnit> {
     const parsed = CreateCommunityHealthUnitSchema.parse(payload);
     const session = await mongoose.startSession();
     let communityHealthUnit: any;
 
     try {
       await session.withTransaction(async () => {
-        if (typeof parsed.socialHealthWorker === 'string') {
+        if (typeof parsed.socialHealthWorker === "string") {
           if (!mongoose.isValidObjectId(parsed.socialHealthWorker)) {
-            throw new UserNotFoundError('social_health_worker_not_found');
+            throw new UserNotFoundError("social_health_worker_not_found");
           }
 
           const existingSocialHealthWorker = await User.exists({
@@ -50,7 +54,7 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
           }).session(session);
 
           if (!existingSocialHealthWorker) {
-            throw new UserNotFoundError('social_health_worker_not_found');
+            throw new UserNotFoundError("social_health_worker_not_found");
           }
 
           communityHealthUnit = await CommunityHealthUnit.create(
@@ -78,13 +82,15 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
           { session },
         ).then((docs) => docs[0]);
 
-        const { roles: _roles, ...socialHealthWorkerPayload } = parsed.socialHealthWorker;
+        const { roles: _roles, ...socialHealthWorkerPayload } =
+          parsed.socialHealthWorker;
 
-        const { user } = await this._userService.registerSocialHealthWorkerWithAccountForCommunityHealthUnit(
-          socialHealthWorkerPayload,
-          communityHealthUnit._id.toString(),
-          session,
-        );
+        const { user } =
+          await this._userService.registerSocialHealthWorkerWithAccountForCommunityHealthUnit(
+            socialHealthWorkerPayload,
+            communityHealthUnit._id.toString(),
+            session,
+          );
 
         communityHealthUnit.socialHealthWorker = user._id;
         await communityHealthUnit.save({ session });
@@ -94,11 +100,11 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
     }
 
     if (!communityHealthUnit) {
-      throw new Error('failed_to_create_community_health_unit');
+      throw new Error("failed_to_create_community_health_unit");
     }
 
     return {
-      id: communityHealthUnit._id.toString(),
+      _id: communityHealthUnit._id.toString(),
       name: communityHealthUnit.name,
       socialHealthWorker: communityHealthUnit.socialHealthWorker,
       healthCenter: communityHealthUnit.healthCenter,
@@ -118,12 +124,13 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
         ? {
             name: {
               $regex: escapeRegex(name),
-              $options: 'i',
+              $options: "i",
             },
           }
         : {};
 
-    const totalResults = await CommunityHealthUnit.countDocuments(filter).exec();
+    const totalResults =
+      await CommunityHealthUnit.countDocuments(filter).exec();
     const totalPages = Math.max(1, Math.ceil(totalResults / limit));
     const currentPage = Math.min(page, totalPages);
     const skip = (currentPage - 1) * limit;
@@ -141,13 +148,15 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
       .lean()
       .exec();
 
-    const communityHealthUnits: ICommunityHealthUnit[] = results.map((item: any) => ({
-      id: item._id.toString(),
-      name: item.name,
-      socialHealthWorker: item.socialHealthWorker,
-      healthCenter: item.healthCenter,
-      address: item.address,
-    }));
+    const communityHealthUnits: ICommunityHealthUnit[] = results.map(
+      (item: any) => ({
+        _id: item._id.toString(),
+        name: item.name,
+        socialHealthWorker: item.socialHealthWorker,
+        healthCenter: item.healthCenter,
+        address: item.address,
+      }),
+    );
 
     const pagination: PaginationMeta = {
       currentPage,
@@ -166,7 +175,9 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
     };
   }
 
-  async getCommunityHealthUnitById(id: string): Promise<ICommunityHealthUnit | null> {
+  async getCommunityHealthUnitById(
+    id: string,
+  ): Promise<ICommunityHealthUnit | null> {
     const communityHealthUnit = await CommunityHealthUnit.findById(id)
       .select({
         name: 1,
@@ -182,7 +193,7 @@ export class CommunitHealthUnitService implements ICommunitHealthUnitService {
     }
 
     return {
-      id: communityHealthUnit._id.toString(),
+      _id: communityHealthUnit._id.toString(),
       name: communityHealthUnit.name,
       socialHealthWorker: communityHealthUnit.socialHealthWorker,
       healthCenter: communityHealthUnit.healthCenter,
