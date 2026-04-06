@@ -14,6 +14,8 @@ import { setupTestData } from "../testDataSetup/index.js";
 import { loginByEmail, loginByPhone } from "../utils/auth-helpers.js";
 import { setupTestDB } from "../utils/mongo-memory.js";
 import { client, TEST_LANG } from "../utils/request-factory.js";
+import type { RegisterUserDTO } from "../../dto/user.dto.js";
+import type { GetAllCommunityHealthUnitsResult } from "../../dto/communitHealthUnitDto.js";
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
@@ -53,8 +55,8 @@ describe("Integration: POST /api/v1/users", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     // User enters the information of the new user and submits the form
-    const validRegisterPayload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+    const validRegisterPayload: RegisterUserDTO = {
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimePatients["nyiranuma-biryogo-valid"],
     };
 
@@ -111,7 +113,7 @@ describe("Integration: POST /api/v1/users", () => {
 
     // User enters the information of the new user and submits the form
     const validRegisterPayload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimePatients["nyiranuma-biryogo-valid"],
     };
     const res = await client(token)
@@ -131,7 +133,8 @@ describe("Integration: POST /api/v1/users", () => {
     );
 
     const savedUser = (await User.findOne({
-      nationalIdentificationNumber: validRegisterPayload.nationalIdentificationNumber,
+      nationalIdentificationNumber:
+        validRegisterPayload.nationalIdentificationNumber,
     }).lean()) as {
       _id: Types.ObjectId;
       roles: string[];
@@ -163,7 +166,7 @@ describe("Integration: POST /api/v1/users", () => {
 
     // User enters the information of the new user and submits the form
     const validRegisterPayload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimePatients["nyiranuma-biryogo-valid"],
     };
 
@@ -180,7 +183,8 @@ describe("Integration: POST /api/v1/users", () => {
     );
 
     const savedUser = await User.findOne({
-      nationalIdentificationNumber: validRegisterPayload.nationalIdentificationNumber,
+      nationalIdentificationNumber:
+        validRegisterPayload.nationalIdentificationNumber,
     }).lean();
 
     expect(savedUser).toBeNull();
@@ -201,7 +205,7 @@ describe("Integration: POST /api/v1/users", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const invalidPayload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimePatients["nyiranuma-biryogo-invalid-body"],
     };
 
@@ -261,7 +265,7 @@ describe("Integration: POST /api/v1/users", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const validateBody = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimePatients["nyiranuma-biryogo-valid"],
     };
 
@@ -323,7 +327,7 @@ describe("Integration: POST /api/v1/users", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const validateBody = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimePatients["nyiranuma-biryogo-valid"],
     };
 
@@ -385,7 +389,7 @@ describe("Integration: POST /api/v1/users", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const validateBody = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimePatients["nyiranuma-biryogo-valid"],
     };
 

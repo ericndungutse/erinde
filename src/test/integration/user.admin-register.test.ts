@@ -1,19 +1,14 @@
-import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import i18next from "i18next";
 import { ConstantValues } from "../../constants/constant.values.js";
 import Account from "../../models/account.model.js";
 import ClinicalProfile from "../../models/clinicalProfile.model.js";
 import Counter from "../../models/counter.model.js";
-import Hospital from "../../models/hospital.model.js";
 import User, { Nurse } from "../../models/user.model.js";
-import i18next from "i18next";
 import { HospitalType } from "../../types/hospital.types.js";
 import { UserRole } from "../../types/roles.types.js";
-import {
-  runtimeUserAccounts,
-  runtimePatients,
-} from "../fixtures/runtime-test-data.js";
+import { runtimeUserAccounts } from "../fixtures/runtime-test-data.js";
 import { ACCOUNT_SETUP } from "../testDataSetup/account-setup.js";
 import { setupTestData } from "../testDataSetup/index.js";
 import { loginByEmail, loginByPhone } from "../utils/auth-helpers.js";
@@ -22,18 +17,6 @@ import { client, TEST_LANG } from "../utils/request-factory.js";
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
-
-const validHospitalPayload = {
-  name: "Kimironko District Hospital",
-  type: HospitalType.DISTRICT,
-  address: {
-    province: "kigali",
-    district: "gasabo",
-    sector: "kimironko",
-    cell: "kibagabaga",
-    village: "ibuhoro",
-  },
-};
 
 const COMMUNITY_HEALTH_UNIT_QUERY = "nyiranuma-biryogo";
 
@@ -69,7 +52,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const validRegisterWithAccountPayload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["admin-role-valid"],
     };
 
@@ -77,6 +60,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
       .post("/api/v1/users/admin/register")
       .send(validRegisterWithAccountPayload);
 
+    console.log("Community Health Units Response:", res.body);
     expect(res.status).toBe(201);
     expect(res.body).toEqual(
       expect.objectContaining({
@@ -133,7 +117,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const payload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["admin-role-without-email"],
     };
 
@@ -195,7 +179,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const payload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["admin-role-rollback-test"],
     };
 
@@ -275,7 +259,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const payload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["admin-role-valid"],
     };
 
@@ -316,7 +300,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const invalidPayload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["invalid-admin-validation"],
     };
 
@@ -340,7 +324,8 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
 
     const [savedUser, savedAccount] = await Promise.all([
       User.findOne({
-        nationalIdentificationNumber: invalidPayload.nationalIdentificationNumber,
+        nationalIdentificationNumber:
+          invalidPayload.nationalIdentificationNumber,
       }).lean(),
       Account.findOne({ phoneNumber: invalidPayload.contact.phone }).lean(),
     ]);
@@ -363,7 +348,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const payload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["admin-role-duplicate-email-test"],
       contact: {
         ...runtimeUserAccounts["admin-role-duplicate-email-test"].contact,
@@ -407,7 +392,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const payload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["admin-role-duplicate-phone-test"],
       contact: {
         ...runtimeUserAccounts["admin-role-duplicate-phone-test"].contact,
@@ -455,7 +440,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const payload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["admin-role-duplicate-nin-test"],
       nationalIdentificationNumber: TEST_USERS.ADMIN.nationalId,
     };
@@ -492,7 +477,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const payload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["multi-role-screening-social-health"],
     };
     const res = await client(adminToken)
@@ -550,7 +535,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(chu.body.data.communityHealthUnits).toBeInstanceOf(Array);
 
     const validNurseRegisterPayload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["nurse-role-valid"],
     };
 
@@ -604,7 +589,7 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     const hospitalId = hospital._id.toString();
 
     const payload = {
-      communityHealthUnit: chu.body.data.communityHealthUnits[0].id,
+      communityHealthUnit: chu.body.data.communityHealthUnits[0]._id,
       ...runtimeUserAccounts["nurse-role-with-hospital"],
       hospitalId: hospitalId,
     };
