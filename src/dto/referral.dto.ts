@@ -1,5 +1,5 @@
-import type { ReferralStatus } from '../types/ReferralStatus.types.js';
-import type { PaginationMeta } from '../types/api.types.js';
+import type { ReferralStatus } from "../types/ReferralStatus.types.js";
+import type { PaginationMeta } from "../types/api.types.js";
 
 export interface IReferralSummary {
   id: string;
@@ -26,9 +26,11 @@ export interface IReferralDetails {
   visitDate: Date;
 }
 
-export interface IReferralStatusSummary {
+export interface IReferralMetricsSummary {
+  total: number;
   pending: number;
-  completed_this_month: number;
+  scheduled_today: number;
+  completed_today: number;
   overdue: number;
 }
 

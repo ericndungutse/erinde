@@ -1,13 +1,32 @@
 import type { ClientSession } from "mongoose";
 import type { IReferral } from "../../domain/referral.js";
 import type {
-  GetHospitalReferralsResult,
   IReferralDetails,
-  IReferralStatusSummary,
+  IReferralMetricsSummary,
   IReferralSummary,
 } from "../../dto/referral.dto.js";
 import type { IReferralDocument } from "../../models/referral.model.js";
 export interface IReferralService {
+  countTotalReferrals(filter?: Record<string, unknown>): Promise<number>;
+
+  countPendingReferrals(filter?: Record<string, unknown>): Promise<number>;
+
+  countScheduledTodayReferrals(
+    filter?: Record<string, unknown>,
+  ): Promise<number>;
+
+  countCompletedTodayReferrals(
+    filter?: Record<string, unknown>,
+  ): Promise<number>;
+
+  countOverdueReferrals(filter?: Record<string, unknown>): Promise<number>;
+
+  countPendingReferralsByHealthWorker(userId: string): Promise<number>;
+
+  getReferralMetrics(
+    filter?: Record<string, unknown>,
+  ): Promise<IReferralMetricsSummary>;
+
   /**
    * Create or update a daily referral for a patient
    * based on abnormal assessments.
@@ -38,23 +57,6 @@ export interface IReferralService {
   ): Promise<any>;
 
   getCommingReferralVisitsIn48h(filter: {}): Promise<IReferralSummary[]>;
-
-  /**
-   * Get total count of pending referrals for patients under a specific
-   * social health worker's follow-up.
-   *
-   * @param healthWorkerId - Logged-in social health worker's user id
-   * @returns Number of PENDING referrals for patients assigned to the given health worker
-   */
-  countPendingReferralsByHealthWorker(healthWorkerId: string): Promise<number>;
-
-  /**
-   * Get referral status overview (pending, completed this month, overdue)
-   * for patients under the given social health worker's follow-up.
-   */
-  getReferralStatusOverviewByHealthWorker(
-    healthWorkerId: string,
-  ): Promise<IReferralStatusSummary>;
 
   /**
    * Get a single referral by id. No population, raw referral data only.

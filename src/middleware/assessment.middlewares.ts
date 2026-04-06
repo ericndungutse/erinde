@@ -4,6 +4,7 @@ import { UserRole } from "../types/roles.types.js";
 import { Assessment } from "../models/assessment.model.js";
 import AssessmentForSameIndicatorTakenTodayError from "../Errors/AssessmentForSameIndicatorTakenTodayError.js";
 import { endOfDay, startOfDay } from "date-fns";
+import { resolveUserSourceScope } from "./source-scope.middleware.js";
 
 /**
  * Middleware to resolve takenFrom and takenFromType for assessment creation.
@@ -23,24 +24,14 @@ export function resolveAssessmentTakenFrom(
       .json({ status: "fail", message: "Unauthorized: missing user context" });
   }
 
-  let takenFromType: ModelNames | undefined;
-  let takenFrom: string | undefined;
-
-  if (user.roles.includes(UserRole.SOCIAL_HEALTH_WORKER)) {
-    takenFromType = ModelNames.CommunityHealthUnit;
-    takenFrom = user.communityHealthUnit.toString();
-  } else if (user.roles.includes(UserRole.NURSE)) {
-    takenFromType = ModelNames.Hospital;
-    takenFrom = user.hospitalId;
-  }
+  const { fromType: takenFromType, from: takenFrom } =
+    resolveUserSourceScope(req);
 
   if (!takenFromType || !takenFrom) {
-    return res
-      .status(400)
-      .json({
-        status: "fail",
-        message: "Unable to resolve assessment context for user",
-      });
+    return res.status(400).json({
+      status: "fail",
+      message: "Unable to resolve assessment context for user",
+    });
   }
 
   // Attach to request for downstream use
@@ -62,6 +53,7 @@ export async function validateAssessmentTakenTwice(
   const { patientNumber, indicator } = req.body;
 
   // Find Asseessment for this user with same indicator and take today's date.
+  //TODO VERIFIE DATES.
   const evaluatedAtQuery = {
     $gte: startOfDay(new Date()),
     $lt: endOfDay(new Date()),
