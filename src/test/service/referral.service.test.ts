@@ -341,46 +341,6 @@ describe("ReferralService.getCommingReferralVisitsIn48h", () => {
   });
 });
 
-// TODO After Implementing the feature
-describe.skip("ReferralService.listReferralsByHospital", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-});
-
-// TODO After Implementing the feature
-describe.skip("ReferralService.countPendingReferralsByHealthWorker", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns aggregate count when present", async () => {
-    const service = new ReferralService();
-    vi.spyOn(Referral, "aggregate").mockReturnValue({
-      exec: vi.fn().mockResolvedValue([{ count: 6 }]),
-    } as any);
-
-    const result = await service.countPendingReferralsByHealthWorker(
-      "507f1f77bcf86cd799439013",
-    );
-
-    expect(result).toBe(6);
-  });
-
-  it("returns 0 when aggregate returns no rows", async () => {
-    const service = new ReferralService();
-    vi.spyOn(Referral, "aggregate").mockReturnValue({
-      exec: vi.fn().mockResolvedValue([]),
-    } as any);
-
-    const result = await service.countPendingReferralsByHealthWorker(
-      "507f1f77bcf86cd799439014",
-    );
-
-    expect(result).toBe(0);
-  });
-});
-
 describe("ReferralService.getReferralMetrics", () => {
   afterEach(() => {
     vi.restoreAllMocks();

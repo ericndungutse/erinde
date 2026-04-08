@@ -1,6 +1,9 @@
-import { type Document, type Query } from 'mongoose';
-import { parsePaginationParams } from './pagination.js';
-
+import { type Document, type Query } from "mongoose";
+import { parsePaginationParams } from "./pagination.js";
+import {
+  endOfKigaliDayFromKigaliDate,
+  startOfKigaliDayFromKigaliDate,
+} from "./date.js";
 /**
  * Parsed query string from Express req.query.
  * All values are strings at the HTTP layer.
@@ -57,24 +60,41 @@ export class APIFeatures<T extends Document> {
   /** Apply exact-match and comparison filters, excluding pagination/sort/fields params. */
   filter(): this {
     const queryObj: Record<string, unknown> = { ...this.queryString };
-    const excluded = ['page', 'sort', 'limit', 'fields'];
+
+    const excluded = ["page", "sort", "limit", "fields"];
     excluded.forEach((key) => delete queryObj[key]);
 
-    // Replace gte/gt/lte/lt with MongoDB $ operators
     let queryStr = JSON.stringify(queryObj);
+
+    // Replace gte/gt/lte/lt with MongoDB $ operators
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    this.query = this.query.find(JSON.parse(queryStr) as Record<string, unknown>);
+    // Replace date strings next to comparison operators with Date objects
+    queryStr = queryStr.replace(
+      /"\$(gte|gt)":\s*"(\d{4}-\d{2}-\d{2})"/g,
+      (_, op, date) =>
+        // We receive Kigali date strings, we get start of the day of that date in Kigali timezone and convert to ISO string for MongoDB
+        `"$${op}":"${startOfKigaliDayFromKigaliDate(date).toISOString()}"`,
+    );
+    queryStr = queryStr.replace(
+      /"\$(lte|lt)":\s*"(\d{4}-\d{2}-\d{2})"/g,
+      (_, op, date) =>
+        // // We receive Kigali date strings, we get start of the day of that date in Kigali timezone and convert to ISO string for MongoDB
+        `"$${op}":"${endOfKigaliDayFromKigaliDate(date).toISOString()}"`,
+    );
+
+    this.query = this.query.find(JSON.parse(queryStr));
+
     return this;
   }
 
   /** Sort results. Comma-separated fields; prefix with `-` for descending. */
   sort(): this {
     if (this.queryString.sort) {
-      const sortBy = (this.queryString.sort as string).split(',').join(' ');
+      const sortBy = (this.queryString.sort as string).split(",").join(" ");
       this.query = this.query.sort(sortBy);
     } else {
-      this.query = this.query.sort('-createdAt');
+      this.query = this.query.sort("-createdAt");
     }
     return this;
   }
@@ -82,10 +102,10 @@ export class APIFeatures<T extends Document> {
   /** Restrict returned fields. Comma-separated field names. */
   limitFields(): this {
     if (this.queryString.fields) {
-      const fields = (this.queryString.fields as string).split(',').join(' ');
+      const fields = (this.queryString.fields as string).split(",").join(" ");
       this.query = this.query.select(fields);
     } else {
-      this.query = this.query.select('-__v');
+      this.query = this.query.select("-__v");
     }
     return this;
   }

@@ -42,8 +42,8 @@ NEXT TASK: Link referral to assessment and add from and fromType on referral bas
             - Completed Today (Count)
             - Overdue (Count)
         - Lists for dashboard
-            - Scheduled today (List first 10)
-            - Overdue (List first 10)
+            - Scheduled today (List first 10) Done {{base_url}}/api/v1/referrals?scheduledVisitDate[gte]=2026-04-30&scheduledVisitDate[lte]=2026-04-30
+            - Overdue (List first 10) Done {{base_url}}/api/v1/referrals?status=pending&scheduledVisitDate[lt]=<today's date>
 
 2. HOSPITAL
     - Aggregations

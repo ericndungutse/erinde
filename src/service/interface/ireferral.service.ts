@@ -21,8 +21,6 @@ export interface IReferralService {
 
   countOverdueReferrals(filter?: Record<string, unknown>): Promise<number>;
 
-  countPendingReferralsByHealthWorker(userId: string): Promise<number>;
-
   getReferralMetrics(
     filter?: Record<string, unknown>,
   ): Promise<IReferralMetricsSummary>;
