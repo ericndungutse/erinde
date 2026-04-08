@@ -1,0 +1,736 @@
+[
+  {
+    "_id": {
+      "$oid": "69c27a4ef7c4f3e0bd742b2d"
+    },
+    "__v": 0,
+    "address": {
+      "province": "kigali",
+      "district": "nyarugenge",
+      "sector": "nyarugenge",
+      "cell": "biryogo",
+      "village": "nyarutarama"
+    },
+    "birthdate": {
+      "$date": "1990-01-01T00:00:00.000Z"
+    },
+    "contact": {
+      "phone": "0780000001",
+      "email": "admin@example.com"
+    },
+    "createdAt": {
+      "$date": "2026-03-24T11:49:31.883Z"
+    },
+    "firstname": "Admin",
+    "lastname": "User",
+    "nationalIdentificationNumber": "1199990000000001",
+    "roles": ["ADMIN", "USER"],
+    "updatedAt": {
+      "$date": "2026-03-24T11:49:31.883Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69c50baffd585f2834d413e9"
+    },
+    "firstname": "Rutenga",
+    "lastname": "SHW",
+    "birthdate": {
+      "$date": "1995-02-09T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0785283007"
+    },
+    "nationalIdentificationNumber": "1199580168436061",
+    "roles": ["USER", "SOCIAL_HEALTH_WORKER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-26T10:34:23.147Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-26T10:34:23.147Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69c50c53fd585f2834d41413"
+    },
+    "firstname": "Murambi",
+    "lastname": "SHW",
+    "birthdate": {
+      "$date": "1994-07-12T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0785283008"
+    },
+    "nationalIdentificationNumber": "1199480168436061",
+    "roles": ["USER", "SOCIAL_HEALTH_WORKER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-26T10:37:07.820Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-26T10:37:07.820Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69c50f44fd585f2834d4144f"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 1",
+    "birthdate": {
+      "$date": "1986-05-04T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0788558877"
+    },
+    "nationalIdentificationNumber": "1198680548987458",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-26T10:49:40.880Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-26T10:49:40.880Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69c50f85fd585f2834d41459"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 2",
+    "birthdate": {
+      "$date": "1981-11-11T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0788554411"
+    },
+    "nationalIdentificationNumber": "1198187896547754",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-26T10:50:45.998Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-26T10:50:45.998Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69c65c705f971826eb544cac"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 1",
+    "birthdate": {
+      "$date": "1996-07-03T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0788447744"
+    },
+    "nationalIdentificationNumber": "1199687489625785",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-27T10:31:12.312Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-27T10:31:12.312Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000001"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 3",
+    "birthdate": {
+      "$date": "1983-01-13T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0787100003"
+    },
+    "nationalIdentificationNumber": "1198600000000003",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T08:00:03.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T08:00:03.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000002"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 4",
+    "birthdate": {
+      "$date": "1984-02-14T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0787100004"
+    },
+    "nationalIdentificationNumber": "1198600000000004",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T08:00:04.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T08:00:04.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000003"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 5",
+    "birthdate": {
+      "$date": "1985-03-15T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0787100005"
+    },
+    "nationalIdentificationNumber": "1198600000000005",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T08:00:05.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T08:00:05.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000004"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 6",
+    "birthdate": {
+      "$date": "1986-04-16T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0787100006"
+    },
+    "nationalIdentificationNumber": "1198600000000006",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T08:00:06.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T08:00:06.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000005"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 7",
+    "birthdate": {
+      "$date": "1987-05-17T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0787100007"
+    },
+    "nationalIdentificationNumber": "1198600000000007",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T08:00:07.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T08:00:07.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000006"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 8",
+    "birthdate": {
+      "$date": "1988-06-18T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0787100008"
+    },
+    "nationalIdentificationNumber": "1198600000000008",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T08:00:08.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T08:00:08.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000007"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 9",
+    "birthdate": {
+      "$date": "1989-07-19T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0787100009"
+    },
+    "nationalIdentificationNumber": "1198600000000009",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T08:00:09.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T08:00:09.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000008"
+    },
+    "firstname": "Rutenga",
+    "lastname": "Patient 10",
+    "birthdate": {
+      "$date": "1990-08-20T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "contact": {
+      "phone": "0787100010"
+    },
+    "nationalIdentificationNumber": "1198600000000010",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T08:00:10.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T08:00:10.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000011"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 2",
+    "birthdate": {
+      "$date": "1992-01-12T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0787200002"
+    },
+    "nationalIdentificationNumber": "1198700000000002",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T09:00:02.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T09:00:02.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000012"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 3",
+    "birthdate": {
+      "$date": "1993-02-13T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0787200003"
+    },
+    "nationalIdentificationNumber": "1198700000000003",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T09:00:03.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T09:00:03.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000013"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 4",
+    "birthdate": {
+      "$date": "1994-03-14T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0787200004"
+    },
+    "nationalIdentificationNumber": "1198700000000004",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T09:00:04.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T09:00:04.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000014"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 5",
+    "birthdate": {
+      "$date": "1995-04-15T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0787200005"
+    },
+    "nationalIdentificationNumber": "1198700000000005",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T09:00:05.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T09:00:05.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000015"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 6",
+    "birthdate": {
+      "$date": "1996-05-16T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0787200006"
+    },
+    "nationalIdentificationNumber": "1198700000000006",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T09:00:06.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T09:00:06.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000016"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 7",
+    "birthdate": {
+      "$date": "1997-06-17T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0787200007"
+    },
+    "nationalIdentificationNumber": "1198700000000007",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T09:00:07.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T09:00:07.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000017"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 8",
+    "birthdate": {
+      "$date": "1998-07-18T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0787200008"
+    },
+    "nationalIdentificationNumber": "1198700000000008",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T09:00:08.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T09:00:08.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000018"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 9",
+    "birthdate": {
+      "$date": "1999-08-19T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0787200009"
+    },
+    "nationalIdentificationNumber": "1198700000000009",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T09:00:09.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T09:00:09.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d100000000000000000019"
+    },
+    "firstname": "Murambi",
+    "lastname": "Patient 10",
+    "birthdate": {
+      "$date": "2000-09-20T00:00:00.000Z"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "contact": {
+      "phone": "0787200010"
+    },
+    "nationalIdentificationNumber": "1198700000000010",
+    "roles": ["USER"],
+    "communityHealthUnit": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "createdAt": {
+      "$date": "2026-03-28T09:00:10.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-28T09:00:10.000Z"
+    },
+    "__v": 0
+  }
+]

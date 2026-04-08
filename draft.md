@@ -87,4 +87,7 @@ NEXT TASK: Link referral to assessment and add from and fromType on referral bas
         - CHUs with unusual referral spikes
         - Referrals pending > 7 days (List first 20)
 
+## Status
+- Aggregation/Metrics fro both CHU and Hospital dashboards are done, remaining is test
+
 If you want, next step I can reshape this into exact API response objects per section (`chu`, `hospital`, `overallAdmin`) with field names ready for DTOs.

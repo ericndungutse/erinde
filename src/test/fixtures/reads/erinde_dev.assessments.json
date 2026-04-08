@@ -1,0 +1,51 @@
+[
+  {
+    "_id": {
+      "$oid": "69cbf97ab623d857fd591c59"
+    },
+    "patient": {
+      "$oid": "69c50f44fd585f2834d4144f"
+    },
+    "indicator": {
+      "$oid": "69c14efbc61b8609c351181c"
+    },
+    "evaluatedBy": {
+      "$oid": "69c50baffd585f2834d413e9"
+    },
+    "readings": {
+      "height": {
+        "value": 170,
+        "unit": "cm"
+      },
+      "weight": {
+        "value": 120,
+        "unit": "kg"
+      }
+    },
+    "classification": {
+      "label": "Obesity Class III",
+      "status_code": "danger"
+    },
+    "patientNumber": 4,
+    "recommendations": [
+      "Shaka inama z'abaganga kugira ngo ugabanye ibiro mu buryo burambye"
+    ],
+    "evaluatedAt": {
+      "$date": "2026-03-31T16:42:34.651Z"
+    },
+    "takenFrom": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "takenFromType": "CommunityHealthUnit",
+    "evaluatedDate": {
+      "$date": "2026-03-30T22:00:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2026-03-31T16:42:34.660Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-31T16:42:34.660Z"
+    },
+    "__v": 0
+  }
+]

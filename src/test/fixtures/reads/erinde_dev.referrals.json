@@ -1,0 +1,40 @@
+[
+  {
+    "_id": {
+      "$oid": "69cbf97ab623d857fd591c5d"
+    },
+    "userId": {
+      "$oid": "69c50f44fd585f2834d4144f"
+    },
+    "patientNumber": 4,
+    "referralDate": {
+      "$date": "2026-03-31T16:42:34.792Z"
+    },
+    "to": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "scheduledVisitDate": {
+      "$date": "2026-04-30T16:42:34.792Z"
+    },
+    "status": "PENDING",
+    "assessments": [
+      {
+        "$oid": "69cbf97ab623d857fd591c59"
+      }
+    ],
+    "referredBy": {
+      "$oid": "69c50baffd585f2834d413e9"
+    },
+    "from": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "fromType": "CommunityHealthUnit",
+    "createdAt": {
+      "$date": "2026-03-31T16:42:34.949Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-31T16:42:34.949Z"
+    },
+    "__v": 0
+  }
+]
