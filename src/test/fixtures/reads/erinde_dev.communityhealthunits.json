@@ -1,0 +1,54 @@
+[
+  {
+    "_id": {
+      "$oid": "69c50baefd585f2834d413e6"
+    },
+    "socialHealthWorker": {
+      "$oid": "69c50baffd585f2834d413e9"
+    },
+    "healthCenter": {
+      "$oid": "69c50941fd585f2834d413cf"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "nyamabuye",
+      "cell": "gahogo",
+      "village": "rutenga"
+    },
+    "createdAt": {
+      "$date": "2026-03-26T10:34:22.899Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-26T10:34:23.666Z"
+    },
+    "name": "rutenga-gahogo",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69c50c53fd585f2834d41410"
+    },
+    "socialHealthWorker": {
+      "$oid": "69c50c53fd585f2834d41413"
+    },
+    "healthCenter": {
+      "$oid": "69c50b68fd585f2834d413d6"
+    },
+    "address": {
+      "province": "south",
+      "district": "muhanga",
+      "sector": "shyogwe",
+      "cell": "ruli",
+      "village": "murambi"
+    },
+    "createdAt": {
+      "$date": "2026-03-26T10:37:07.597Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-26T10:37:08.301Z"
+    },
+    "name": "murambi-ruli",
+    "__v": 0
+  }
+]

@@ -1,0 +1,60 @@
+[
+  {
+    "_id": {
+      "$oid": "69c27a4ef7c4f3e0bd742b2e"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-03-24T11:49:32.242Z"
+    },
+    "email": "admin@example.com",
+    "isActive": true,
+    "mustChangePassword": false,
+    "password": "$2b$10$Fp/0qDEROOnC/mccxKMiEez1JBZ0.btboEnoESxpPVbE5S5FZFQZa",
+    "phoneNumber": "0780000001",
+    "updatedAt": {
+      "$date": "2026-03-24T11:49:32.242Z"
+    },
+    "userId": {
+      "$oid": "69c27a4ef7c4f3e0bd742b2d"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69c50baffd585f2834d413eb"
+    },
+    "password": "$2b$10$iPWHvt.OHc9dJqpctPbjKO4k0kinHQ256GLi78Rx.Ra5MjEBtRiq.",
+    "phoneNumber": "0785283007",
+    "isActive": true,
+    "mustChangePassword": true,
+    "userId": {
+      "$oid": "69c50baffd585f2834d413e9"
+    },
+    "createdAt": {
+      "$date": "2026-03-26T10:34:23.258Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-26T10:34:23.258Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69c50c53fd585f2834d41415"
+    },
+    "password": "$2b$10$nM8uME3ucsc/pgpbc64tT.FQ0NHoZ/KAGb5hIIfm2svrGOZWldXBi",
+    "phoneNumber": "0785283008",
+    "isActive": true,
+    "mustChangePassword": true,
+    "userId": {
+      "$oid": "69c50c53fd585f2834d41413"
+    },
+    "createdAt": {
+      "$date": "2026-03-26T10:37:07.928Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-26T10:37:07.928Z"
+    },
+    "__v": 0
+  }
+]
