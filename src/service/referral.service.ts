@@ -50,7 +50,12 @@ export class ReferralService implements IReferralService {
   async countPendingReferrals(
     filter: Record<string, unknown> = {},
   ): Promise<number> {
-    return this.countReferrals({ ...filter, status: "PENDING" });
+    const { startOfToday } = this.getTodayBounds();
+    return this.countReferrals({
+      ...filter,
+      status: "PENDING",
+      scheduledVisitDate: { $gte: startOfToday },
+    });
   }
 
   async countScheduledTodayReferrals(
