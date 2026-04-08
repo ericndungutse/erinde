@@ -138,41 +138,4 @@ export default class ReferralController {
       });
     }
   }
-
-  /**
-   * Complete referral by patient number and return populated patient.
-   */
-  async completeReferralByPatientNumber(req: Request, res: Response) {
-    try {
-      const patientNumberParam = req.params.patientNumber;
-      const patientNumber = Number(patientNumberParam);
-
-      if (!patientNumber || Number.isNaN(patientNumber)) {
-        return res.status(400).json({
-          status: "fail",
-          message: "Valid patientNumber is required (param or body)",
-        });
-      }
-
-      const updated =
-        await this._referralService.completeReferralByPatientNumber(
-          patientNumber,
-        );
-      if (!updated) {
-        return res.status(404).json({
-          status: "fail",
-          message: "No pending referral found for given patient number",
-        });
-      }
-
-      return res
-        .status(200)
-        .json({ status: "success", data: { referral: updated } });
-    } catch (error: any) {
-      return res.status(500).json({
-        status: "error",
-        message: error?.message || "Failed to complete referral",
-      });
-    }
-  }
 }
