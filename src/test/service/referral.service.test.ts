@@ -39,24 +39,16 @@ describe("ReferralService.createReferral", () => {
     vi.restoreAllMocks();
   });
 
-  it("appends assessment to provided pending referral and saves it", async () => {
+  it("appends assessment to existing pending referral then returns early", async () => {
     const existingReferral = {
       assessments: ["assessment-old"],
       save: vi.fn().mockResolvedValue(undefined),
     };
-    const assessmentDoc = { _id: "assessment-new" };
-    const clinicalProfile = {
-      _id: "clinical-profile-1",
-      patientNumber: 1001,
-    };
-    const assessmentQuery = createSessionLeanExecQuery(assessmentDoc);
-    const clinicalQuery = createSessionLeanExecQuery(clinicalProfile);
+    const findByIdSpy = vi.spyOn(Assessment, "findById");
+    const findClinicalProfileSpy = vi.spyOn(ClinicalProfile, "findOne");
     const createSpy = vi.spyOn(Referral, "create").mockResolvedValue([] as any);
 
-    vi.spyOn(Assessment, "findById").mockReturnValue(assessmentQuery as any);
-    vi.spyOn(ClinicalProfile, "findOne").mockReturnValue(clinicalQuery as any);
-
-    await service.createReferral(
+    const result = await service.createReferral(
       "assessment-new",
       "patient-1",
       "user-1",
@@ -67,14 +59,15 @@ describe("ReferralService.createReferral", () => {
       session as any,
     );
 
-    expect(assessmentQuery.session).toHaveBeenCalledWith(session);
-    expect(clinicalQuery.session).toHaveBeenCalledWith(session);
+    expect(result).toBeUndefined();
     expect(existingReferral.assessments).toEqual([
       "assessment-old",
       "assessment-new",
     ]);
     expect(existingReferral.save).toHaveBeenCalledWith({ session });
-    expect(createSpy).toHaveBeenCalledTimes(1);
+    expect(findByIdSpy).not.toHaveBeenCalled();
+    expect(findClinicalProfileSpy).not.toHaveBeenCalled();
+    expect(createSpy).not.toHaveBeenCalled();
   });
 
   it("does not save when existing referral already contains assessment id", async () => {

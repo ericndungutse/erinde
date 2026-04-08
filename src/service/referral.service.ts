@@ -165,7 +165,7 @@ export class ReferralService implements IReferralService {
         await existingPendingReferral.save({ session: session ?? null });
 
         // Append to existing referral and return
-        // return;
+        return;
       }
     }
 

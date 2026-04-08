@@ -1,9 +1,10 @@
-import type { NextFunction, Request, Response } from 'express';
-import ResponseFactory from '../controller/responseFactory.js';
-import BaseError from './BaseError.js';
-import { DUPLICATE_KEY_ERRORS } from './duplicateKeyMessages.js';
-import { ConstantValues } from '../constants/constant.values.js';
-import i18next from '../i18n.js';
+import type { NextFunction, Request, Response } from "express";
+import ResponseFactory from "../controller/responseFactory.js";
+import BaseError from "./BaseError.js";
+import { DUPLICATE_KEY_ERRORS } from "./duplicateKeyMessages.js";
+import { ConstantValues } from "../constants/constant.values.js";
+import i18next from "../i18n.js";
+import { logger } from "../logger.js";
 
 export default class GlobalErrorHandler {
   static getInstance(): GlobalErrorHandler {
@@ -24,15 +25,20 @@ export default class GlobalErrorHandler {
     }
 
     // Handle zod validation errors
-    if (err.name === 'ZodError') {
-      return rf.badRequest('Validation failed', err);
+    if (err.name === "ZodError") {
+      return rf.badRequest("Validation failed", err);
     }
 
     // non-operational / unknown errors
-    return rf.error(err, 'Something went wrong', 500);
+    return rf.error(err, "Something went wrong", 500);
   }
 
-  handleOperationalError(err: BaseError, req: Request, res: Response, next: NextFunction) {
+  handleOperationalError(
+    err: BaseError,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     const rf = ResponseFactory.getResponseFactory(res);
 
     switch (err.statusCode) {
@@ -46,7 +52,7 @@ export default class GlobalErrorHandler {
         return rf.notFound(err.message);
       case 500:
       default:
-        return rf.error(err, err.message || 'Internal Server Error');
+        return rf.error(err, err.message || "Internal Server Error");
     }
   }
 
@@ -54,7 +60,18 @@ export default class GlobalErrorHandler {
     const field: string | undefined = Object.keys(err.keyValue)[0];
     const factory = field ? DUPLICATE_KEY_ERRORS[field] : undefined;
 
-    const message = factory ? factory(err.keyValue, req.language).message : `Duplicate value for field: ${field}`;
+    logger.warn(
+      {
+        error: err,
+        field,
+        value: field ? err.keyValue[field] : undefined,
+      },
+      "Handling duplicate key error",
+    );
+
+    const message = factory
+      ? factory(err.keyValue, req.language).message
+      : `Duplicate value for field: ${field}`;
     return rf.badRequest(message);
   }
 }
