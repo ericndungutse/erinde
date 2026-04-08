@@ -27,3 +27,9 @@ export function getKigaliDayEndUTC(dateTime: Date): Date {
 
   return new Date(`${year}-${month}-${day}T23:59:59.999+02:00`);
 }
+
+export const startOfKigaliDayFromKigaliDate = (dateStr: string): Date =>
+  new Date(`${dateStr}T00:00:00.000+02:00`);
+
+export const endOfKigaliDayFromKigaliDate = (dateStr: string): Date =>
+  new Date(`${dateStr}T23:59:59.999+02:00`);

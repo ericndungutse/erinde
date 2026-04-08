@@ -1,7 +1,7 @@
-
 // import { pinoHttp } from 'pino-http';
 import cors from "cors";
 import * as middleware from "i18next-http-middleware";
+import QueryString from "qs";
 import express, { type Request, type Response } from "express";
 const app = express();
 import indicatorRoutes from "./routes/indicator.route.js";
@@ -19,8 +19,7 @@ import i18next from "./i18n.js";
 app.use(cors());
 app.use(express.json());
 app.use(middleware.handle(i18next));
-
-
+app.set("query parser", (str: string) => QueryString.parse(str));
 
 // Health check endpoint
 app.get("/health", (_req, res) => {

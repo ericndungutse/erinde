@@ -97,10 +97,6 @@ export class ReferralService implements IReferralService {
     });
   }
 
-  async countPendingReferralsByHealthWorker(userId: string): Promise<number> {
-    return this.countPendingReferrals({ referredBy: userId });
-  }
-
   async getReferralMetrics(
     filter: Record<string, unknown> = {},
   ): Promise<IReferralMetricsSummary> {
