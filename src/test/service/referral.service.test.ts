@@ -215,38 +215,6 @@ describe("ReferralService.createReferral", () => {
   });
 });
 
-//TODO CHECK THIS ONE
-describe("ReferralService.isSameDay", () => {
-  let service: ReferralService;
-
-  beforeEach(() => {
-    service = new ReferralService();
-    vi.spyOn(console, "log").mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns true for dates on the same calendar day", () => {
-    const result = service.isSameDay(
-      new Date(2026, 2, 10, 8, 0, 0, 0),
-      new Date(2026, 2, 10, 22, 15, 0, 0),
-    );
-
-    expect(result).toBe(true);
-  });
-
-  it("returns false for dates on different calendar days", () => {
-    const result = service.isSameDay(
-      new Date(2026, 2, 10, 23, 59, 0, 0),
-      new Date(2026, 2, 11, 0, 1, 0, 0),
-    );
-
-    expect(result).toBe(false);
-  });
-});
-
 // TODO After Implementing the feature
 describe.skip("ReferralService.getPendingReferralByPatientNumber", () => {
   afterEach(() => {
@@ -272,82 +240,6 @@ describe.skip("ReferralService.getPendingReferralByPatientNumber", () => {
     });
     expect(query.session).toHaveBeenCalledWith(session);
     expect(result).toEqual(referral);
-  });
-});
-
-// TODO CHECK THIS ONE
-describe("ReferralService.hasPendingReferral", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns true when a pending referral exists", async () => {
-    const service = new ReferralService();
-    vi.spyOn(Referral, "exists").mockResolvedValue({ _id: "ref-1" } as any);
-
-    const result = await service.hasPendingReferral(1002);
-
-    expect(Referral.exists).toHaveBeenCalledWith({
-      patientNumber: 1002,
-      status: "PENDING",
-    });
-    expect(result).toBe(true);
-  });
-
-  it("returns false when no pending referral exists", async () => {
-    const service = new ReferralService();
-    vi.spyOn(Referral, "exists").mockResolvedValue(null);
-
-    const result = await service.hasPendingReferral(1003);
-
-    expect(result).toBe(false);
-  });
-});
-
-// TODO After Implementing the feature
-describe("ReferralService.completeReferralByPatientNumber", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("marks latest pending referral as completed and returns updated referral", async () => {
-    const service = new ReferralService();
-    const updated = { _id: "ref-2", status: "COMPLETED" };
-    const exec = vi.fn().mockResolvedValue(updated);
-    const populate = vi.fn().mockReturnValue({ exec });
-    const findOneAndUpdateSpy = vi
-      .spyOn(Referral, "findOneAndUpdate")
-      .mockReturnValue({ populate } as any);
-
-    const result = await service.completeReferralByPatientNumber(1004);
-
-    expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-      { patientNumber: 1004, status: "PENDING" },
-      {
-        $set: {
-          status: "COMPLETED",
-          visitDate: expect.any(Date),
-        },
-      },
-      {
-        new: true,
-        sort: { createdAt: -1 },
-      },
-    );
-    expect(populate).toHaveBeenCalledWith("patient");
-    expect(result).toEqual(updated);
-  });
-
-  it("returns null when no pending referral matches the patient number", async () => {
-    const service = new ReferralService();
-    const exec = vi.fn().mockResolvedValue(null);
-    const populate = vi.fn().mockReturnValue({ exec });
-
-    vi.spyOn(Referral, "findOneAndUpdate").mockReturnValue({ populate } as any);
-
-    const result = await service.completeReferralByPatientNumber(9999);
-
-    expect(result).toBeNull();
   });
 });
 

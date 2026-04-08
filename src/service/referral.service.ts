@@ -122,50 +122,20 @@ export class ReferralService implements IReferralService {
     };
   }
 
-  getPendingReferralByPatientNumber(
+  async getPendingReferralByPatientNumber(
     patientNumber: number,
     session: ClientSession,
   ): Promise<IReferral | null> {
-    const referral = Referral.findOne({ patientNumber, status: "PENDING" })
+    const referral = await Referral.findOne({
+      patientNumber,
+      status: "PENDING",
+    })
       .session(session)
       .lean()
       .exec();
     return referral;
   }
 
-  async hasPendingReferral(patientNumber: number): Promise<boolean> {
-    const exists = await Referral.exists({
-      patientNumber,
-      status: "PENDING",
-    });
-    return !!exists;
-  }
-
-  // TODO: Analytics: You can now calculate the "Lag Time" between scheduledVisitDate and actualVisitDate to see if patients are arriving earlier or later than expected.
-  async completeReferralByPatientNumber(
-    patientNumber: number,
-  ): Promise<any | null> {
-    const updated = await Referral.findOneAndUpdate(
-      {
-        patientNumber,
-        status: "PENDING",
-      },
-      {
-        $set: {
-          status: "COMPLETED",
-          visitDate: new Date(),
-        },
-      },
-      {
-        new: true,
-        sort: { createdAt: -1 },
-      },
-    )
-      .populate("patient")
-      .exec();
-
-    return updated;
-  }
   /**
    * Create or update a daily referral for a patient based on
    * a single assessment.
@@ -277,15 +247,6 @@ export class ReferralService implements IReferralService {
     };
 
     return details;
-  }
-
-  isSameDay(dateA: Date, dateB: Date): boolean {
-    console.log(dateA, dateB);
-    return (
-      dateA.getFullYear() === dateB.getFullYear() &&
-      dateA.getMonth() === dateB.getMonth() &&
-      dateA.getDate() === dateB.getDate()
-    );
   }
 
   // Get all referrals with optional filtering, sorting, field limiting, and pagination.
