@@ -33,7 +33,7 @@ function getCallerSource(): string | undefined {
     let filePath = match[1];
     const lineNumber = match[2];
 
-    if (filePath.startsWith("file://")) {
+    if (filePath?.startsWith("file://")) {
       try {
         filePath = fileURLToPath(filePath);
       } catch {
@@ -41,6 +41,9 @@ function getCallerSource(): string | undefined {
       }
     }
 
+    if (!filePath) {
+      continue;
+    }
     const normalizedFilePath = path.normalize(filePath);
 
     if (
