@@ -1,12 +1,11 @@
-import type { Response, Request, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { verifyToken } from "../security/jwt.utils.js";
-import User from "../models/user.model.js";
-import type { UserRole } from "../types/roles.types.js";
-import { UserRole as UserRoleEnum } from "../types/roles.types.js";
 import JwtAuthenticationError from "../Errors/JwtAuthenticationError.js";
 import { logger } from "../logger.js";
-import type { mainModule } from "node:process";
+import User from "../models/user.model.js";
+import { verifyToken } from "../security/jwt.utils.js";
+import type { UserRole } from "../types/roles.types.js";
+import { UserRole as UserRoleEnum } from "../types/roles.types.js";
 
 export const protect = async (
   req: Request,
