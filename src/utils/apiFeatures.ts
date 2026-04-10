@@ -2,8 +2,10 @@ import { type Document, type Query } from "mongoose";
 import { parsePaginationParams } from "./pagination.js";
 import {
   endOfKigaliDayFromKigaliDate,
+  getKigaliDayStartUTC,
   startOfKigaliDayFromKigaliDate,
 } from "./date.js";
+import { logger } from "../logger.js";
 /**
  * Parsed query string from Express req.query.
  * All values are strings at the HTTP layer.
@@ -66,6 +68,9 @@ export class APIFeatures<T extends Document> {
 
     let queryStr = JSON.stringify(queryObj);
 
+    // log original query string for debugging
+    logger.debug(`Original query string: ${queryStr}`);
+
     // Replace gte/gt/lte/lt with MongoDB $ operators
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
@@ -80,8 +85,18 @@ export class APIFeatures<T extends Document> {
       /"\$(lte|lt)":\s*"(\d{4}-\d{2}-\d{2})"/g,
       (_, op, date) =>
         // // We receive Kigali date strings, we get start of the day of that date in Kigali timezone and convert to ISO string for MongoDB
-        `"$${op}":"${endOfKigaliDayFromKigaliDate(date).toISOString()}"`,
+        `"$${op}":"${startOfKigaliDayFromKigaliDate(date).toISOString()}"`,
     );
+
+    // If lt or lte, log it
+    if (queryStr.includes("$lt") || queryStr.includes("$lte")) {
+      logger.info(`Applying filter with query: ${queryStr}`);
+    }
+
+    // if gt or gte, log it
+    if (queryStr.includes("$gt") || queryStr.includes("$gte")) {
+      logger.info(`Applying filter with query: ${queryStr}`);
+    }
 
     this.query = this.query.find(JSON.parse(queryStr));
 

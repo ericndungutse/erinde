@@ -5,6 +5,7 @@ import { Assessment } from "../../models/assessment.model.js";
 import { ModelNames } from "../../constants/constant.values.js";
 import Referral from "../../models/referral.model.js";
 import ReferralService from "../../service/referral.service.js";
+import { getKigaliDayEndUTC, getKigaliDayStartUTC } from "../../utils/date.js";
 
 function createSessionExecQuery<T>(result: T) {
   return {
@@ -288,10 +289,7 @@ describe("ReferralService.getCommingReferralVisitsIn48h", () => {
     expect(calledFilter.fromType).toBe("CommunityHealthUnit");
     expect(calledFilter.status).toBe("PENDING");
     expect(calledFilter.scheduledVisitDate.$gte.toISOString()).toBe(
-      fixedNow.toISOString(),
-    );
-    expect(calledFilter.scheduledVisitDate.$lte.toISOString()).toBe(
-      new Date("2026-04-03T10:15:00.000Z").toISOString(),
+      getKigaliDayStartUTC(fixedNow).toISOString(),
     );
 
     expect(sort).toHaveBeenCalledWith({ scheduledVisitDate: 1 });

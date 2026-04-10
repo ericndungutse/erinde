@@ -297,7 +297,7 @@ export class ReferralService implements IReferralService {
   async getCommingReferralVisitsIn48h(
     filter: { from?: string; fromType?: string; status?: string } = {},
   ): Promise<IReferralSummary[]> {
-    const now = new Date();
+    const now = getKigaliDayStartUTC(new Date());
     logger.debug(
       { now: now.toISOString() },
       "Calculating upcoming referrals in 48h Local time: %s",
