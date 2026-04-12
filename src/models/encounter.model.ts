@@ -135,6 +135,12 @@ encounterSchema.index({
   openedAt: 1,
 });
 
+// One open encounter per patient at a time - enforce via unique partial index.
+encounterSchema.index(
+  { patientNumber: 1 },
+  { unique: true, partialFilterExpression: { state: "open" } },
+);
+
 const Encounter = mongoose.model<IEncounter, IEncounterModel>(
   "Encounter",
   encounterSchema,
