@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { MongoMemoryReplSet, MongoMemoryServer } from 'mongodb-memory-server';
-import { beforeAll, afterAll, afterEach } from 'vitest';
+import { MongoMemoryReplSet, MongoMemoryServer } from "mongodb-memory-server";
+import mongoose from "mongoose";
+import { afterAll, afterEach, beforeAll } from "vitest";
 
 let mongoServer: MongoMemoryServer | null = null;
 
@@ -14,6 +14,7 @@ export function setupTestDB() {
 
     const uri = replSet.getUri();
     await mongoose.connect(uri);
+    return replSet;
   });
 
   afterEach(async () => {
