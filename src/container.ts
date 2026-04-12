@@ -1,6 +1,7 @@
 import AssessmentController from "./controller/assessment.controller.js";
 import AuthController from "./controller/auth.controller.js";
 import CommunitHealthUnitController from "./controller/communitHealthUnit.controller.js";
+import EncounterController from "./controller/encounter.controller.js";
 import IndicatorController from "./controller/indicator.controller.js";
 import UserController from "./controller/user.controller.js";
 import HospitalController from "./controller/hospital.controller.js";
@@ -8,10 +9,12 @@ import ReferralController from "./controller/referral.controller.js";
 import AssessmentService from "./service/assessment.service.js";
 import AuthService from "./service/auth.service.js";
 import CommunitHealthUnitService from "./service/communitHealthUnit.service.js";
+import { EncounterService } from "./service/encounter.service.js";
 import { IndicatorService } from "./service/indicator.service.js";
 import type { IAssessmentService } from "./service/interface/iassessment.service.js";
 import type { IAuthService } from "./service/interface/iauth.service.js";
 import type { ICommunitHealthUnitService } from "./service/interface/icommunitHealthUnit.service.js";
+import type { IEncounterService } from "./service/interface/iencounter.service.js";
 import type { IIndicatorService } from "./service/interface/iindicators.service.js";
 import type { IHospitalService } from "./service/interface/ihospital.service.js";
 import type { IReferralService } from "./service/interface/ireferral.service.js";
@@ -44,6 +47,10 @@ class Container {
   private _assessmentService: IAssessmentService;
   private _assessmentController: AssessmentController;
 
+  // Encounter
+  private _encounterService: IEncounterService;
+  private _encounterController: EncounterController;
+
   constructor() {
     this._authService = new AuthService();
     this._authController = new AuthController(this._authService);
@@ -69,10 +76,15 @@ class Container {
     this._assessmentService = new AssessmentService(
       this._referralService,
       this._userService,
+      this._communitHealthUnitService,
     );
     this._assessmentController = new AssessmentController(
       this._assessmentService,
     );
+
+    // Encounter Injections
+    this._encounterService = new EncounterService(this._userService);
+    this._encounterController = new EncounterController(this._encounterService);
   }
 
   // 4. Getters to access the wired-up instances
@@ -106,6 +118,14 @@ class Container {
 
   get communitHealthUnitController() {
     return this._communitHealthUnitController;
+  }
+
+  get encounterController() {
+    return this._encounterController;
+  }
+
+  get encounterService() {
+    return this._encounterService;
   }
 }
 // Export a single instance of the container

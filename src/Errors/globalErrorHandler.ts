@@ -47,7 +47,7 @@ export default class GlobalErrorHandler {
       case 401:
         return rf.unauthenticated(err.message);
       case 403:
-        return rf.forbidden();
+        return rf.forbidden(err.message);
       case 404:
         return rf.notFound(err.message);
       case 500:

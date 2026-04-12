@@ -10,6 +10,7 @@ import userRoutes from "./routes/user.route.js";
 import assessmentRoutes from "./routes/assessment.route.js";
 import referralRoutes from "./routes/referral.route.js";
 import nurseRoutes from "./routes/nurse.routes.js";
+import encounterRoutes from "./routes/encounter.route.js";
 import hospitalRoutes from "./routes/hospital.route.js";
 import communitHealthUnitRoutes from "./routes/communitHealthUnit.route.js";
 import { UserService } from "./service/user.service.js";
@@ -41,6 +42,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/assessments", assessmentRoutes);
 app.use("/api/v1/referrals", referralRoutes);
 app.use("/api/v1/nurse", nurseRoutes);
+app.use("/api/v1/encounters", encounterRoutes);
 app.use("/api/v1/hospitals", hospitalRoutes);
 app.use("/api/v1/community-health-units", communitHealthUnitRoutes);
 

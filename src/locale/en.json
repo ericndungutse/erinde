@@ -21,5 +21,8 @@
   "indicator_not_found": "Indicator not found.",
   "patient_not_found": "Patient not found.",
   "assessment_for_same_indicator_taken_today": "An assessment for the same indicator has already been taken today for this patient.",
-  "assessment_not_found": "Assessment not found."
+  "assessment_not_found": "Assessment not found.",
+  "forbidden_action": "You do not have permission to perform this action.",
+  "only_nurse_can_create_encounters": "Only nurses can create encounters.",
+  "referral_hospital_mismatch": "This referral is intended for a different hospital. You cannot accept it at your facility."
 }

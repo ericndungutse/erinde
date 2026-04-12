@@ -39,7 +39,21 @@ The urgency field is a clinical priority marker typically assigned during the tr
 
 ---
 
+
 ### 2. Workflow Diagrams
+
+##### Creation process
+
+###### Patient Alredy exists with Patient Number
+- Nurse search patient by patient number
+- System Checks if there is an existing open encounter for the patient
+    - To Be discussed: No multiple open encounter for a patient are allowed
+- System checks if there is an existing referral for the patient.
+    - If so, referral is linked to the encounter and referral status is updated to "In Progress"
+    - If not, encounter is created without referral link
+        - currentStep is set to "triage"
+- If patient does not exists, nurse creates new patient and encounter is created without referral link
+    - currentStep is set to "triage"
 
 #### A. Community-to-Hospital (Feedback Loop)
 *Logic: The CHU needs to know the outcome for community follow-up.*
@@ -175,3 +189,9 @@ The move to the terminal state requires two distinct actions to maintain data in
 * **Dashboard Filtering:** `const myQueue = encounters.filter(e => e.currentStep === userRole && e.state === 'open');`
 * **Concurrency:** By updating `currentStep` at the end of each submission, you prevent two departments from accidentally editing the same encounter simultaneously.
 * **Audit Trail:** Every change to `currentStep` should ideally be logged with a timestamp to calculate departmental "turnaround time" (TAT).
+
+## 6. Attension
+- Is there aposibility that a counter would be created and does not link to referral yet a referral exists? SOlved
+- What if patient goes ot hospital with a referral but before due date?
+    - Option one, reject
+    - Option 2, probably patient is very sick, let nurse decide, show the warning "Patient has a pending referral due on {{dueDate}}. We advise you wait until the due date. if patient is very sick, you can proceed.    
