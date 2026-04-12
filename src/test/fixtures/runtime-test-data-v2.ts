@@ -96,6 +96,7 @@ export const existingSHWTestData = {
 
 export const existingNurseTestData = {
   "kabwayi-HC-NURSE": {
+    _id: "69db982b425b55936ee1e229",
     user: {
       id: "69db982b425b55936ee1e229",
       firstname: "NURSE",

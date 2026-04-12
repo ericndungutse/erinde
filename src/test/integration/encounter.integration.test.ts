@@ -14,6 +14,7 @@ import Encounter from "../../models/encounter.model.js";
 
 setupTestDB();
 
+// 1. HAPPY PATH
 describe("INTEGRATION => POST: /api/v1/encounters", () => {
   beforeAll(async () => {
     logger.info("Setting up fixtures for encounter integration tests.");
@@ -105,5 +106,17 @@ describe("INTEGRATION => POST: /api/v1/encounters", () => {
 
     // 3. Logic Check: Ensure no referral was accidentally linked
     expect(savedEncounter?.referralId).toBeNull();
+    expect(savedEncounter?.hospitalId.toString()).toBe(
+      existingNurseTestData["kabwayi-HC-NURSE"].hospitalId.toString(),
+    );
+    expect(savedEncounter?.initiator.toString()).toBe(
+      existingNurseTestData["kabwayi-HC-NURSE"]._id.toString(),
+    );
   });
+
+  // TODO: Encounter created with un-existin patient
+
+  // TODO: Encounter created with existing referral
 });
+
+// 2. UNHAPPY PATH
