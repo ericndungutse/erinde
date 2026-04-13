@@ -474,6 +474,148 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
     expect(unchangedReferral?.status).toBe("PENDING");
   });
 
+  it("should return 404 when creating encounter for a non-existing patient number", async () => {
+    logger.info(
+      "----------------- Testing encounter creation for non-existing patient number -----------------",
+    );
+
+    const nurse = existingNurseTestData["kabwayi-HC-NURSE"];
+    const nonExistingPatientNumber = 999999;
+
+    const nursePayload: ILoginPayload = {
+      identifier: nurse.credentials.phoneNumber,
+      password: nurse.credentials.password,
+    };
+
+    const token = await loginByPhone(
+      nursePayload.identifier,
+      nursePayload.password,
+    );
+
+    const createEncounterRes = await client()
+      .post("/api/v1/encounters")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        patientNumber: nonExistingPatientNumber,
+        urgency: "low",
+      } satisfies CreateEncounterDTO);
+
+    logger.debug(
+      {
+        status: createEncounterRes.status,
+        body: createEncounterRes.body,
+        patientNumber: nonExistingPatientNumber,
+      },
+      "Encounter creation response for non-existing patient number scenario",
+    );
+
+    expect(createEncounterRes.status).toBe(404);
+    expect(createEncounterRes.body).toEqual(
+      expect.objectContaining({
+        status: "fail",
+        message: i18next.t("patient_not_found", {
+          lng: TEST_LANG,
+        }),
+      }),
+    );
+
+    const createdEncounter = await Encounter.findOne({
+      patientNumber: nonExistingPatientNumber,
+    }).lean();
+
+    expect(createdEncounter).toBeNull();
+  });
+
+  it("should reject creation when referralId does not belong to the provided patient", async () => {
+    logger.info(
+      "----------------- Testing referralId/patientNumber mismatch rejection -----------------",
+    );
+
+    const nurse = existingNurseTestData["kabwayi-HC-NURSE"];
+    const shw = existingSHWTestData["murambi-SHW"];
+    const referralOwnerPatient = existingPatientsTestData["murambi-one"];
+    const targetPatient = existingPatientsTestData["rutenga-one"];
+    const diabetesReadingsCritical = readingsTestData["diabetes-critical"];
+
+    // Create a pending referral for a different patient (referralOwnerPatient).
+    const shwPayload: ILoginPayload = {
+      identifier: shw.credentials.phoneNumber,
+      password: shw.credentials.password,
+    };
+
+    const shwToken = await loginByPhone(
+      shwPayload.identifier,
+      shwPayload.password,
+    );
+
+    const createAssessmentRes = await client()
+      .post("/api/v1/assessments")
+      .set("Authorization", `Bearer ${shwToken}`)
+      .send({
+        patientNumber: referralOwnerPatient.patientNumber,
+        indicator: existingIndicatorTestData.diabetes._id,
+        readings: diabetesReadingsCritical.readings,
+      });
+
+    expect(createAssessmentRes.status).toBe(201);
+
+    const pendingReferral = await Referral.findOne({
+      patientNumber: referralOwnerPatient.patientNumber,
+      status: "PENDING",
+    }).lean();
+
+    expect(pendingReferral).not.toBeNull();
+
+    const nursePayload: ILoginPayload = {
+      identifier: nurse.credentials.phoneNumber,
+      password: nurse.credentials.password,
+    };
+
+    const nurseToken = await loginByPhone(
+      nursePayload.identifier,
+      nursePayload.password,
+    );
+
+    const createEncounterRes = await client()
+      .post("/api/v1/encounters")
+      .set("Authorization", `Bearer ${nurseToken}`)
+      .send({
+        patientNumber: targetPatient.patientNumber,
+        urgency: "high",
+        referralId: pendingReferral?._id.toString(),
+      } satisfies CreateEncounterDTO);
+
+    logger.debug(
+      {
+        status: createEncounterRes.status,
+        body: createEncounterRes.body,
+        targetPatientNumber: targetPatient.patientNumber,
+        referralOwnerPatientNumber: referralOwnerPatient.patientNumber,
+        referralId: pendingReferral?._id.toString(),
+      },
+      "Encounter creation response for referral/patient mismatch scenario",
+    );
+
+    expect(createEncounterRes.status).toBe(500);
+    expect(createEncounterRes.body).toEqual(
+      expect.objectContaining({
+        status: "error",
+        message: "Something went wrong",
+      }),
+    );
+
+    const createdEncounter = await Encounter.findOne({
+      patientNumber: targetPatient.patientNumber,
+      state: "open",
+    }).lean();
+    expect(createdEncounter).toBeNull();
+
+    const unchangedReferral = await Referral.findById(
+      pendingReferral?._id,
+    ).lean();
+    expect(unchangedReferral?.status).toBe("PENDING");
+  });
+
   it("should reject creation when patient already has an open encounter", async () => {
     logger.info(
       "----------------- Testing duplicate open encounter creation rejection -----------------",
@@ -607,22 +749,9 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
   });
 });
 
-// Plan
-// Patient already has an open encounter
-// Expected: creation is rejected.
-
-// Invalid payload schema
-// Examples: missing patientNumber/registerUserDto, invalid urgency, empty referralId.
-// Expected: 400 validation failure.
-
-// Non-existing patientNumber (existing-patient flow)
-// Expected: 404 patient not found.
-
+// TODO: WIll SHOW WARNING SO IN CASE IT IS URGENT, WE CAN STILL CREATE ENCOUNTER
 // Referral is not pending
 // Example: referral exists but status is IN_PROGRESS/COMPLETED.
-// Expected: encounter creation rejected.
-
-// referralId does not belong to the patient
 // Expected: encounter creation rejected.
 
 // referralId not found
