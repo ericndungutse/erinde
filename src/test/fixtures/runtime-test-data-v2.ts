@@ -392,3 +392,27 @@ export const readingsTestData = {
     status_code: "critical",
   },
 };
+
+export const invalidEncounterPayloadCases = [
+  {
+    name: "missing patientNumber/registerUserDto",
+    payload: {
+      urgency: "low",
+    },
+  },
+  {
+    name: "invalid urgency",
+    payload: {
+      patientNumber: existingPatientsTestData["rutenga-one"].patientNumber,
+      urgency: "urgent",
+    },
+  },
+  {
+    name: "empty referralId",
+    payload: {
+      patientNumber: existingPatientsTestData["rutenga-one"].patientNumber,
+      referralId: "",
+      urgency: "high",
+    },
+  },
+];

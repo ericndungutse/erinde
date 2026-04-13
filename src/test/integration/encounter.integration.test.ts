@@ -10,6 +10,7 @@ import {
   existingNurseTestData,
   existingPatientsTestData,
   existingSHWTestData,
+  invalidEncounterPayloadCases,
   nonExistingPatientsTestData,
   readingsTestData,
 } from "../fixtures/runtime-test-data-v2.js";
@@ -560,4 +561,76 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
       firstCreateRes.body.data.encounter.id,
     );
   });
+
+  it("should return 400 validation failure for invalid payload schema", async () => {
+    logger.info(
+      "----------------- Testing encounter payload schema validation failures -----------------",
+    );
+
+    const nurse = existingNurseTestData["kabwayi-HC-NURSE"];
+    const nursePayload: ILoginPayload = {
+      identifier: nurse.credentials.phoneNumber,
+      password: nurse.credentials.password,
+    };
+
+    const token = await loginByPhone(
+      nursePayload.identifier,
+      nursePayload.password,
+    );
+
+    for (const invalidCase of invalidEncounterPayloadCases) {
+      logger.info({ caseName: invalidCase.name }, "Running validation case");
+
+      const res = await client()
+        .post("/api/v1/encounters")
+        .set("Authorization", `Bearer ${token}`)
+        .send(invalidCase.payload);
+
+      logger.debug(
+        {
+          caseName: invalidCase.name,
+          status: res.status,
+          body: res.body,
+        },
+        "Validation case response",
+      );
+
+      expect(res.status).toBe(400);
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          status: "fail",
+          message: "Validation failed",
+          errors: expect.any(Object),
+        }),
+      );
+    }
+  });
 });
+
+// Plan
+// Patient already has an open encounter
+// Expected: creation is rejected.
+
+// Invalid payload schema
+// Examples: missing patientNumber/registerUserDto, invalid urgency, empty referralId.
+// Expected: 400 validation failure.
+
+// Non-existing patientNumber (existing-patient flow)
+// Expected: 404 patient not found.
+
+// Referral is not pending
+// Example: referral exists but status is IN_PROGRESS/COMPLETED.
+// Expected: encounter creation rejected.
+
+// referralId does not belong to the patient
+// Expected: encounter creation rejected.
+
+// referralId not found
+// Expected: encounter creation rejected.
+
+// Unauthorized role tries to create encounter
+// Example: SHW tries POST encounters.
+// Expected: forbidden/unauthorized.
+
+// Missing/invalid auth token
+// Expected: 401.

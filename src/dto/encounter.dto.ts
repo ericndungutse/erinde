@@ -9,19 +9,19 @@ import type {
 export const EncounterUrgencySchema = z.enum(
   ["low", "medium", "high", "emergency"],
   {
-    message: "Please select a valid urgency level",
+    message: "urgency_must_be_one_of_low_medium_high_emergency",
   },
 );
 
 // DTO: encounter creation when patient already exists in the system.
 export const CreateEncounterForExistingPatientSchema = z.object({
   patientNumber: z
-    .number({ message: "patientNumber is required" })
+    .number({ message: "patient_number_is_required" })
     .int()
-    .positive("patientNumber must be a positive integer"),
+    .positive("patient_number_must_be_positive"),
   referralId: z
     .string()
-    .min(1, { message: "referralId cannot be empty" })
+    .min(1, { message: "field_cannot_be_empty" })
     .optional(),
   urgency: EncounterUrgencySchema,
 });
