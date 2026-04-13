@@ -16,7 +16,8 @@ import {
 import { runFixtureSetups } from "../fixtures/setup/index.js";
 import { loginByPhone } from "../utils/auth-helpers.js";
 import { setupTestDB } from "../utils/mongo-memory.js";
-import { client } from "../utils/request-factory.js";
+import { client, TEST_LANG } from "../utils/request-factory.js";
+import i18next from "i18next";
 
 setupTestDB();
 
@@ -358,3 +359,103 @@ describe("INTEGRATION => POST: /api/v1/encounters", () => {
 // Not right hospital
 // Pending referral, not due
 // Validation
+describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
+  beforeEach(async () => {
+    logger.info("Setting up fixtures for encounter unhappy path tests.");
+    await runFixtureSetups();
+    logger.info("Fixtures setup completed for encounter unhappy path tests.");
+  });
+
+  it("should reject encounter creation when referral belongs to a different hospital", async () => {
+    logger.info(
+      "----------------- Testing encounter creation with referral hospital mismatch -----------------",
+    );
+
+    // ARANGE
+    const kabwayiNurse = existingNurseTestData["kabwayi-HC-NURSE"];
+    const murambiShw = existingSHWTestData["murambi-SHW"];
+    const murambiPatient = existingPatientsTestData["murambi-one"];
+    const diabetesReadingsCritical = readingsTestData["diabetes-critical"];
+
+    // 1. SHW creates assessment to generate a pending referral for murambi patient
+    const shwPayload: ILoginPayload = {
+      identifier: murambiShw.credentials.phoneNumber,
+      password: murambiShw.credentials.password,
+    };
+
+    const shwToken = await loginByPhone(
+      shwPayload.identifier,
+      shwPayload.password,
+    );
+
+    const createAssessmentRes = await client()
+      .post("/api/v1/assessments")
+      .set("Authorization", `Bearer ${shwToken}`)
+      .send({
+        patientNumber: murambiPatient.patientNumber,
+        indicator: existingIndicatorTestData.diabetes._id,
+        readings: diabetesReadingsCritical.readings,
+      });
+
+    expect(createAssessmentRes.status).toBe(201);
+
+    const pendingReferral = await Referral.findOne({
+      patientNumber: murambiPatient.patientNumber,
+      status: "PENDING",
+    }).lean();
+
+    expect(pendingReferral).not.toBeNull();
+    expect(pendingReferral?.to.toString()).not.toBe(
+      kabwayiNurse.hospitalId.toString(),
+    );
+
+    // 2. Login as kabwayi nurse
+    const nursePayload: ILoginPayload = {
+      identifier: kabwayiNurse.credentials.phoneNumber,
+      password: kabwayiNurse.credentials.password,
+    };
+
+    const nurseToken = await loginByPhone(
+      nursePayload.identifier,
+      nursePayload.password,
+    );
+
+    // ACT
+    const encounterPayload: CreateEncounterDTO = {
+      patientNumber: murambiPatient.patientNumber,
+      urgency: "high",
+    };
+
+    const createEncounterRes = await client()
+      .post("/api/v1/encounters")
+      .set("Authorization", `Bearer ${nurseToken}`)
+      .send(encounterPayload);
+
+    // ASSERT
+    console.log(
+      "Create Encounter Response:",
+      createEncounterRes.status,
+      createEncounterRes.body,
+    );
+    expect(createEncounterRes.status).toBe(400);
+    expect(createEncounterRes.body).toEqual(
+      expect.objectContaining({
+        status: "fail",
+        message: i18next.t("referral_hospital_mismatch", {
+          lng: TEST_LANG,
+        }),
+      }),
+    );
+
+    const savedEncounter = await Encounter.findOne({
+      patientNumber: murambiPatient.patientNumber,
+      state: "open",
+    }).lean();
+    expect(savedEncounter).toBeNull();
+
+    const unchangedReferral = await Referral.findById(
+      pendingReferral?._id,
+    ).lean();
+    expect(unchangedReferral?.status).toBe("PENDING");
+  });
+});
