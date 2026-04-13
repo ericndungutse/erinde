@@ -397,6 +397,15 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
         readings: diabetesReadingsCritical.readings,
       });
 
+    logger.debug(
+      {
+        status: createAssessmentRes.status,
+        body: createAssessmentRes.body,
+        patientNumber: murambiPatient.patientNumber,
+      },
+      "Assessment creation response for mismatch scenario",
+    );
+
     expect(createAssessmentRes.status).toBe(201);
 
     const pendingReferral = await Referral.findOne({
@@ -424,6 +433,7 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
     const encounterPayload: CreateEncounterDTO = {
       patientNumber: murambiPatient.patientNumber,
       urgency: "high",
+      referralId: pendingReferral?._id.toString(),
     };
 
     const createEncounterRes = await client()
@@ -431,12 +441,16 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
       .set("Authorization", `Bearer ${nurseToken}`)
       .send(encounterPayload);
 
-    // ASSERT
-    console.log(
-      "Create Encounter Response:",
-      createEncounterRes.status,
-      createEncounterRes.body,
+    logger.debug(
+      {
+        status: createEncounterRes.status,
+        body: createEncounterRes.body,
+        patientNumber: murambiPatient.patientNumber,
+      },
+      "Encounter creation response for mismatch scenario",
     );
+
+    // ASSERT
     expect(createEncounterRes.status).toBe(400);
     expect(createEncounterRes.body).toEqual(
       expect.objectContaining({
@@ -457,5 +471,93 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
       pendingReferral?._id,
     ).lean();
     expect(unchangedReferral?.status).toBe("PENDING");
+  });
+
+  it("should reject creation when patient already has an open encounter", async () => {
+    logger.info(
+      "----------------- Testing duplicate open encounter creation rejection -----------------",
+    );
+
+    // ARANGE
+    const nurse = existingNurseTestData["kabwayi-HC-NURSE"];
+    const patient = existingPatientsTestData["rutenga-one"];
+
+    const nursePayload: ILoginPayload = {
+      identifier: nurse.credentials.phoneNumber,
+      password: nurse.credentials.password,
+    };
+
+    const token = await loginByPhone(
+      nursePayload.identifier,
+      nursePayload.password,
+    );
+
+    const firstEncounterPayload: CreateEncounterDTO = {
+      patientNumber: patient.patientNumber,
+      urgency: "low",
+    };
+
+    // ACT
+    // 1) Create first (open) encounter
+    const firstCreateRes = await client()
+      .post("/api/v1/encounters")
+      .set("Authorization", `Bearer ${token}`)
+      .send(firstEncounterPayload);
+
+    logger.debug(
+      {
+        status: firstCreateRes.status,
+        body: firstCreateRes.body,
+        patientNumber: patient.patientNumber,
+      },
+      "First encounter creation response in duplicate-open-encounter scenario",
+    );
+
+    expect(firstCreateRes.status).toBe(201);
+
+    // 2) Try creating another encounter for the same patient
+    const secondCreateRes = await client()
+      .post("/api/v1/encounters")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        patientNumber: patient.patientNumber,
+        urgency: "high",
+      } satisfies CreateEncounterDTO);
+
+    logger.debug(
+      {
+        status: secondCreateRes.status,
+        body: secondCreateRes.body,
+        patientNumber: patient.patientNumber,
+      },
+      "Second encounter creation response in duplicate-open-encounter scenario",
+    );
+
+    // ASSERT
+    expect(secondCreateRes.status).toBe(500);
+    expect(secondCreateRes.body).toEqual(
+      expect.objectContaining({
+        status: "error",
+        message: "Something went wrong",
+      }),
+    );
+
+    const openEncounters = await Encounter.find({
+      patientNumber: patient.patientNumber,
+      state: "open",
+    }).lean();
+
+    logger.debug(
+      {
+        openEncountersCount: openEncounters.length,
+        patientNumber: patient.patientNumber,
+      },
+      "Open encounters count after duplicate attempt",
+    );
+
+    expect(openEncounters).toHaveLength(1);
+    expect(openEncounters[0]?._id.toString()).toBe(
+      firstCreateRes.body.data.encounter.id,
+    );
   });
 });
