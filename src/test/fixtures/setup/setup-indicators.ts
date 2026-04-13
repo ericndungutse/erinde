@@ -1,19 +1,10 @@
+import mongoose from "mongoose";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import mongoose from "mongoose";
-import Indicator from "../../../models/indicator.model.js";
-
-type OidRef = {
-  $oid: string;
-};
-
-type DateRef = {
-  $date: string;
-};
 
 type IndicatorReadFixture = {
-  _id: OidRef;
+  _id: string;
   name: string;
   readings: Array<{
     type: string;
@@ -31,8 +22,8 @@ type IndicatorReadFixture = {
     logic?: "OR" | "AND";
     recommendations: string[];
   }>;
-  createdAt?: DateRef;
-  updatedAt?: DateRef;
+  createdAt: string;
+  updatedAt: string;
 };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,9 +48,9 @@ export async function setupIndicatorsFromReads(): Promise<void> {
 
   const cleanIndicators = fixtures.map((ind: IndicatorReadFixture) => ({
     ...ind,
-    _id: new mongoose.Types.ObjectId(ind._id.$oid),
-    createdAt: ind.createdAt ? new Date(ind.createdAt.$date) : undefined,
-    updatedAt: ind.updatedAt ? new Date(ind.updatedAt.$date) : undefined,
+    _id: new mongoose.Types.ObjectId(ind._id),
+    createdAt: ind.createdAt ? new Date(ind.createdAt) : undefined,
+    updatedAt: ind.updatedAt ? new Date(ind.updatedAt) : undefined,
   }));
 
   if (mongoose.connection.db) {

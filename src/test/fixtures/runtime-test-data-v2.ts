@@ -62,6 +62,25 @@ export const existingPatientsTestData = {
   },
 };
 
+export const nonExistingPatientsTestData = {
+  "rutenga-non-existing-one": {
+    firstname: "Rutenga",
+    lastname: "NonExisting",
+    birthdate: "1990-01-01T00:00:00.000Z",
+    address: {
+      province: "south",
+      district: "muhanga",
+      sector: "nyamabuye",
+      cell: "gahogo",
+      village: "rutenga",
+    },
+    contact: {
+      phone: "0788999911",
+    },
+    nationalIdentificationNumber: "1199000100001111",
+  },
+};
+
 export const existingSHWTestData = {
   "rutenga-SHW": {
     user: {
@@ -327,5 +346,49 @@ export const existingIndicatorTestData = {
         ],
       },
     ],
+  },
+};
+
+export const readingsTestData = {
+  "hypertension-critical": {
+    readings: {
+      systolic_blood_pressure: {
+        value: 180,
+        unit: "mmHg",
+      },
+      diastolic_blood_pressure: {
+        value: 120,
+        unit: "mmHg",
+      },
+    },
+
+    label: "Hypertensive Crisis",
+    status_code: "critical",
+  },
+
+  "diabetes-critical": {
+    readings: {
+      random_blood_glucose: {
+        value: 250,
+        unit: "mg/dL",
+      },
+    },
+    label: "Possible Diabetes",
+    status_code: "critical",
+  },
+
+  "bmi-obesity-class-3": {
+    readings: {
+      height: {
+        value: 170,
+        unit: "cm",
+      },
+      weight: {
+        value: 120,
+        unit: "kg",
+      },
+    },
+    label: "Obesity Class III",
+    status_code: "critical",
   },
 };
