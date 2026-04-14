@@ -1,8 +1,6 @@
 [
   {
-    "_id": {
-      "$oid": "69c50941fd585f2834d413cf"
-    },
+    "_id": "69c50941fd585f2834d413cf",
     "name": "kabgayi health center",
     "type": "HEALTH_CENTER",
     "address": {
@@ -12,17 +10,11 @@
       "cell": "gahogo",
       "village": "kamazuru"
     },
-    "createdAt": {
-      "$date": "2026-03-26T10:24:01.382Z"
-    },
-    "updatedAt": {
-      "$date": "2026-03-26T10:24:01.382Z"
-    }
+    "createdAt": "2026-03-26T10:24:01.382Z",
+    "updatedAt": "2026-03-26T10:24:01.382Z"
   },
   {
-    "_id": {
-      "$oid": "69c50b68fd585f2834d413d6"
-    },
+    "_id": "69c50b68fd585f2834d413d6",
     "name": "cyakabiri health center",
     "type": "HEALTH_CENTER",
     "address": {
@@ -32,11 +24,7 @@
       "cell": "ruli",
       "village": "murambi"
     },
-    "createdAt": {
-      "$date": "2026-03-26T10:33:12.568Z"
-    },
-    "updatedAt": {
-      "$date": "2026-03-26T10:33:12.568Z"
-    }
+    "createdAt": "2026-03-26T10:33:12.568Z",
+    "updatedAt": "2026-03-26T10:33:12.568Z"
   }
 ]

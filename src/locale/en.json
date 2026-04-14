@@ -21,5 +21,12 @@
   "indicator_not_found": "Indicator not found.",
   "patient_not_found": "Patient not found.",
   "assessment_for_same_indicator_taken_today": "An assessment for the same indicator has already been taken today for this patient.",
-  "assessment_not_found": "Assessment not found."
+  "assessment_not_found": "Assessment not found.",
+  "forbidden_action": "You do not have permission to perform this action.",
+  "only_nurse_can_create_encounters": "Only nurses can create encounters.",
+  "referral_hospital_mismatch": "This referral is intended for a different hospital. You cannot accept it at your facility.",
+  "field_cannot_be_empty": "{{ field }} cannot be empty.",
+  "patient_number_is_required": "Patient number is required.",
+  "patient_number_must_be_positive": "Patient number must be a positive integer.",
+  "urgency_must_be_one_of_low_medium_high_emergency": "Urgency must be one of the following values: low, medium, high, emergency."
 }

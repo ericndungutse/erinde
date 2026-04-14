@@ -43,7 +43,14 @@ const referralSchema = new Schema<IReferral>(
 
     status: {
       type: String,
-      enum: ["PENDING", "COMPLETED", "CANCELLED", "ESCALATED"],
+      enum: [
+        "PENDING",
+        "RECEIVED",
+        "IN_PROGRESS",
+        "COMPLETED",
+        "CANCELLED",
+        "ESCALATED",
+      ],
       default: "PENDING",
       index: true,
     },

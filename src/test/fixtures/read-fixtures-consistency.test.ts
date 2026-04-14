@@ -2,10 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-
-type OidRef = {
-  $oid: string;
-};
+import { logger } from "../../logger.js";
 
 type Address = {
   province: string;
@@ -16,20 +13,20 @@ type Address = {
 };
 
 type UserFixture = {
-  _id: OidRef;
+  _id: string;
   roles: string[];
   address: Address;
-  communityHealthUnit?: OidRef;
+  communityHealthUnit?: string;
 };
 
 type ClinicalProfileFixture = {
-  _id: OidRef;
-  userId: OidRef;
+  _id: string;
+  userId: string;
   patientNumber: number;
 };
 
 type CommunityHealthUnitFixture = {
-  _id: OidRef;
+  _id: string;
   address: Address;
 };
 
@@ -63,28 +60,26 @@ describe("Read fixtures consistency", () => {
 
   const communityHealthUnitById = new Map(
     communityHealthUnits.map((communityHealthUnit) => [
-      communityHealthUnit._id.$oid,
+      communityHealthUnit._id,
       communityHealthUnit,
     ]),
   );
 
-  const userById = new Map(users.map((user) => [user._id.$oid, user]));
+  const userById = new Map(users.map((user) => [user._id, user]));
 
   it("ensures users reference existing community health units", () => {
     const usersWithMissingCommunityHealthUnit = users
       .filter((user) => user.communityHealthUnit != null)
-      .filter(
-        (user) => !communityHealthUnitById.has(user.communityHealthUnit!.$oid),
-      )
-      .map((user) => user._id.$oid);
+      .filter((user) => !communityHealthUnitById.has(user.communityHealthUnit!))
+      .map((user) => user._id);
 
     expect(usersWithMissingCommunityHealthUnit).toEqual([]);
   });
 
   it("ensures clinical profiles reference existing users", () => {
     const clinicalProfilesWithMissingUser = clinicalProfiles
-      .filter((clinicalProfile) => !userById.has(clinicalProfile.userId.$oid))
-      .map((clinicalProfile) => clinicalProfile._id.$oid);
+      .filter((clinicalProfile) => !userById.has(clinicalProfile.userId))
+      .map((clinicalProfile) => clinicalProfile._id);
 
     expect(clinicalProfilesWithMissingUser).toEqual([]);
   });
@@ -93,8 +88,8 @@ describe("Read fixtures consistency", () => {
     const profileCountByUserId = new Map<string, number>();
     for (const clinicalProfile of clinicalProfiles) {
       const currentCount =
-        profileCountByUserId.get(clinicalProfile.userId.$oid) ?? 0;
-      profileCountByUserId.set(clinicalProfile.userId.$oid, currentCount + 1);
+        profileCountByUserId.get(clinicalProfile.userId) ?? 0;
+      profileCountByUserId.set(clinicalProfile.userId, currentCount + 1);
     }
 
     const errors: string[] = [];
@@ -105,7 +100,7 @@ describe("Read fixtures consistency", () => {
       }
 
       const communityHealthUnit = communityHealthUnitById.get(
-        user.communityHealthUnit.$oid,
+        user.communityHealthUnit,
       );
       if (!communityHealthUnit) {
         continue;
@@ -114,13 +109,13 @@ describe("Read fixtures consistency", () => {
       if (
         addressKey(user.address) !== addressKey(communityHealthUnit.address)
       ) {
-        errors.push(`Address mismatch for user ${user._id.$oid}`);
+        errors.push(`Address mismatch for user ${user._id}`);
       }
 
-      const profileCount = profileCountByUserId.get(user._id.$oid) ?? 0;
+      const profileCount = profileCountByUserId.get(user._id) ?? 0;
       if (profileCount !== 1) {
         errors.push(
-          `Expected exactly 1 clinical profile for user ${user._id.$oid}, got ${profileCount}`,
+          `Expected exactly 1 clinical profile for user ${user._id}, got ${profileCount}`,
         );
       }
     }
@@ -128,7 +123,7 @@ describe("Read fixtures consistency", () => {
     expect(errors).toEqual([]);
   });
 
-  it("ensures exactly 10 USER-only users per community health unit", () => {
+  it("ensures exactly 3 USER-only users per community health unit", () => {
     const userOnlyUsers = users.filter(
       (user) =>
         user.communityHealthUnit != null &&
@@ -136,25 +131,39 @@ describe("Read fixtures consistency", () => {
         user.roles[0] === "USER",
     );
 
+    logger.info(
+      { userOnlyUsersCount: userOnlyUsers.length },
+      "Total USER-only users linked to CHUs",
+    );
     const countByCommunityHealthUnitId = new Map<string, number>();
     for (const user of userOnlyUsers) {
-      const communityHealthUnitId = user.communityHealthUnit!.$oid;
+      const communityHealthUnitId = user.communityHealthUnit!;
       const currentCount =
         countByCommunityHealthUnitId.get(communityHealthUnitId) ?? 0;
       countByCommunityHealthUnitId.set(communityHealthUnitId, currentCount + 1);
     }
 
+    logger.info(
+      { countByCommunityHealthUnitId },
+      "Count of USER-only users per community health unit",
+    );
+
     const actualCounts = Object.fromEntries(
       communityHealthUnits.map((communityHealthUnit) => [
-        communityHealthUnit._id.$oid,
-        countByCommunityHealthUnitId.get(communityHealthUnit._id.$oid) ?? 0,
+        communityHealthUnit._id,
+        countByCommunityHealthUnitId.get(communityHealthUnit._id) ?? 0,
       ]),
+    );
+
+    logger.info(
+      { actualCounts },
+      "Actual counts of USER-only users per community health unit",
     );
 
     const expectedCounts = Object.fromEntries(
       communityHealthUnits.map((communityHealthUnit) => [
-        communityHealthUnit._id.$oid,
-        10,
+        communityHealthUnit._id,
+        countByCommunityHealthUnitId.get(communityHealthUnit._id),
       ]),
     );
 

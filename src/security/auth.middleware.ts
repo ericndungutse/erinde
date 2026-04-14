@@ -6,6 +6,7 @@ import User from "../models/user.model.js";
 import { verifyToken } from "../security/jwt.utils.js";
 import type { UserRole } from "../types/roles.types.js";
 import { UserRole as UserRoleEnum } from "../types/roles.types.js";
+import ForbiddenError from "../Errors/ForbiddenError.js";
 
 export const protect = async (
   req: Request,
@@ -141,10 +142,7 @@ export const authorize = (...roles: UserRole[]) => {
       req.user.roles &&
       !roles.some((role) => req.user && req.user.roles.includes(role))
     ) {
-      return res.status(403).json({
-        status: "fail",
-        message: "You do not have permission to perform this action.",
-      });
+      return next(new ForbiddenError());
     }
     next();
   };
