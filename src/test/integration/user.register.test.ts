@@ -1,10 +1,11 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it } from "vitest";
 import type { Types } from "mongoose";
+import { beforeEach, describe, expect, it } from "vitest";
 import { ConstantValues } from "../../constants/constant.values.js";
+import type { RegisterUserDTO } from "../../dto/user.dto.js";
+import i18next from "../../i18n.js";
 import ClinicalProfile from "../../models/clinicalProfile.model.js";
 import User from "../../models/user.model.js";
-import i18next from "../../i18n.js";
 import {
   runtimePatients,
   runTimeRandomPhoneNumbers,
@@ -14,8 +15,6 @@ import { setupTestData } from "../testDataSetup/index.js";
 import { loginByEmail, loginByPhone } from "../utils/auth-helpers.js";
 import { setupTestDB } from "../utils/mongo-memory.js";
 import { client, TEST_LANG } from "../utils/request-factory.js";
-import type { RegisterUserDTO } from "../../dto/user.dto.js";
-import type { GetAllCommunityHealthUnitsResult } from "../../dto/communitHealthUnitDto.js";
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
@@ -178,7 +177,9 @@ describe("Integration: POST /api/v1/users", () => {
     expect(res.body).toEqual(
       expect.objectContaining({
         status: "fail",
-        message: "You do not have permission to perform this action.",
+        message: i18next.t("forbidden_action", {
+          lng: TEST_LANG,
+        }),
       }),
     );
 

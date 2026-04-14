@@ -616,6 +616,181 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
     expect(unchangedReferral?.status).toBe("PENDING");
   });
 
+  it("should reject creation when referralId is not found", async () => {
+    logger.info(
+      "----------------- Testing referralId not found rejection -----------------",
+    );
+
+    const nurse = existingNurseTestData["kabwayi-HC-NURSE"];
+    const patient = existingPatientsTestData["rutenga-one"];
+    const nonExistingReferralId = "507f1f77bcf86cd799439011";
+
+    const nursePayload: ILoginPayload = {
+      identifier: nurse.credentials.phoneNumber,
+      password: nurse.credentials.password,
+    };
+
+    const nurseToken = await loginByPhone(
+      nursePayload.identifier,
+      nursePayload.password,
+    );
+
+    const createEncounterRes = await client()
+      .post("/api/v1/encounters")
+      .set("Authorization", `Bearer ${nurseToken}`)
+      .send({
+        patientNumber: patient.patientNumber,
+        urgency: "high",
+        referralId: nonExistingReferralId,
+      } satisfies CreateEncounterDTO);
+
+    logger.debug(
+      {
+        status: createEncounterRes.status,
+        body: createEncounterRes.body,
+        patientNumber: patient.patientNumber,
+        referralId: nonExistingReferralId,
+      },
+      "Encounter creation response for referralId not found scenario",
+    );
+
+    expect(createEncounterRes.status).toBe(500);
+    expect(createEncounterRes.body).toEqual(
+      expect.objectContaining({
+        status: "error",
+        message: "Something went wrong",
+      }),
+    );
+
+    const createdEncounter = await Encounter.findOne({
+      patientNumber: patient.patientNumber,
+      referralId: nonExistingReferralId,
+      state: "open",
+    }).lean();
+    expect(createdEncounter).toBeNull();
+  });
+
+  it("should reject encounter creation when requester is not a nurse", async () => {
+    logger.info(
+      "----------------- Testing encounter creation unauthorized role rejection -----------------",
+    );
+
+    const shw = existingSHWTestData["rutenga-SHW"];
+    const patient = existingPatientsTestData["rutenga-one"];
+
+    const shwPayload: ILoginPayload = {
+      identifier: shw.credentials.phoneNumber,
+      password: shw.credentials.password,
+    };
+
+    const shwToken = await loginByPhone(
+      shwPayload.identifier,
+      shwPayload.password,
+    );
+
+    const createEncounterRes = await client()
+      .post("/api/v1/encounters")
+      .set("Authorization", `Bearer ${shwToken}`)
+      .send({
+        patientNumber: patient.patientNumber,
+        urgency: "high",
+      } satisfies CreateEncounterDTO);
+
+    logger.debug(
+      {
+        status: createEncounterRes.status,
+        body: createEncounterRes.body,
+        patientNumber: patient.patientNumber,
+      },
+      "Encounter creation response for unauthorized-role scenario",
+    );
+
+    expect(createEncounterRes.status).toBe(403);
+    expect(createEncounterRes.body).toEqual(
+      expect.objectContaining({
+        status: "fail",
+        message: i18next.t("forbidden_action", {
+          lng: TEST_LANG,
+        }),
+      }),
+    );
+
+    const createdEncounter = await Encounter.findOne({
+      patientNumber: patient.patientNumber,
+      state: "open",
+    }).lean();
+    expect(createdEncounter).toBeNull();
+  });
+
+  it("should return 401 when auth token is missing or invalid", async () => {
+    logger.info(
+      "----------------- Testing encounter creation auth token failures -----------------",
+    );
+
+    const patient = existingPatientsTestData["rutenga-one"];
+    const encounterPayload = {
+      patientNumber: patient.patientNumber,
+      urgency: "high",
+    } satisfies CreateEncounterDTO;
+
+    const openEncountersBefore = await Encounter.find({
+      patientNumber: patient.patientNumber,
+      state: "open",
+    }).lean();
+
+    const missingTokenRes = await client()
+      .post("/api/v1/encounters")
+      .send(encounterPayload);
+
+    logger.debug(
+      {
+        status: missingTokenRes.status,
+        body: missingTokenRes.body,
+        patientNumber: patient.patientNumber,
+      },
+      "Encounter creation response for missing-token scenario",
+    );
+
+    expect(missingTokenRes.status).toBe(401);
+    expect(missingTokenRes.body).toEqual(
+      expect.objectContaining({
+        status: "fail",
+        message: "Unauthenticated. Please log in to access this resource",
+      }),
+    );
+
+    const invalidTokenRes = await client()
+      .post("/api/v1/encounters")
+      .set("Authorization", "Bearer invalid.token.value")
+      .send(encounterPayload);
+
+    logger.debug(
+      {
+        status: invalidTokenRes.status,
+        body: invalidTokenRes.body,
+        patientNumber: patient.patientNumber,
+      },
+      "Encounter creation response for invalid-token scenario",
+    );
+
+    expect(invalidTokenRes.status).toBe(401);
+    expect(invalidTokenRes.body).toEqual(
+      expect.objectContaining({
+        status: "fail",
+        message: i18next.t("please_login", {
+          lng: TEST_LANG,
+        }),
+      }),
+    );
+
+    const openEncountersAfter = await Encounter.find({
+      patientNumber: patient.patientNumber,
+      state: "open",
+    }).lean();
+
+    expect(openEncountersAfter).toHaveLength(openEncountersBefore.length);
+  });
+
   it("should reject creation when patient already has an open encounter", async () => {
     logger.info(
       "----------------- Testing duplicate open encounter creation rejection -----------------",
@@ -753,13 +928,3 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
 // Referral is not pending
 // Example: referral exists but status is IN_PROGRESS/COMPLETED.
 // Expected: encounter creation rejected.
-
-// referralId not found
-// Expected: encounter creation rejected.
-
-// Unauthorized role tries to create encounter
-// Example: SHW tries POST encounters.
-// Expected: forbidden/unauthorized.
-
-// Missing/invalid auth token
-// Expected: 401.

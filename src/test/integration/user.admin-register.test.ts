@@ -271,7 +271,9 @@ describe("Integration: POST /api/v1/users/admin/register", () => {
     expect(res.body).toEqual(
       expect.objectContaining({
         status: "fail",
-        message: "You do not have permission to perform this action.",
+        message: i18next.t("forbidden_action", {
+          lng: TEST_LANG,
+        }),
       }),
     );
 
