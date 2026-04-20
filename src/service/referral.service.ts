@@ -13,8 +13,10 @@ import type {
 } from "../dto/referral.dto.js";
 import { logger } from "../logger.js";
 import type { PaginationMeta } from "../types/api.types.js";
+import type { Populate, project } from "../types/populate.types.js";
 import { APIFeatures } from "../utils/apiFeatures.js";
 import { getKigaliDayEndUTC, getKigaliDayStartUTC } from "../utils/date.js";
+import { MongoQueryUtils } from "../utils/mongo.query.utils.js";
 
 export class ReferralService implements IReferralService {
   private getTodayBounds(): { startOfToday: Date; endOfToday: Date } {
@@ -123,18 +125,29 @@ export class ReferralService implements IReferralService {
     };
   }
 
-  async getPendingReferralByPatientNumber(
-    patientNumber: number,
-    session: ClientSession,
-  ): Promise<IReferral | null> {
-    const referral = await Referral.findOne({
-      patientNumber,
-      status: "PENDING",
-    })
-      .session(session)
-      .lean()
-      .exec();
-    return referral;
+  async getReferral(
+    filter: any,
+    session?: ClientSession,
+    select?: project,
+    populate?: Populate,
+  ): Promise<IReferralDetails | null> {
+    // 1. Initialize the query
+    let query = Referral.findOne(filter).session(session ?? null);
+
+    // 2. Apply Projection (Select)
+    if (select && Object.keys(select).length > 0) {
+      query = MongoQueryUtils.applySelect(query, select);
+    }
+
+    // // 3. Apply Population logic
+    if (populate && Object.keys(populate).length > 0) {
+      query = MongoQueryUtils.applyPopulate(query, populate);
+    }
+
+    // 4. Execute
+    const referral = await query.lean().exec();
+
+    return referral as IReferralDetails | null;
   }
 
   /**
@@ -232,7 +245,7 @@ export class ReferralService implements IReferralService {
 
     if (!doc) return null;
 
-    const details: IReferralDetails = {
+    const details: any = {
       id: doc._id.toString(),
       userId: doc.userId.toString(),
       patientNumber: doc.patientNumber,
@@ -255,6 +268,10 @@ export class ReferralService implements IReferralService {
     query: Record<string, string | string[] | undefined> = {},
     filter?: {},
   ): Promise<any> {
+    logger.debug(
+      { query, filter },
+      "Getting all referrals with query and filter",
+    );
     const features = new APIFeatures(Referral.find(filter), query)
       .filter()
       .sort()

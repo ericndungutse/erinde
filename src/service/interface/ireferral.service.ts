@@ -1,11 +1,11 @@
 import type { ClientSession } from "mongoose";
-import type { IReferral } from "../../domain/referral.js";
 import type {
   IReferralDetails,
   IReferralMetricsSummary,
   IReferralSummary,
 } from "../../dto/referral.dto.js";
 import type { IReferralDocument } from "../../models/referral.model.js";
+import type { Populate, project } from "../../types/populate.types.js";
 export interface IReferralService {
   countTotalReferrals(filter?: Record<string, unknown>): Promise<number>;
 
@@ -64,8 +64,10 @@ export interface IReferralService {
   /**
    * Get a single referral by patient number. No population, raw referral data only.
    */
-  getPendingReferralByPatientNumber(
-    patientNumber: number,
+  getReferral(
+    filter: any,
     session?: ClientSession,
-  ): Promise<IReferral | null>;
+    select?: project,
+    populate?: Populate,
+  ): Promise<IReferralDetails | null>;
 }

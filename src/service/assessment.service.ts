@@ -3,13 +3,13 @@ import Indicator from "../models/indicator.model.js";
 
 import AssessmentClassifier from "./assessment-classifier.service.js";
 
+import { subHours } from "date-fns";
 import mongoose from "mongoose";
 import { ModelNames } from "../constants/constant.values.js";
 import type {
   IAssessment,
   IAssessmentClassification,
 } from "../domain/assessment.js";
-import type { IReferral } from "../domain/referral.js";
 import type {
   AssessmentCreatedResponseDTO,
   AssessmentDetailsDTO,
@@ -26,7 +26,6 @@ import type { IAssessmentService } from "./interface/iassessment.service.js";
 import type { ICommunitHealthUnitService } from "./interface/icommunitHealthUnit.service.js";
 import type { IReferralService } from "./interface/ireferral.service.js";
 import type { IUserService } from "./interface/iuser.service.js";
-import { subHours } from "date-fns";
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;

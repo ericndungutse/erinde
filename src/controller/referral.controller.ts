@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import type { IReferralService } from "../service/interface/ireferral.service.js";
 import type { ReferralStatus } from "../types/ReferralStatus.types.js";
 import ResponseFactory from "./responseFactory.js";
+import ParameterIsRequiredError from "../Errors/ParameterIsRequiredError.js";
 
 export default class ReferralController {
   private _referralService: IReferralService;
@@ -136,6 +137,49 @@ export default class ReferralController {
         status: "error",
         message: error?.message || "Failed to fetch referral",
       });
+    }
+  }
+
+  // Get Referral by patient number
+  async getReferralByPatientNumber(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { patientNumber } = req.params;
+      if (!patientNumber) {
+        return next(new ParameterIsRequiredError("patientNumber"));
+      }
+
+      const referral = await this._referralService.getReferral(
+        {
+          patientNumber: Number(patientNumber),
+          ...(req.referralFilter || {}),
+        },
+        undefined,
+        {
+          _id: 1,
+          patientNumber: 1,
+          from: 1,
+          fromType: 1,
+          to: 1,
+          scheduledVisitDate: 1,
+          status: 1,
+        },
+        [
+          { ref: "from", allFields: true },
+          { ref: "to", allFields: true },
+        ],
+      );
+
+      ResponseFactory.getResponseFactory(res).ok({
+        key: "referral",
+        data: referral,
+        message: "Referral retrieved successfully",
+      });
+    } catch (error: any) {
+      next(error);
     }
   }
 }

@@ -1,3 +1,4 @@
+import type { IReferral } from "../domain/referral.js";
 import type { ReferralStatus } from "../types/ReferralStatus.types.js";
 import type { PaginationMeta } from "../types/api.types.js";
 
@@ -11,19 +12,8 @@ export interface IReferralSummary {
 }
 
 // Details DTO for a single referral (no population)
-export interface IReferralDetails {
+export interface IReferralDetails extends IReferral {
   id: string;
-  userId: string;
-  patientNumber: number;
-  to: string;
-  referralDate: Date | string;
-  scheduledVisitDate: Date | string;
-  status: ReferralStatus;
-  assessments: string[]; // ObjectId strings
-  referredBy: string; // ObjectId string
-  createdAt: Date;
-  updatedAt: Date;
-  visitDate: Date;
 }
 
 export interface IReferralMetricsSummary {
