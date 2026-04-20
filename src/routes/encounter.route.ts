@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { container } from "../container.js";
-import { CreateEncounterSchema } from "../dto/encounter.dto.js";
+import {
+  CreateEncounterForExistingPatientSchema,
+  CreateEncounterSchema,
+} from "../dto/encounter.dto.js";
 import { resolveNurseEncounterContext } from "../middleware/encounter.middleware.js";
 import { authorize, protect } from "../security/auth.middleware.js";
 import { UserRole } from "../types/roles.types.js";
@@ -17,6 +20,7 @@ router.post(
   "/",
   protect,
   authorize(UserRole.NURSE),
+  validateBody(CreateEncounterForExistingPatientSchema),
   validateBody(CreateEncounterSchema),
   resolveNurseEncounterContext,
   (req, res, next) =>
