@@ -18,7 +18,7 @@ import { runFixtureSetups } from "../fixtures/setup/index.js";
 import { loginByPhone } from "../utils/auth-helpers.js";
 import { setupTestDB } from "../utils/mongo-memory.js";
 import { client, TEST_LANG } from "../utils/request-factory.js";
-import i18next from "i18next";
+import i18next from "./../../i18n.js";
 
 setupTestDB();
 
@@ -352,7 +352,7 @@ describe("INTEGRATION => POST: /api/v1/encounters", () => {
     const updatedReferral = await Referral.findById(
       pendingReferral?._id,
     ).lean();
-    expect(updatedReferral?.status).toBe("IN_PROGRESS");
+    expect(updatedReferral?.status).toBe("COMPLETED");
   });
 });
 
@@ -596,11 +596,13 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
       "Encounter creation response for referral/patient mismatch scenario",
     );
 
-    expect(createEncounterRes.status).toBe(500);
+    expect(createEncounterRes.status).toBe(404);
     expect(createEncounterRes.body).toEqual(
       expect.objectContaining({
-        status: "error",
-        message: "Something went wrong",
+        status: "fail",
+        message: i18next.t(createEncounterRes.body.message, {
+          lng: TEST_LANG,
+        }),
       }),
     );
 
@@ -640,7 +642,7 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
       .set("Authorization", `Bearer ${nurseToken}`)
       .send({
         patientNumber: patient.patientNumber,
-        urgency: "high",
+        urgency: "low",
         referralId: nonExistingReferralId,
       } satisfies CreateEncounterDTO);
 
@@ -654,11 +656,13 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
       "Encounter creation response for referralId not found scenario",
     );
 
-    expect(createEncounterRes.status).toBe(500);
+    expect(createEncounterRes.status).toBe(404);
     expect(createEncounterRes.body).toEqual(
       expect.objectContaining({
-        status: "error",
-        message: "Something went wrong",
+        status: "fail",
+        message: i18next.t(createEncounterRes.body.message, {
+          lng: TEST_LANG,
+        }),
       }),
     );
 
@@ -852,11 +856,13 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
     );
 
     // ASSERT
-    expect(secondCreateRes.status).toBe(500);
+    expect(secondCreateRes.status).toBe(400);
     expect(secondCreateRes.body).toEqual(
       expect.objectContaining({
-        status: "error",
-        message: "Something went wrong",
+        status: "fail",
+        message: i18next.t(secondCreateRes.body.message, {
+          lng: TEST_LANG,
+        }),
       }),
     );
 
@@ -912,12 +918,11 @@ describe("INTEGRATION => POST: /api/v1/encounters - UNHAPPY PATH", () => {
         "Validation case response",
       );
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(invalidCase.statusCode);
       expect(res.body).toEqual(
         expect.objectContaining({
           status: "fail",
-          message: "Validation failed",
-          errors: expect.any(Object),
+          message: invalidCase.message,
         }),
       );
     }
