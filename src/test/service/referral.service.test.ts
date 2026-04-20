@@ -210,32 +210,6 @@ describe("ReferralService.createReferral", () => {
 });
 
 // TODO After Implementing the feature
-describe.skip("ReferralService.getPendingReferralByPatientNumber", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns pending referral scoped by patient number and session", async () => {
-    const service = new ReferralService();
-    const referral = { _id: "ref-1", patientNumber: 1001, status: "PENDING" };
-    const query = createSessionLeanExecQuery(referral);
-    const session = { id: "session-1" };
-
-    vi.spyOn(Referral, "findOne").mockReturnValue(query as any);
-
-    const result = await service.getPendingReferralByPatientNumber(
-      1001,
-      session as any,
-    );
-
-    expect(Referral.findOne).toHaveBeenCalledWith({
-      patientNumber: 1001,
-      status: "PENDING",
-    });
-    expect(query.session).toHaveBeenCalledWith(session);
-    expect(result).toEqual(referral);
-  });
-});
 
 //TODO CHECK THIS ONE
 describe("ReferralService.getCommingReferralVisitsIn48h", () => {

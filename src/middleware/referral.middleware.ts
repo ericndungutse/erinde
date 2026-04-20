@@ -83,7 +83,8 @@ export async function checkPendingReferral(
   }
 }
 
-export function resolveGetAllReferralFilter(
+// Gives from and fromType
+export function resolveSourceFilter(
   req: Request,
   res: Response,
   next: NextFunction,
