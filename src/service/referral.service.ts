@@ -132,7 +132,11 @@ export class ReferralService implements IReferralService {
     populate?: Populate,
   ): Promise<IReferralDetails | null> {
     // 1. Initialize the query
-    let query = Referral.findOne(filter).session(session ?? null);
+
+    let query = Referral.findOne({
+      ...filter,
+      status: filter.status ?? "PENDING",
+    }).session(session ?? null);
 
     // 2. Apply Projection (Select)
     if (select && Object.keys(select).length > 0) {

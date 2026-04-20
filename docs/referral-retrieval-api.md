@@ -14,9 +14,9 @@ flowchart TD
     A[GET /referrals* request] --> B[protect + authorize]
     B --> C[resolveSourceFilter middleware]
     C --> D{User role + assignment}
-    D -->|NURSE + hospitalId| E[req.referralFilter = { to: hospitalId }]
-    D -->|SOCIAL_HEALTH_WORKER + managed CHU| F[req.referralFilter = { from: chuId, fromType: CommunityHealthUnit }]
-    D -->|No scope| G[req.referralFilter = {}]
+    D -->|NURSE + hospitalId| E[set referralFilter to= hospitalId]
+    D -->|SOCIAL_HEALTH_WORKER + managed CHU| F[set referralFilter from= chuId, fromType= CommunityHealthUnit]
+    D -->|No scope| G[set referralFilter empty]
 ```
 
 ## Get All Referrals (GET /referrals)
@@ -24,14 +24,14 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Client GET /referrals] --> B[protect + authorize]
-    B --> C[resolveSourceFilter -> req.referralFilter]
+    B --> C[resolveSourceFilter sets referralFilter]
     C --> D[ReferralController.getReferrals]
     D --> E{status query valid?}
     E -->|no| F[400 Invalid status]
-    E -->|yes| G[ReferralService.getAllReferrals(query, referralFilter)]
-    G --> H[APIFeatures: filter -> sort -> limitFields -> paginate]
+    E -->|yes| G[ReferralService.getAllReferrals with query and referralFilter]
+    G --> H[APIFeatures: filter, sort, limitFields, paginate]
     H --> I[Run query + count for pagination]
-    I --> J[200 { referrals, pagination }]
+    I --> J[200 referrals + pagination]
 ```
 
 **Query handling (APIFeatures)**
@@ -46,14 +46,14 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Client GET /referrals/patient/:patientNumber] --> B[protect + authorize]
-    B --> C[resolveSourceFilter -> req.referralFilter]
+    B --> C[resolveSourceFilter sets referralFilter]
     C --> D[ReferralController.getReferralByPatientNumber]
     D --> E{patientNumber present?}
     E -->|no| F[ParameterIsRequiredError]
-    E -->|yes| G[ReferralService.getReferral(filter)]
-    G --> H[Referral.findOne(filter)]
-    H --> I[Select fields + populate from/to]
-    I --> J[200 { referral }]
+    E -->|yes| G[ReferralService.getReferral with filter]
+    G --> H[Referral.findOne with filter]
+    H --> I[Select fields + populate from and to]
+    I --> J[200 referral]
 ```
 
 **Single-referral filter and shape**
