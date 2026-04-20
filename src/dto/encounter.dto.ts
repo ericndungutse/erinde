@@ -28,7 +28,7 @@ export const CreateEncounterForExistingPatientSchema = z.object({
 
 // DTO: encounter creation when patient does not exist yet.
 export const CreateEncounterForNewPatientSchema = z.object({
-  registerUserDto: RegisterUserSchema,
+  registerUserDto: RegisterUserSchema.optional(),
   urgency: EncounterUrgencySchema,
 });
 

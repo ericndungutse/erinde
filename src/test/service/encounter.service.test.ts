@@ -10,6 +10,8 @@ import ReferralHospitalMismatchError from "../../Errors/ReferralHospitalMismatch
 import Encounter from "../../models/encounter.model.js";
 import Referral from "../../models/referral.model.js";
 import EncounterService from "../../service/encounter.service.js";
+import OpenEncounterAlreadyExistsError from "../../Errors/OpenEncounterAlreadyExistsError.js";
+import ReferralNotFoundForPatientNumber from "../../Errors/ReferralNotFoundForPatientNumber.js";
 
 function createSessionMock() {
   return {
@@ -118,7 +120,7 @@ describe("EncounterService.createEncounterByNurse", () => {
     expect(referralQuery.session).toHaveBeenCalledWith(session);
     expect(referralQuery.sort).toHaveBeenCalledWith({ referralDate: -1 });
     expect(referralDoc.save).toHaveBeenCalledWith({ session });
-    expect(referralDoc.status).toBe("IN_PROGRESS");
+    expect(referralDoc.status).toBe("COMPLETED");
     expect(createSpy).toHaveBeenCalledTimes(1);
     expect(result).toEqual({
       id: "enc-1",
@@ -224,7 +226,7 @@ describe("EncounterService.createEncounterByNurse", () => {
         "nurse-4",
         "hospital-1",
       ),
-    ).rejects.toThrow("Referral not found for the provided patientNumber");
+    ).rejects.toThrow(new ReferralNotFoundForPatientNumber());
 
     expect(createSpy).not.toHaveBeenCalled();
     expect(session.commitTransaction).not.toHaveBeenCalled();
@@ -246,7 +248,7 @@ describe("EncounterService.createEncounterByNurse", () => {
         "nurse-5",
         "hospital-1",
       ),
-    ).rejects.toThrow("An open encounter already exists for this patient");
+    ).rejects.toThrow(new OpenEncounterAlreadyExistsError());
 
     expect(referralSpy).not.toHaveBeenCalled();
     expect(createSpy).not.toHaveBeenCalled();

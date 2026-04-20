@@ -168,10 +168,17 @@ export default class ReferralController {
           status: 1,
         },
         [
-          { ref: "from", allFields: true },
-          { ref: "to", allFields: true },
+          { ref: "from", fields: ["name"] },
+          { ref: "to", fields: ["name"] },
         ],
       );
+
+      if (!referral) {
+        return res.status(404).json({
+          status: "fail",
+          message: `No referral found for patient number ${patientNumber}`,
+        });
+      }
 
       ResponseFactory.getResponseFactory(res).ok({
         key: "referral",

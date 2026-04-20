@@ -7,11 +7,13 @@ import type {
 } from "../dto/encounter.dto.js";
 import PatientNotFoundException from "../Errors/PatientNotFoundException.js";
 import ReferralHospitalMismatchError from "../Errors/ReferralHospitalMismatchError.js";
+import OpenEncounterAlreadyExistsError from "../Errors/OpenEncounterAlreadyExistsError.js";
 import Encounter from "../models/encounter.model.js";
 import Referral from "../models/referral.model.js";
 import type { IEncounterService } from "./interface/iencounter.service.js";
 import type { IUserService } from "./interface/iuser.service.js";
 import { logger } from "../logger.js";
+import ReferralNotFoundForPatientNumber from "../Errors/ReferralNotFoundForPatientNumber.js";
 
 export class EncounterService implements IEncounterService {
   private _userService: IUserService;
@@ -56,7 +58,7 @@ export class EncounterService implements IEncounterService {
           { patientNumber, existingEncounterId: existingOpenEncounter._id },
           "Attempt to create encounter for patient with existing open encounter",
         );
-        throw new Error("An open encounter already exists for this patient");
+        throw new OpenEncounterAlreadyExistsError();
       }
 
       logger.debug({ patientNumber }, "No open encounter exists for patient");
@@ -85,7 +87,7 @@ export class EncounterService implements IEncounterService {
             { referralId: dto.referralId, patientNumber },
             "Provided referral ID not found or not in PENDING status",
           );
-          throw new Error("Referral not found for the provided patientNumber");
+          throw new ReferralNotFoundForPatientNumber();
         }
 
         if (referral) {
@@ -113,12 +115,13 @@ export class EncounterService implements IEncounterService {
             "Referral hospital validation passed",
           );
 
-          referral.status = "IN_PROGRESS" as any;
+          referral.status = "COMPLETED";
+
           await referral.save({ session });
           referralId = referral.id;
           logger.info(
             { referralId: referral._id },
-            "Referral status updated to IN_PROGRESS",
+            "Referral status updated to COMPLETED",
           );
         } else {
           logger.debug(
@@ -213,17 +216,22 @@ export class EncounterService implements IEncounterService {
         "Existing patient resolved successfully",
       );
       return dto.patientNumber;
+    } else if (dto.registerUserDto) {
+      logger.info("Registering new patient for encounter creation");
+      const registered = await this._userService.registerUser(
+        dto.registerUserDto,
+      );
+      logger.info(
+        { patientNumber: registered.patientNumber },
+        "New patient registered successfully",
+      );
+      return registered.patientNumber;
     }
 
-    logger.info("Registering new patient for encounter creation");
-    const registered = await this._userService.registerUser(
-      dto.registerUserDto,
+    logger.warn(
+      "No patient information provided in encounter creation DTO And no patient number to resolve",
     );
-    logger.info(
-      { patientNumber: registered.patientNumber },
-      "New patient registered successfully",
-    );
-    return registered.patientNumber;
+    throw new PatientNotFoundException();
   }
 
   private isExistingPatientPayload(

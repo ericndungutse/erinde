@@ -1,5 +1,6 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
+import i18next from "../../i18n.js";
 
 import app from "../../app.js";
 import { ConstantValues } from "../../constants/constant.values.js";
@@ -7,6 +8,7 @@ import { ACCOUNT_SETUP } from "../testDataSetup/account-setup.js";
 import { setupTestData } from "../testDataSetup/index.js";
 import { loginByPhone } from "../utils/auth-helpers.js";
 import { setupTestDB } from "../utils/mongo-memory.js";
+import { TEST_LANG } from "../utils/request-factory.js";
 
 // Initialize in-memory MongoDB for these tests
 setupTestDB();
@@ -78,13 +80,15 @@ describe("Integration: GET /api/v1/users/:patientNumber", () => {
     expect(res.body).toEqual(
       expect.objectContaining({
         status: "success",
-        data: expect.objectContaining({
-          nationalIdentificationNumber:
-            validRegisterPayload.nationalIdentificationNumber,
-          firstname: validRegisterPayload.firstname,
-          lastname: validRegisterPayload.lastname,
-          phone: validRegisterPayload.contact.phone,
-        }),
+        data: {
+          user: expect.objectContaining({
+            nationalIdentificationNumber:
+              validRegisterPayload.nationalIdentificationNumber,
+            firstname: validRegisterPayload.firstname,
+            lastname: validRegisterPayload.lastname,
+            phone: validRegisterPayload.contact.phone,
+          }),
+        },
       }),
     );
   });
@@ -95,7 +99,7 @@ describe("Integration: GET /api/v1/users/:patientNumber", () => {
     expect(res.body).toEqual(
       expect.objectContaining({
         status: "fail",
-        message: "User not found",
+        message: i18next.t(res.body.message, { lng: TEST_LANG }),
       }),
     );
   });

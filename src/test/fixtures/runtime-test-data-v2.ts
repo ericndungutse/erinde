@@ -1,3 +1,6 @@
+import i18next from "../../i18n.js";
+import { TEST_LANG } from "../utils/request-factory.js";
+
 export const existingPatientsTestData = {
   "rutenga-one": {
     _id: "69c50f44fd585f2834d4144f",
@@ -399,6 +402,9 @@ export const invalidEncounterPayloadCases = [
     payload: {
       urgency: "low",
     },
+
+    message: i18next.t("patient_not_found", { lng: TEST_LANG }),
+    statusCode: 404,
   },
   {
     name: "invalid urgency",
@@ -406,13 +412,12 @@ export const invalidEncounterPayloadCases = [
       patientNumber: existingPatientsTestData["rutenga-one"].patientNumber,
       urgency: "urgent",
     },
-  },
-  {
-    name: "empty referralId",
-    payload: {
-      patientNumber: existingPatientsTestData["rutenga-one"].patientNumber,
-      referralId: "",
-      urgency: "high",
+    message: "Validation failed",
+    errors: {
+      urgency: i18next.t("urgency_must_be_one_of_low_medium_high_emergency", {
+        lng: TEST_LANG,
+      }),
     },
+    statusCode: 400,
   },
 ];

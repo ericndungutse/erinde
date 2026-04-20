@@ -1,6 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
-import type { Request, Response } from 'express';
-import UserController from '../../controller/user.controller.js';
+import { describe, it, expect, vi } from "vitest";
+import type { Request, Response } from "express";
+import UserController from "../../controller/user.controller.js";
+import i18next from "./../../i18n.js";
+import { TEST_LANG } from "../utils/request-factory.js";
 
 function createMockRes(): Response & { statusCode?: number; body?: any } {
   const res: any = {};
@@ -16,8 +18,8 @@ function createMockRes(): Response & { statusCode?: number; body?: any } {
   return res as Response & { statusCode?: number; body?: any };
 }
 
-describe('UserController.findUserByPatientNumberController', () => {
-  it('returns 400 when patient number is missing', async () => {
+describe("UserController.findUserByPatientNumberController", () => {
+  it("returns 400 when patient number is missing", async () => {
     const mockService: any = { findUserByPatientNumber: vi.fn() };
     const controller = new UserController(mockService);
 
@@ -29,17 +31,19 @@ describe('UserController.findUserByPatientNumberController', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual(
       expect.objectContaining({
-        status: 'fail',
-        message: 'Patient number is required',
+        status: "fail",
+        message: "Patient number is required",
       }),
     );
   });
 
-  it('returns 404 when user not found', async () => {
-    const mockService: any = { findUserByPatientNumber: vi.fn().mockResolvedValue(null) };
+  it("returns 404 when user not found", async () => {
+    const mockService: any = {
+      findUserByPatientNumber: vi.fn().mockResolvedValue(null),
+    };
     const controller = new UserController(mockService);
 
-    const req = { params: { patientNumber: '12345' } } as unknown as Request;
+    const req = { params: { patientNumber: "12345" } } as unknown as Request;
     const res = createMockRes();
 
     await controller.findUserByPatientNumberController(req, res);
@@ -47,17 +51,22 @@ describe('UserController.findUserByPatientNumberController', () => {
     expect(res.statusCode).toBe(404);
     expect(res.body).toEqual(
       expect.objectContaining({
-        status: 'fail',
-        message: 'User not found',
+        status: "fail",
+        message: i18next.t(res.body.message, {
+          patient_number: "12345",
+          lng: TEST_LANG,
+        }),
       }),
     );
   });
 
-  it('returns 500 when service throws an error', async () => {
-    const mockService: any = { findUserByPatientNumber: vi.fn().mockRejectedValue(new Error('Boom')) };
+  it("returns 500 when service throws an error", async () => {
+    const mockService: any = {
+      findUserByPatientNumber: vi.fn().mockRejectedValue(new Error("Boom")),
+    };
     const controller = new UserController(mockService);
 
-    const req = { params: { patientNumber: '12345' } } as unknown as Request;
+    const req = { params: { patientNumber: "12345" } } as unknown as Request;
     const res = createMockRes();
 
     await controller.findUserByPatientNumberController(req, res);
@@ -65,8 +74,8 @@ describe('UserController.findUserByPatientNumberController', () => {
     expect(res.statusCode).toBe(500);
     expect(res.body).toEqual(
       expect.objectContaining({
-        status: 'error',
-        message: 'Boom',
+        status: "error",
+        message: "Boom",
       }),
     );
   });

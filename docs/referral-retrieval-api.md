@@ -10,28 +10,50 @@ Implementation flow and query behavior for referral retrieval endpoints. Intende
 ## Shared Source Filter Resolution (resolveSourceFilter)
 
 ```mermaid
-flowchart TD
-    A[GET /referrals* request] --> B[protect + authorize]
-    B --> C[resolveSourceFilter middleware]
-    C --> D{User role + assignment}
-    D -->|NURSE + hospitalId| E[set referralFilter to= hospitalId]
-    D -->|SOCIAL_HEALTH_WORKER + managed CHU| F[set referralFilter from= chuId, fromType= CommunityHealthUnit]
-    D -->|No scope| G[set referralFilter empty]
+sequenceDiagram
+    participant Client
+    participant Auth as protect + authorize
+    participant Scope as resolveSourceFilter
+    participant API
+
+    Client->>Auth: GET /referrals* request
+    Auth->>Scope: resolve scope from user
+    Scope->>Scope: resolve role + assignment
+    alt NURSE + hospitalId
+        Scope->>API: set referralFilter to hospitalId
+    else SOCIAL_HEALTH_WORKER + managed CHU
+        Scope->>API: set referralFilter from chuId + fromType CommunityHealthUnit
+    else No scope
+        Scope->>API: set referralFilter empty
+    end
 ```
 
 ## Get All Referrals (GET /referrals)
 
 ```mermaid
-flowchart TD
-    A[Client GET /referrals] --> B[protect + authorize]
-    B --> C[resolveSourceFilter sets referralFilter]
-    C --> D[ReferralController.getReferrals]
-    D --> E{status query valid?}
-    E -->|no| F[400 Invalid status]
-    E -->|yes| G[ReferralService.getAllReferrals with query and referralFilter]
-    G --> H[APIFeatures: filter, sort, limitFields, paginate]
-    H --> I[Run query + count for pagination]
-    I --> J[200 referrals + pagination]
+sequenceDiagram
+    participant Client
+    participant Auth as protect + authorize
+    participant Scope as resolveSourceFilter
+    participant Controller as ReferralController
+    participant Service as ReferralService
+    participant Features as APIFeatures
+    participant DB as MongoDB
+
+    Client->>Auth: GET /referrals
+    Auth->>Scope: resolve scope
+    Scope->>Controller: referralFilter attached
+    Controller->>Controller: validate status query
+    alt invalid status
+        Controller-->>Client: 400 Invalid status
+    else valid status
+        Controller->>Service: getAllReferrals(query, referralFilter)
+        Service->>Features: filter + sort + limitFields + paginate
+        Features->>DB: find + count
+        DB-->>Service: referrals + total
+        Service-->>Controller: referrals + pagination
+        Controller-->>Client: 200 referrals + pagination
+    end
 ```
 
 **Query handling (APIFeatures)**
@@ -44,16 +66,27 @@ flowchart TD
 ## Get Referral By Patient Number (GET /referrals/patient/:patientNumber)
 
 ```mermaid
-flowchart TD
-    A[Client GET /referrals/patient/:patientNumber] --> B[protect + authorize]
-    B --> C[resolveSourceFilter sets referralFilter]
-    C --> D[ReferralController.getReferralByPatientNumber]
-    D --> E{patientNumber present?}
-    E -->|no| F[ParameterIsRequiredError]
-    E -->|yes| G[ReferralService.getReferral with filter]
-    G --> H[Referral.findOne with filter]
-    H --> I[Select fields + populate from and to]
-    I --> J[200 referral]
+sequenceDiagram
+    participant Client
+    participant Auth as protect + authorize
+    participant Scope as resolveSourceFilter
+    participant Controller as ReferralController
+    participant Service as ReferralService
+    participant DB as MongoDB
+
+    Client->>Auth: GET /referrals/patient/:patientNumber
+    Auth->>Scope: resolve scope
+    Scope->>Controller: referralFilter attached
+    Controller->>Controller: validate patientNumber
+    alt missing patientNumber
+        Controller-->>Client: ParameterIsRequiredError
+    else patientNumber present
+        Controller->>Service: getReferral(filter)
+        Service->>DB: findOne + select + populate
+        DB-->>Service: referral
+        Service-->>Controller: referral
+        Controller-->>Client: 200 referral
+    end
 ```
 
 **Single-referral filter and shape**

@@ -28,5 +28,8 @@
   "field_cannot_be_empty": "{{ field }} ntishobora kuba ubusa.",
   "patient_number_is_required": "Nimero y'umurwayi irakenewe.",
   "patient_number_must_be_positive": "Nimero y'umurwayi igomba kuba iruta zero.",
-  "urgency_must_be_one_of_low_medium_high_emergency": "Ubukana bugomba kuba bumwe muri ibi bikurikira: low, medium, high, emergency."
+  "urgency_must_be_one_of_low_medium_high_emergency": "Ubukana bugomba kuba bumwe muri ibi bikurikira: low, medium, high, emergency.",
+  "patient_not_found_with_patient_number": "Nta murwayi wabonetse ufite nimero y'umurwayi yatanzwe: {{ patient_number }}",
+  "open_encounter_already_exists": "Encounter ifunguye isanzwe ibaho kuri uyu murwayi.",
+  "referral_not_found_for_patient_number": "Referral ntibibashije kuboneka kuri nimero y'umurwayi yatanzwe."
 }
