@@ -26,6 +26,9 @@ import type { IAssessmentService } from "./interface/iassessment.service.js";
 import type { ICommunitHealthUnitService } from "./interface/icommunitHealthUnit.service.js";
 import type { IReferralService } from "./interface/ireferral.service.js";
 import type { IUserService } from "./interface/iuser.service.js";
+import { getKigaliDayStartUTC } from "../utils/date.js";
+import { logger } from "../logger.js";
+import { log } from "node:console";
 
 export default class AssessmentService implements IAssessmentService {
   private referralService: IReferralService;
@@ -155,11 +158,18 @@ export default class AssessmentService implements IAssessmentService {
   async listAssessmentsByEvaluatorLast24Hours(
     evaluatorId: string,
   ): Promise<RecentAssessmentSummaryDTO[]> {
+    logger.info(
+      `Listing assessments for evaluator ${evaluatorId} in the last 24 hours - calculating since time... Now: ${new Date().toISOString()}`,
+    );
+
+    // Should be KigaliUTC - 2h - 24h = KigaliUTC - 26h, to cover the entire previous day in Kigali time
     const since = subHours(new Date(), 24);
+
+    logger.info(`Since time calculated: ${since.toISOString()}`);
 
     const assessments = await Assessment.find({
       evaluatedBy: new mongoose.Types.ObjectId(evaluatorId),
-      evaluatedAt: { $gte: since },
+      evaluatedAt: { $gte: getKigaliDayStartUTC(new Date(since)) },
     })
       .select("patientNumber patient indicator classification _id")
       .populate("patient", "_id firstname lastname")
@@ -257,7 +267,7 @@ export default class AssessmentService implements IAssessmentService {
       takenFrom: dto.takenFrom,
       takenFromType: dto.takenFromType,
       evaluatedAt: new Date(),
-      evaluatedDate: new Date(new Date().setHours(0, 0, 0, 0)),
+      evaluatedDate: new Date(),
     } as IAssessment;
   }
 
