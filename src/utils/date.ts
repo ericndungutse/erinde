@@ -1,4 +1,7 @@
+import { logger } from "../logger.js";
+
 export function getKigaliDayStartUTC(dateTime: Date): Date {
+  logger.info(`Calculating Kigali day start for ${dateTime.toISOString()}`);
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Africa/Kigali",
     year: "numeric",
@@ -9,6 +12,8 @@ export function getKigaliDayStartUTC(dateTime: Date): Date {
   const year = parts.find((p) => p.type === "year")!.value;
   const month = parts.find((p) => p.type === "month")!.value;
   const day = parts.find((p) => p.type === "day")!.value;
+
+  logger.info(`Kigali day start calculated for ${year}-${month}-${day}`);
 
   return new Date(`${year}-${month}-${day}T00:00:00+02:00`);
 }

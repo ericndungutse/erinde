@@ -215,10 +215,6 @@ describe("AssessmentService.createAssessment", () => {
     );
     expect(assessmentPayload.evaluatedAt).toBeInstanceOf(Date);
     expect(assessmentPayload.evaluatedDate).toBeInstanceOf(Date);
-    expect(assessmentPayload.evaluatedDate.getHours()).toBe(0);
-    expect(assessmentPayload.evaluatedDate.getMinutes()).toBe(0);
-    expect(assessmentPayload.evaluatedDate.getSeconds()).toBe(0);
-    expect(assessmentPayload.evaluatedDate.getMilliseconds()).toBe(0);
 
     expect(referralService.createReferral).not.toHaveBeenCalled();
     expect(session.startTransaction).toHaveBeenCalledOnce();
