@@ -14,7 +14,7 @@ This document describes the current persisted data model, with explicit relation
 
 1. **users**
    - Stores people in the system (patients and staff).
-   - Uses a discriminator for **Nurse** records (`role = "NURSE"`) that include `hospitalId`.
+   - Uses a discriminator for **Nurse** records (`role = "Nurse"` discriminator value) that include `hospitalId`.
 
 2. **accounts**
    - Authentication credentials and account state.
