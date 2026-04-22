@@ -4,7 +4,7 @@ import ClinicalProfile from "../models/clinicalProfile.model.js";
 import Referral, { type IReferralDocument } from "../models/referral.model.js";
 import type { IReferralService } from "./interface/ireferral.service.js";
 
-import { addHours } from "date-fns";
+import { addHours, endOfDay, startOfDay } from "date-fns";
 import type { IReferral } from "../domain/referral.js";
 import type {
   IReferralDetails,
@@ -15,15 +15,16 @@ import { logger } from "../logger.js";
 import type { PaginationMeta } from "../types/api.types.js";
 import type { Populate, project } from "../types/populate.types.js";
 import { APIFeatures } from "../utils/apiFeatures.js";
-import { getKigaliDayEndUTC, getKigaliDayStartUTC } from "../utils/date.js";
+import { convertToKigaliTime } from "../utils/date.js";
 import { MongoQueryUtils } from "../utils/mongo.query.utils.js";
 
 export class ReferralService implements IReferralService {
   private getTodayBounds(): { startOfToday: Date; endOfToday: Date } {
-    const now = new Date();
+    // Server time now: Ensure if on a remote server, we are calculating Kigali day bounds based on current server time converted to Kigali timezone
+    const now = convertToKigaliTime(new Date());
     return {
-      startOfToday: getKigaliDayStartUTC(now),
-      endOfToday: getKigaliDayEndUTC(now),
+      startOfToday: startOfDay(now),
+      endOfToday: endOfDay(now),
     };
   }
 
@@ -53,11 +54,18 @@ export class ReferralService implements IReferralService {
     filter: Record<string, unknown> = {},
   ): Promise<number> {
     const { startOfToday } = this.getTodayBounds();
-    return this.countReferrals({
+    logger.info(
+      `Getting count of pending referrals with scheduledVisitDate >= ${startOfToday} and filter: ${JSON.stringify(filter)}`,
+    );
+    const count = await this.countReferrals({
       ...filter,
       status: "PENDING",
       scheduledVisitDate: { $gte: startOfToday },
     });
+    logger.info(
+      `Counted ${count} pending referrals with scheduledVisitDate >= ${startOfToday} and filter: ${JSON.stringify(filter)}`,
+    );
+    return count;
   }
 
   async countScheduledTodayReferrals(
@@ -65,13 +73,28 @@ export class ReferralService implements IReferralService {
   ): Promise<number> {
     const { startOfToday, endOfToday } = this.getTodayBounds();
 
-    return this.countReferrals({
+    logger.info(
+      `Getting count of referrals scheduled for today from ${startOfToday} to ${endOfToday} with filter: ${JSON.stringify(filter)}`,
+    );
+
+    logger.info(
+      `Mongodb Converting startOfToday to ${startOfToday.toISOString()}`,
+    );
+    logger.info(`Mongodb Converting endOfToday to ${endOfToday.toISOString()}`);
+
+    const count = await this.countReferrals({
       ...filter,
       scheduledVisitDate: {
         $gte: startOfToday,
         $lt: endOfToday,
       },
     });
+
+    logger.info(
+      `Counted ${count} referrals scheduled for today with filter: ${JSON.stringify(filter)}`,
+    );
+
+    return count;
   }
 
   // TODO ADD COMPLETED AT FIELD TO REFERRAL TO MAKE THIS MORE ACCURATE
@@ -80,7 +103,11 @@ export class ReferralService implements IReferralService {
   ): Promise<number> {
     const { startOfToday, endOfToday } = this.getTodayBounds();
 
-    return this.countReferrals({
+    logger.info(
+      `Getting count of completed referrals today from ${startOfToday} to ${endOfToday} with filter: ${JSON.stringify(filter)}`,
+    );
+
+    const count = await this.countReferrals({
       ...filter,
       status: "COMPLETED",
       updatedAt: {
@@ -88,6 +115,12 @@ export class ReferralService implements IReferralService {
         $lt: endOfToday,
       },
     });
+
+    logger.info(
+      `Counted ${count} completed referrals for today with filter: ${JSON.stringify(filter)}`,
+    );
+
+    return count;
   }
 
   async countOverdueReferrals(
@@ -95,13 +128,23 @@ export class ReferralService implements IReferralService {
   ): Promise<number> {
     const { startOfToday } = this.getTodayBounds();
 
-    return this.countReferrals({
+    logger.info(
+      `Getting count of overdue referrals with scheduledVisitDate before ${startOfToday} and filter: ${JSON.stringify(filter)}`,
+    );
+
+    const count = await this.countReferrals({
       ...filter,
       status: "PENDING",
       scheduledVisitDate: {
         $lt: startOfToday,
       },
     });
+
+    logger.info(
+      `Counted ${count} overdue referrals with scheduledVisitDate before ${startOfToday} and filter: ${JSON.stringify(filter)}`,
+    );
+
+    return count;
   }
 
   async getReferralMetrics(
@@ -318,17 +361,12 @@ export class ReferralService implements IReferralService {
   async getCommingReferralVisitsIn48h(
     filter: { from?: string; fromType?: string; status?: string } = {},
   ): Promise<IReferralSummary[]> {
-    const now = getKigaliDayStartUTC(new Date());
-    logger.debug(
-      { now: now.toISOString() },
-      "Calculating upcoming referrals in 48h Local time: %s",
-      now,
-    );
+    // Server time
+    const now = convertToKigaliTime(new Date());
     const next48h = addHours(now, 48);
-    logger.debug(
-      { window: next48h.toISOString() },
-      "Next 48h window ends at: %s Local time",
-      next48h,
+
+    logger.info(
+      `Getting upcoming referral visits in 48 hours from ${now} up to ${next48h}`,
     );
 
     const resolvedFilter: any = {
