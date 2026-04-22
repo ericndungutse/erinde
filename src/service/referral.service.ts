@@ -83,7 +83,7 @@ export class ReferralService implements IReferralService {
     return this.countReferrals({
       ...filter,
       status: "COMPLETED",
-      visitDate: {
+      updatedAt: {
         $gte: startOfToday,
         $lt: endOfToday,
       },

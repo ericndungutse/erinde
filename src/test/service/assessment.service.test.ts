@@ -686,6 +686,7 @@ describe("AssessmentService.listAssessmentsByEvaluatorLast24Hours", () => {
         evaluatedBy: expect.any(mongoose.Types.ObjectId),
         evaluatedAt: {
           $gte: expect.any(Date),
+          $lte: expect.any(Date),
         },
       }),
     );
