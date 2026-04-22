@@ -169,7 +169,10 @@ export default class AssessmentService implements IAssessmentService {
 
     const assessments = await Assessment.find({
       evaluatedBy: new mongoose.Types.ObjectId(evaluatorId),
-      evaluatedAt: { $gte: getKigaliDayStartUTC(new Date(since)) },
+      evaluatedAt: {
+        $gte: getKigaliDayStartUTC(new Date(since)),
+        $lte: new Date(),
+      },
     })
       .select("patientNumber patient indicator classification _id")
       .populate("patient", "_id firstname lastname")
