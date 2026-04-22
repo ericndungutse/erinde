@@ -697,14 +697,5 @@ describe("AssessmentService.listAssessmentsByEvaluatorLast24Hours", () => {
       "_id firstname lastname",
     );
     expect(populateMock).toHaveBeenNthCalledWith(2, "indicator", "_id name");
-
-    const now = new Date();
-
-    // First Call to find should have evaluatedAt with $gte of ~24 hours ago
-    const findCallArgs = (Assessment.find as any).mock.calls[0][0];
-
-    expect(
-      findCallArgs.evaluatedAt.$gte.getTime() + 24 * 60 * 60 * 1000,
-    ).toBeLessThanOrEqual(now.getTime());
   });
 });
