@@ -1,11 +1,7 @@
+import { startOfDay } from "date-fns";
 import { type Document, type Query } from "mongoose";
-import { parsePaginationParams } from "./pagination.js";
-import {
-  endOfKigaliDayFromKigaliDate,
-  getKigaliDayStartUTC,
-  startOfKigaliDayFromKigaliDate,
-} from "./date.js";
 import { logger } from "../logger.js";
+import { parsePaginationParams } from "./pagination.js";
 /**
  * Parsed query string from Express req.query.
  * All values are strings at the HTTP layer.
@@ -79,13 +75,13 @@ export class APIFeatures<T extends Document> {
       /"\$(gte|gt)":\s*"(\d{4}-\d{2}-\d{2})"/g,
       (_, op, date) =>
         // We receive Kigali date strings, we get start of the day of that date in Kigali timezone and convert to ISO string for MongoDB
-        `"$${op}":"${startOfKigaliDayFromKigaliDate(date).toISOString()}"`,
+        `"$${op}":"${startOfDay(date)}"`,
     );
     queryStr = queryStr.replace(
       /"\$(lte|lt)":\s*"(\d{4}-\d{2}-\d{2})"/g,
       (_, op, date) =>
         // // We receive Kigali date strings, we get start of the day of that date in Kigali timezone and convert to ISO string for MongoDB
-        `"$${op}":"${startOfKigaliDayFromKigaliDate(date).toISOString()}"`,
+        `"$${op}":"${startOfDay(date)}"`,
     );
 
     // If lt or lte, log it

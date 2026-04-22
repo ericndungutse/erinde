@@ -1,40 +1,17 @@
-import { logger } from "../logger.js";
+// convert UTC dateTime to Kigali dateTime
+export function convertToKigaliTime(dateObject: Date): Date {
+  const KIGALI_OFFSET_MS = 2 * 60 * 60 * 1000;
 
-export function getKigaliDayStartUTC(dateTime: Date): Date {
-  logger.info(`Calculating Kigali day start for ${dateTime.toISOString()}`);
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Africa/Kigali",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(dateTime);
+  // Get the UTC offset of the date in milliseconds
+  // getTimezoneOffset() returns minutes BEHIND UTC, so we negate it
+  const localOffsetMs = -dateObject.getTimezoneOffset() * 60 * 1000;
 
-  const year = parts.find((p) => p.type === "year")!.value;
-  const month = parts.find((p) => p.type === "month")!.value;
-  const day = parts.find((p) => p.type === "day")!.value;
+  // If already at UTC+2 (Kigali), return as-is
+  if (localOffsetMs === KIGALI_OFFSET_MS) {
+    return new Date(dateObject.getTime());
+  }
 
-  logger.info(`Kigali day start calculated for ${year}-${month}-${day}`);
-
-  return new Date(`${year}-${month}-${day}T00:00:00+02:00`);
+  // Convert to UTC first, then apply Kigali offset
+  const utcMs = dateObject.getTime() - localOffsetMs;
+  return new Date(utcMs + KIGALI_OFFSET_MS);
 }
-
-export function getKigaliDayEndUTC(dateTime: Date): Date {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Africa/Kigali",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(dateTime);
-
-  const year = parts.find((p) => p.type === "year")!.value;
-  const month = parts.find((p) => p.type === "month")!.value;
-  const day = parts.find((p) => p.type === "day")!.value;
-
-  return new Date(`${year}-${month}-${day}T23:59:59.999+02:00`);
-}
-
-export const startOfKigaliDayFromKigaliDate = (dateStr: string): Date =>
-  new Date(`${dateStr}T00:00:00.000+02:00`);
-
-export const endOfKigaliDayFromKigaliDate = (dateStr: string): Date =>
-  new Date(`${dateStr}T23:59:59.999+02:00`);
