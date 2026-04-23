@@ -1,6 +1,6 @@
-# Stakeholder Testing Guide (Admin -> CHU -> Patient)
+# Stakeholder Testing Guide (Admin → CHU → SHW → Nurse → Patient)
 
-This guide is for people with no technical background. It explains what to click in the application and what to fill in.
+This guide is for all users, including those with no technical background. It explains what to click in the application, what to fill in, and how to interpret key features such as referrals, dashboard metrics, and nurse actions.
 
 ## What you will do (one complete sample run)
 
@@ -10,7 +10,45 @@ This guide is for people with no technical background. It explains what to click
 4. Login as **Social Health Worker**
 5. Register a **Patient** under the CHU you created
 
-If you start from scratch, follow this order exactly.
+
+If you start from scratch, follow this order exactly. For a visual overview, see the flow below:
+
+```mermaid
+flowchart TD
+      subgraph SHW[Social Health Worker]
+         A1[Login]
+         A2[View Referrals List]
+         A3[View Dashboard]
+         A4[Register Patient]
+         A5[Perform Assessment]
+         A6[Referral Created (if abnormal)]
+         A7[View Referral Details]
+         A8[Mark Referral as Visited (Nurse)]
+      end
+      subgraph Nurse
+         N1[Login]
+         N2[View Assigned Referrals]
+         N3[Complete Referral]
+      end
+      subgraph Metrics
+         M1[Pending Referrals]
+         M2[Completed This Month]
+         M3[Overdue Referrals]
+         M4[Scheduled Today]
+         M5[Completed Today]
+      end
+      A1 --> A2 --> A3
+      A3 --> M1
+      A3 --> M2
+      A3 --> M3
+      A3 --> M4
+      A3 --> M5
+      A2 --> A7
+      A4 --> A5 --> A6 --> A2
+      N1 --> N2 --> N3
+      A7 --> N2
+      N2 --> N3
+```
 
 ## Before you start (assumptions)
 
@@ -87,6 +125,63 @@ So keep the Social Health Worker phone number you entered, because you will use 
   - **Patient Registered**
   - A **Patient Number** (this number is the reference to find that patient later)
 
-## Out of scope for this guide
+---
 
-- **Referrals** (not included in this testing guide).
+## Interpreting Social Health Worker Dashboard Metrics & Stats
+
+The SHW dashboard provides quick insights into your workload and performance:
+
+- **Pending Referrals:** Number of patients needing follow-up.
+- **Overdue Referrals:** Referrals that are past their scheduled visit date and still pending.
+- **Scheduled Today:** Referrals scheduled for today.
+- **Completed Today:** Referrals completed today.
+
+These metrics help you prioritize urgent cases and track your progress.
+
+**Example Dashboard Card:**
+
+| Metric              | Meaning                                      |
+|---------------------|----------------------------------------------|
+| Pending             | Patients needing follow-up                   |
+| Overdue             | Referrals not completed by scheduled date    |
+| Scheduled Today     | Referrals scheduled for today                |
+| Completed Today     | Referrals completed today                    |
+
+---
+
+## How Referrals Flow (Summary)
+
+1. **Assessment**: SHW or volunteer performs an assessment for a patient.
+2. **Referral Creation**: If the result is abnormal, a referral is created for follow-up.
+3. **SHW Dashboard**: SHW sees new pending referrals and upcoming visits.
+4. **Nurse Action**: Nurse completes the referral when the patient visits the hospital.
+5. **Status Update**: Referral status changes to COMPLETED.
+
+---
+
+## Interpreting Assessment Results
+
+When you perform an assessment, the system classifies the result as:
+- **Healthy** (green): No action needed.
+- **Warning** (amber): Monitor, may need follow-up.
+- **Danger** (red): Referral is created for urgent follow-up.
+- **Critical** (red, high emphasis): Immediate attention required; referral is created.
+
+**Tip:** Always check the recommendations provided after each assessment.
+
+---
+
+## FAQ
+
+**Q: What if I can’t find a patient’s referral?**
+A: Make sure you are searching with the correct patient number. If the referral is not listed, check if it was already completed or cancelled.
+
+**Q: Can I register a new patient as a nurse?**
+A: No, only Social Health Workers and Admins can register new patients.
+
+**Q: What happens if a referral is overdue?**
+A: Overdue referrals appear in the dashboard. SHWs should prioritize these for follow-up.
+
+---
+
+For more details, see the API and business logic documentation in the `docs/` folder.
