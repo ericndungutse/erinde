@@ -15,39 +15,42 @@ If you start from scratch, follow this order exactly. For a visual overview, see
 
 ```mermaid
 flowchart TD
-      subgraph SHW[Social Health Worker]
-         A1[Login]
-         A2[View Referrals List]
-         A3[View Dashboard]
-         A4[Register Patient]
-         A5[Perform Assessment]
-         A6[Referral Created (if abnormal)]
-         A7[View Referral Details]
-         A8[Mark Referral as Visited (Nurse)]
-      end
-      subgraph Nurse
-         N1[Login]
-         N2[View Assigned Referrals]
-         N3[Complete Referral]
-      end
-      subgraph Metrics
-         M1[Pending Referrals]
-         M2[Completed This Month]
-         M3[Overdue Referrals]
-         M4[Scheduled Today]
-         M5[Completed Today]
-      end
-      A1 --> A2 --> A3
-      A3 --> M1
-      A3 --> M2
-      A3 --> M3
-      A3 --> M4
-      A3 --> M5
-      A2 --> A7
-      A4 --> A5 --> A6 --> A2
-      N1 --> N2 --> N3
-      A7 --> N2
-      N2 --> N3
+    subgraph SHW["Social Health Worker"]
+        A1[Login]
+        A2[View Referrals List]
+        A3[View Dashboard]
+        A4[Register Patient]
+        A5[Perform Assessment]
+        A6["Referral Created (if abnormal)"]
+        A7[View Referral Details]
+        A8["Mark Referral as Visited (Nurse)"]
+    end
+
+    subgraph Nurse["Nurse"]
+        N1[Login]
+        N2[View Assigned Referrals]
+        N3[Complete Referral]
+    end
+
+    subgraph Metrics["Metrics"]
+        M1[Pending Referrals]
+        M2[Completed This Month]
+        M3[Overdue Referrals]
+        M4[Scheduled Today]
+        M5[Completed Today]
+    end
+
+    A1 --> A2 --> A3
+    A3 --> M1
+    A3 --> M2
+    A3 --> M3
+    A3 --> M4
+    A3 --> M5
+    A2 --> A7
+    A4 --> A5 --> A6 --> A2
+    N1 --> N2 --> N3
+    A7 --> N2
+    N2 --> N3
 ```
 
 ## Before you start (assumptions)
