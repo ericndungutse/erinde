@@ -74,7 +74,21 @@ describe("Integration: GET /api/v1/users/:patientNumber", () => {
     expect(typeof patientNumber).toBe("number");
 
     // Fetch user by patient number
-    const res = await request(app).get(`/api/v1/users/${patientNumber}`);
+    const unauthenticatedRes = await request(app).get(`/api/v1/users/${patientNumber}`);
+    expect(unauthenticatedRes.status).toBe(401);
+
+    const adminToken = await loginByPhone(
+      ACCOUNT_SETUP.ADMIN!.contact.phone,
+      ConstantValues.DEFAULT_PASSWORD,
+    );
+    const forbiddenRes = await request(app)
+      .get(`/api/v1/users/${patientNumber}`)
+      .set("Authorization", `Bearer ${adminToken}`);
+    expect(forbiddenRes.status).toBe(403);
+
+    const res = await request(app)
+      .get(`/api/v1/users/${patientNumber}`)
+      .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual(
@@ -94,7 +108,13 @@ describe("Integration: GET /api/v1/users/:patientNumber", () => {
   });
 
   it("returns 404 when patient number is not found", async () => {
-    const res = await request(app).get("/api/v1/users/999999");
+    const token = await loginByPhone(
+      TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
+      TEST_USERS.SOCIAL_HEALTH_WORKER.password,
+    );
+    const res = await request(app)
+      .get("/api/v1/users/999999")
+      .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(404);
     expect(res.body).toEqual(
       expect.objectContaining({
@@ -105,7 +125,13 @@ describe("Integration: GET /api/v1/users/:patientNumber", () => {
   });
 
   it("returns 500 when patient number is not a valid number (casting error)", async () => {
-    const res = await request(app).get("/api/v1/users/abc");
+    const token = await loginByPhone(
+      TEST_USERS.SOCIAL_HEALTH_WORKER.phone,
+      TEST_USERS.SOCIAL_HEALTH_WORKER.password,
+    );
+    const res = await request(app)
+      .get("/api/v1/users/abc")
+      .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(500);
     expect(res.body).toEqual(
       expect.objectContaining({
