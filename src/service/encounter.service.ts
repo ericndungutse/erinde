@@ -63,6 +63,7 @@ export class EncounterService implements IEncounterService {
 
       logger.debug({ patientNumber }, "No open encounter exists for patient");
 
+      const openedAt = new Date();
       let referralId: string | null = null;
 
       if (this.isExistingPatientPayload(dto)) {
@@ -116,6 +117,7 @@ export class EncounterService implements IEncounterService {
           );
 
           referral.status = "COMPLETED";
+          referral.visitDate = openedAt;
 
           await referral.save({ session });
           referralId = referral.id;
@@ -137,7 +139,7 @@ export class EncounterService implements IEncounterService {
         closeNote: null,
         referralId,
         patientNumber,
-        openedAt: new Date(),
+        openedAt,
         hospitalId,
         currentStep: "triage",
         urgency: dto.urgency,

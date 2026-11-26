@@ -371,6 +371,7 @@ describe("INTEGRATION => POST: /api/v1/encounters", () => {
       pendingReferral?._id,
     ).lean();
     expect(updatedReferral?.status).toBe("COMPLETED");
+    expect(updatedReferral?.visitDate).toEqual(savedEncounter?.openedAt);
 
     const completedReferralsRes = await client(shwToken).get(
       "/api/v1/referrals?status=COMPLETED",

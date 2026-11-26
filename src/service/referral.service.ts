@@ -97,22 +97,26 @@ export class ReferralService implements IReferralService {
     return count;
   }
 
-  // TODO ADD COMPLETED AT FIELD TO REFERRAL TO MAKE THIS MORE ACCURATE
   async countCompletedTodayReferrals(
     filter: Record<string, unknown> = {},
   ): Promise<number> {
-    const { startOfToday, endOfToday } = this.getTodayBounds();
+    // Kigali uses UTC+02:00 year-round. Query with UTC instants for its local day.
+    const kigaliOffsetMs = 2 * 60 * 60 * 1000;
+    const kigaliMidnight = new Date(Date.now() + kigaliOffsetMs);
+    kigaliMidnight.setUTCHours(0, 0, 0, 0);
+    const startOfToday = new Date(kigaliMidnight.getTime() - kigaliOffsetMs);
+    const startOfTomorrow = addHours(startOfToday, 24);
 
     logger.info(
-      `Getting count of completed referrals today from ${startOfToday} to ${endOfToday} with filter: ${JSON.stringify(filter)}`,
+      `Getting count of completed referrals today from ${startOfToday} to ${startOfTomorrow} with filter: ${JSON.stringify(filter)}`,
     );
 
     const count = await this.countReferrals({
       ...filter,
       status: "COMPLETED",
-      updatedAt: {
+      visitDate: {
         $gte: startOfToday,
-        $lt: endOfToday,
+        $lt: startOfTomorrow,
       },
     });
 
