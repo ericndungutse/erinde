@@ -36,6 +36,11 @@ router.patch(
   validateBody(AdminUpdateUserPasswordSchema),
   (req, res, next) => container.userController.updateUserPasswordByAdminController(req, res, next),
 );
-router.get('/:patientNumber', (req, res) => container.userController.findUserByPatientNumberController(req, res));
+router.get(
+  '/:patientNumber',
+  protect,
+  authorize(UserRole.SOCIAL_HEALTH_WORKER, UserRole.NURSE, UserRole.SCREENING_VOLUNTEER),
+  (req, res) => container.userController.findUserByPatientNumberController(req, res),
+);
 
 export default router;

@@ -201,7 +201,7 @@ describe("INTEGRATION => POST: /api/v1/encounters", () => {
     expect(savedEncounter?.initiator.toString()).toBe(nurse._id.toString());
   });
 
-  it("should create encounter with existing referral for existing patient => Rutenga two patient => Kabyayi Nurse", async () => {
+  it("tracks a community screening referral through nurse lookup and visit confirmation", async () => {
     logger.info(
       "----------------- Testing creation create encounter with existing user with existing referral -----------------",
     );
@@ -293,13 +293,31 @@ describe("INTEGRATION => POST: /api/v1/encounters", () => {
       nursePayload.password,
     );
 
-    // ACT
-    // 1. Create encounter with existing referral for existing patient
-    // a. Get the referral for the patient
-    // b. Create encounter using the referral
+    const referralLookupRes = await client(nurseToken).get(
+      `/api/v1/referrals/patient/${existingPatientOne.patientNumber}`,
+    );
+    expect(referralLookupRes.status).toBe(200);
+    const referralId = referralLookupRes.body.data.referral._id;
+    expect(referralId).toBe(pendingReferral?._id.toString());
+
+    const referralDetailsRes = await client(nurseToken).get(
+      `/api/v1/nurse/referrals/${referralId}`,
+    );
+    // Keep testing visit confirmation if the separate detail request fails.
+    expect.soft(referralDetailsRes.status, JSON.stringify(referralDetailsRes.body)).toBe(200);
+    if (referralDetailsRes.status === 200) {
+      expect(referralDetailsRes.body.data.referral).toMatchObject({
+        id: referralId,
+        patientNumber: existingPatientOne.patientNumber,
+        to: nurse.hospitalId.toString(),
+        status: "PENDING",
+      });
+    }
+
     logger.info("Constructing encounter payload for existing patient.");
     const encounterPayload: CreateEncounterDTO = {
       patientNumber: existingPatientOne.patientNumber,
+      referralId,
       urgency: "high",
     };
 
@@ -353,6 +371,18 @@ describe("INTEGRATION => POST: /api/v1/encounters", () => {
       pendingReferral?._id,
     ).lean();
     expect(updatedReferral?.status).toBe("COMPLETED");
+
+    const completedReferralsRes = await client(shwToken).get(
+      "/api/v1/referrals?status=COMPLETED",
+    );
+    expect(completedReferralsRes.status).toBe(200);
+    expect(completedReferralsRes.body.data.referrals).toContainEqual(
+      expect.objectContaining({
+        _id: referralId,
+        patientNumber: existingPatientOne.patientNumber,
+        status: "COMPLETED",
+      }),
+    );
   });
 });
 

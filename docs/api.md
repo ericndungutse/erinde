@@ -49,7 +49,7 @@ All paths are relative to the base URL `/api/v1`.
 | POST   | `/users`                             | Register citizen/patient (no account)                           | `SOCIAL_HEALTH_WORKER`, `SCREENING_VOLUNTEER` |
 | POST   | `/users/admin/register`              | Admin registers user + account                                  | `ADMIN`                                       |
 | PATCH  | `/users/admin/:userId/password`      | Admin updates a user's password                                 | `ADMIN`                                       |
-| GET    | `/users/:patientNumber`              | Lookup patient minimal info by patient number                   | Public                                        |
+| GET    | `/users/:patientNumber`              | Lookup patient minimal info by patient number                   | `SOCIAL_HEALTH_WORKER`, `NURSE`, `SCREENING_VOLUNTEER` |
 | GET    | `/indicators`                        | List indicators (id, name, labels)                              | Public                                        |
 | GET    | `/indicators/:id`                    | Get full indicator definition                                   | Public                                        |
 | POST   | `/assessments`                       | Create assessment, may auto-create referral                     | Any authenticated                             |
@@ -225,7 +225,7 @@ Base: `/api/v1/users`
 ### GET `/:patientNumber`
 
 - Purpose: Lookup minimal user info by `patientNumber`.
-- Auth: Not required.
+- Auth: Bearer token required with role `SOCIAL_HEALTH_WORKER`, `NURSE`, or `SCREENING_VOLUNTEER`.
 - Response 200:
 
 ```json
@@ -240,6 +240,8 @@ Base: `/api/v1/users`
 }
 ```
 
+- 401 if unauthenticated.
+- 403 if the signed-in user lacks an allowed role.
 - 404 if not found.
 
 ---
@@ -721,7 +723,7 @@ Error shape for validation failures:
 - `/users` (GET): `ADMIN`
 - `/users` (POST): `SOCIAL_HEALTH_WORKER` or `SCREENING_VOLUNTEER`
 - `/users/admin/register` (POST): `ADMIN`
-- `/users/:patientNumber` (GET): Public
+- `/users/:patientNumber` (GET): `SOCIAL_HEALTH_WORKER`, `NURSE`, or `SCREENING_VOLUNTEER`
 - `/indicators/*`: Public
 - `/assessments` (POST): Any authenticated user
 - `/assessments/:id` (GET): Any authenticated user
@@ -803,7 +805,6 @@ curl -X PATCH "$BASE/api/v1/referrals/complete/12345" -H "Authorization: Bearer 
 ## Notes & Limits
 
 - Pagination/filters are not yet implemented on list endpoints.
-- Some endpoints are intentionally public to support kiosk-like lookup (e.g., `GET /users/:patientNumber`). If privacy requirements change, add protection accordingly.
 - Token verification loads the user by `sub` from the JWT and rejects if the user no longer exists.
 - Timezone assumptions are server-local for date fields.
 

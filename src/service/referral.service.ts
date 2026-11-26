@@ -275,9 +275,9 @@ export class ReferralService implements IReferralService {
   async getReferralById(referralId: string): Promise<IReferralDetails | null> {
     const doc = await Referral.findById(referralId)
       .select({
-        patient: 1,
+        userId: 1,
         patientNumber: 1,
-        hospitalId: 1,
+        to: 1,
         referralDate: 1,
         scheduledVisitDate: 1,
         visitDate: 1,
